@@ -84,7 +84,12 @@ export function getStepStatus(
 const completeWhenSkipped = new Set<DashboardSetupStep>(["team", "project"]);
 
 export function getTranslatedSetupStep(
-  step: { id: DashboardSetupStep; label: string; detail: string; skipLabel?: string },
+  step: {
+    id: DashboardSetupStep;
+    label: string;
+    detail: string;
+    skipLabel?: string;
+  },
   t: (key: string) => string,
 ): { label: string; detail: string; skipLabel: string } {
   switch (step.id) {

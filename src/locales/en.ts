@@ -76,8 +76,7 @@ export const en: TranslationDict = {
     page_singular: "page",
     page_plural: "pages",
     no_issues_recorded: "No issues found.",
-    no_issues_recorded_desc:
-      "Every crawled page passed the issue checks.",
+    no_issues_recorded_desc: "Every crawled page passed the issue checks.",
     render_javascript: "Render JavaScript",
     max_pages: "Max pages",
     lighthouse: "Lighthouse Performance",
@@ -160,8 +159,7 @@ export const en: TranslationDict = {
       name_required: "Enter a project name.",
       scan_notice:
         "Adding your website starts a 50-page scan with JavaScript rendering. Rendering uses your credits.",
-      scan_notice_everyapp:
-        "Adding your website starts a 50-page site audit.",
+      scan_notice_everyapp: "Adding your website starts a 50-page site audit.",
       domain: "Domain",
       optional: "(optional)",
       market_help:
