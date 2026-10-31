@@ -1,5 +1,6 @@
 import { useId } from "react";
 import { Link, Link2, Unlink } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { SegmentedToggle } from "@/client/components/SegmentedToggle";
 import { DataTableFilterGroup } from "@/client/components/table/DataTableToolbar";
 import { Checkbox } from "@/client/components/ui/checkbox";
@@ -33,6 +34,8 @@ export function BacklinksFilterPanel({
   /** Scope filters can consume part of the DataForSEO condition budget. */
   maxConditions?: number;
 }) {
+  const { t } = useLocale();
+
   if (activeTab === "backlinks") {
     const state = filters.backlinks;
     return (
@@ -46,28 +49,28 @@ export function BacklinksFilterPanel({
         textFields={[
           {
             key: "include",
-            label: "Source URL Contains",
-            placeholder: "example.com, blog",
+            label: t("backlinks.filters.source_url_contains"),
+            placeholder: t("backlinks.filters.source_url_contains_placeholder"),
           },
           {
             key: "exclude",
-            label: "Source URL Excludes",
-            placeholder: "spam, forum",
+            label: t("backlinks.filters.source_url_excludes"),
+            placeholder: t("backlinks.filters.source_url_excludes_placeholder"),
           },
         ]}
         rangeFields={[
           {
-            title: "Domain Authority",
+            title: t("backlinks.filters.domain_authority"),
             minKey: "minDomainRank",
             maxKey: "maxDomainRank",
           },
           {
-            title: "Link Authority",
+            title: t("backlinks.filters.link_authority"),
             minKey: "minLinkAuthority",
             maxKey: "maxLinkAuthority",
           },
           {
-            title: "Spam Score",
+            title: t("backlinks.filters.spam_score"),
             minKey: "minSpamScore",
             maxKey: "maxSpamScore",
             step: "0.1",
@@ -101,24 +104,28 @@ export function BacklinksFilterPanel({
         textFields={[
           {
             key: "include",
-            label: "Domain Contains",
-            placeholder: "example.com, blog",
+            label: t("backlinks.filters.domain_contains"),
+            placeholder: t("backlinks.filters.domain_contains_placeholder"),
           },
           {
             key: "exclude",
-            label: "Domain Excludes",
-            placeholder: "spam, forum",
+            label: t("backlinks.filters.domain_excludes"),
+            placeholder: t("backlinks.filters.domain_excludes_placeholder"),
           },
         ]}
         rangeFields={[
           {
-            title: "Backlinks",
+            title: t("backlinks.filters.backlinks"),
             minKey: "minBacklinks",
             maxKey: "maxBacklinks",
           },
-          { title: "Rank", minKey: "minRank", maxKey: "maxRank" },
           {
-            title: "Spam Score",
+            title: t("backlinks.filters.rank"),
+            minKey: "minRank",
+            maxKey: "maxRank",
+          },
+          {
+            title: t("backlinks.filters.spam_score"),
             minKey: "minSpamScore",
             maxKey: "maxSpamScore",
             step: "0.1",
@@ -148,23 +155,31 @@ export function BacklinksFilterPanel({
       textFields={[
         {
           key: "include",
-          label: "Page URL Contains",
-          placeholder: "/blog, /products",
+          label: t("backlinks.filters.page_url_contains"),
+          placeholder: t("backlinks.filters.page_url_contains_placeholder"),
         },
         {
           key: "exclude",
-          label: "Page URL Excludes",
-          placeholder: "/tag, /author",
+          label: t("backlinks.filters.page_url_excludes"),
+          placeholder: t("backlinks.filters.page_url_excludes_placeholder"),
         },
       ]}
       rangeFields={[
-        { title: "Backlinks", minKey: "minBacklinks", maxKey: "maxBacklinks" },
         {
-          title: "Referring Domains",
+          title: t("backlinks.filters.backlinks"),
+          minKey: "minBacklinks",
+          maxKey: "maxBacklinks",
+        },
+        {
+          title: t("backlinks.filters.referring_domains"),
           minKey: "minReferringDomains",
           maxKey: "maxReferringDomains",
         },
-        { title: "Rank", minKey: "minRank", maxKey: "maxRank" },
+        {
+          title: t("backlinks.filters.rank"),
+          minKey: "minRank",
+          maxKey: "maxRank",
+        },
       ]}
       onApply={(values) => {
         state.apply(values);
@@ -178,12 +193,6 @@ export function BacklinksFilterPanel({
   );
 }
 
-const LINK_TYPE_ITEMS = [
-  { value: "all", icon: <Link2 />, label: "All" },
-  { value: "dofollow", icon: <Link />, label: "Dofollow" },
-  { value: "nofollow", icon: <Unlink />, label: "Nofollow" },
-];
-
 function BacklinksToggleControls({
   draft,
   setValue,
@@ -191,12 +200,32 @@ function BacklinksToggleControls({
   draft: BacklinksTabFilterValues;
   setValue: (key: keyof BacklinksTabFilterValues, value: string) => void;
 }) {
+  const { t } = useLocale();
+
+  const linkTypeItems = [
+    {
+      value: "all",
+      icon: <Link2 />,
+      label: t("backlinks.filters.link_type_all"),
+    },
+    {
+      value: "dofollow",
+      icon: <Link />,
+      label: t("backlinks.filters.link_type_dofollow"),
+    },
+    {
+      value: "nofollow",
+      icon: <Unlink />,
+      label: t("backlinks.filters.link_type_nofollow"),
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-      <DataTableFilterGroup label="Link Type">
+      <DataTableFilterGroup label={t("backlinks.filters.link_type")}>
         <SegmentedToggle
           showLabels
-          items={LINK_TYPE_ITEMS}
+          items={linkTypeItems}
           value={draft.linkType || "all"}
           onChange={(value) =>
             setValue("linkType", value === "all" ? "" : value)
@@ -204,17 +233,17 @@ function BacklinksToggleControls({
         />
       </DataTableFilterGroup>
 
-      <DataTableFilterGroup label="Visibility">
+      <DataTableFilterGroup label={t("backlinks.filters.visibility")}>
         <div className="flex h-7 items-center gap-4">
           <VisibilityCheckbox
-            label="Hide lost"
+            label={t("backlinks.filters.hide_lost")}
             checked={draft.hideLost === "true"}
             onCheckedChange={(checked) =>
               setValue("hideLost", checked ? "true" : "")
             }
           />
           <VisibilityCheckbox
-            label="Hide broken"
+            label={t("backlinks.filters.hide_broken")}
             checked={draft.hideBroken === "true"}
             onCheckedChange={(checked) =>
               setValue("hideBroken", checked ? "true" : "")

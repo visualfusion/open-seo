@@ -1,3 +1,5 @@
+import { backlinksDe } from "./backlinks.de";
+import { domainDe } from "./domain.de";
 import { ranksDe, savedKeywordsDe } from "./ranks.de";
 import { umamiDe } from "./umami.de";
 
@@ -91,6 +93,8 @@ export const de = {
     status_code: "Statuscode",
     word_count: "Wortanzahl",
   },
+  domain: domainDe,
+  backlinks: backlinksDe,
   ranks: ranksDe,
   saved_keywords: savedKeywordsDe,
   settings: {

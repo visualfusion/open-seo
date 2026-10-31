@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { OnChangeFn, Row, SortingState } from "@tanstack/react-table";
+import { useLocale } from "@/client/lib/i18n";
 import {
   DataTable,
   useDataTable,
@@ -96,16 +97,17 @@ export function BacklinksTable({
   /** Present in the one-per-domain view; null when listing all links. */
   expansion: BacklinksDomainExpansion | null;
 }) {
+  const { t } = useLocale();
   const columns = useMemo(
     () =>
-      buildBacklinksColumns(domainRatings, expansion?.toggleDomain).map(
+      buildBacklinksColumns(domainRatings, expansion?.toggleDomain, t).map(
         (column) => ({
           ...column,
           // Tints a domain's expanded links and its status row.
           meta: { ...column.meta, cellClassName: tintExpandedRow },
         }),
       ),
-    [domainRatings, expansion?.toggleDomain],
+    [domainRatings, expansion?.toggleDomain, t],
   );
   const displayRows = useMemo(
     () => buildDisplayRows(rows, expansion),
@@ -123,7 +125,7 @@ export function BacklinksTable({
   return (
     <DataTable
       table={table}
-      empty={{ title: "No backlinks found for this target." }}
+      empty={{ title: t("backlinks.backlinks_table.empty_title") }}
       {...frame}
     />
   );

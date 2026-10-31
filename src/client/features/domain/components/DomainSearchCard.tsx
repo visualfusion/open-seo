@@ -1,5 +1,6 @@
-import type { FormEvent } from "react";
+import { useMemo, type FormEvent } from "react";
 import { useStore } from "@tanstack/react-form";
+import { useLocale } from "@/client/lib/i18n";
 import { getFieldError } from "@/client/lib/forms";
 import type { DomainOverviewControlsForm } from "@/client/features/domain/DomainOverviewPage";
 import { toSortMode } from "@/client/features/domain/utils";
@@ -16,14 +17,6 @@ import {
   SelectValue,
 } from "@/client/components/ui/select";
 import type { ResearchScope } from "@/shared/researchScope";
-
-const SORT_ITEMS: { value: DomainSortMode; label: string }[] = [
-  { value: "rank", label: "By Rank" },
-  { value: "traffic", label: "By Traffic" },
-  { value: "volume", label: "By Volume" },
-  { value: "score", label: "By Score" },
-  { value: "cpc", label: "By CPC" },
-];
 
 type Props = {
   controlsForm: DomainOverviewControlsForm;
@@ -44,8 +37,20 @@ export function DomainSearchCard({
   onSortChange,
   onLocationChange,
 }: Props) {
+  const { t } = useLocale();
   const domainError = useStore(controlsForm.store, (state) =>
     getFieldError(state.fieldMeta.domain?.errors ?? []),
+  );
+
+  const sortItems = useMemo<{ value: DomainSortMode; label: string }[]>(
+    () => [
+      { value: "rank", label: t("domain.sort.rank") },
+      { value: "traffic", label: t("domain.sort.traffic") },
+      { value: "volume", label: t("domain.sort.volume") },
+      { value: "score", label: t("domain.sort.score") },
+      { value: "cpc", label: t("domain.sort.cpc") },
+    ],
+    [t],
   );
 
   return (
@@ -58,8 +63,8 @@ export function DomainSearchCard({
       <controlsForm.Field name="domain">
         {(field) => (
           <SearchInput
-            placeholder="Enter a domain or URL"
-            aria-label="Domain or URL"
+            placeholder={t("domain.input_placeholder")}
+            aria-label={t("domain.input_aria_label")}
             value={field.state.value}
             onChange={(event) => {
               field.handleChange(event.target.value);
@@ -101,7 +106,7 @@ export function DomainSearchCard({
       <controlsForm.Field name="sort">
         {(field) => (
           <Select
-            items={SORT_ITEMS}
+            items={sortItems}
             value={field.state.value}
             onValueChange={(value) => {
               const next = toSortMode(value ?? "") ?? "traffic";
@@ -110,13 +115,13 @@ export function DomainSearchCard({
             }}
           >
             <SelectTrigger
-              aria-label="Sort keywords"
+              aria-label={t("domain.sort_aria_label")}
               className="w-full shrink-0 lg:w-36"
             >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {SORT_ITEMS.map((item) => (
+              {sortItems.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
                 </SelectItem>

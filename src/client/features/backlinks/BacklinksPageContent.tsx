@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { Link2 } from "lucide-react";
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
+import { useLocale } from "@/client/lib/i18n";
 import {
   BacklinksOverviewPanels,
   BacklinksScopeAlert,
@@ -64,6 +65,7 @@ export function BacklinksBody({
   onViewChange,
   onHideSpamChange,
 }: BacklinksBodyProps) {
+  const { t } = useLocale();
   const overviewData = data.overviewQuery.data;
   const backlinksRowsPage = data.rowsQuery.data;
   const referringDomainsPage = data.referringDomainsQuery.data;
@@ -78,8 +80,8 @@ export function BacklinksBody({
   );
   const activeTabPage = data.activeTabQuery.data;
   const summaryStats = useMemo(
-    () => buildSummaryStats(overviewData),
-    [overviewData],
+    () => buildSummaryStats(overviewData, t),
+    [overviewData, t],
   );
   const tabControls = (
     <SearchTabStrip
@@ -99,9 +101,11 @@ export function BacklinksBody({
         loaded={historyLoaded}
         onRemove={onRemoveHistoryItem}
         emptyIcon={Link2}
-        emptyTitle="Enter a domain or URL to get started"
+        emptyTitle={t("backlinks.empty_title")}
         getTitle={(item) => item.target}
-        getSubtitle={(item) => RESEARCH_SCOPE_LABELS[item.scope]}
+        getSubtitle={(item) =>
+          t(`domain.scopes.${item.scope}`) || RESEARCH_SCOPE_LABELS[item.scope]
+        }
         renderLink={(item, props) => (
           <Link
             from="/p/$projectId/backlinks"
@@ -140,10 +144,10 @@ export function BacklinksBody({
       <>
         {tabControls}
         <QueryError
-          title="Could not load backlinks"
+          title={t("backlinks.load_error_title")}
           cause={data.overviewQuery.error}
           fallback={
-            data.overviewErrorMessage ?? "Please try again in a moment."
+            data.overviewErrorMessage ?? t("backlinks.load_error_fallback")
           }
           onRetry={() => void data.overviewQuery.refetch()}
           isRetrying={data.overviewQuery.isFetching}

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useLocale } from "@/client/lib/i18n";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import {
   DataTable,
@@ -37,11 +38,12 @@ export function DomainPagesTable({
   onSortClick,
   ...frame
 }: Props) {
+  const { t } = useLocale();
   const columns = useMemo<ColumnDef<PageRow>[]>(
     () => [
       pageColumnHelper.display({
         id: "page",
-        header: () => "Page",
+        header: () => t("domain.pages_table.page"),
         cell: ({ row }) => (
           <ExternalUrlCell
             value={row.original.page}
@@ -56,7 +58,7 @@ export function DomainPagesTable({
       pageColumnHelper.accessor("organicTraffic", {
         header: () => (
           <SortableHeader
-            label="Organic Traffic"
+            label={t("domain.pages_table.organic_traffic")}
             column={domainSortColumn(
               toPageSortMode(sortMode) === "traffic",
               currentSortOrder,
@@ -69,7 +71,7 @@ export function DomainPagesTable({
       pageColumnHelper.accessor("keywords", {
         header: () => (
           <SortableHeader
-            label="Keywords"
+            label={t("domain.pages_table.keywords")}
             column={domainSortColumn(
               toPageSortMode(sortMode) === "keywords",
               currentSortOrder,
@@ -80,7 +82,7 @@ export function DomainPagesTable({
         cell: ({ getValue }) => formatNumber(getValue()),
       }),
     ],
-    [currentSortOrder, domain, onSortClick, sortMode],
+    [currentSortOrder, domain, onSortClick, sortMode, t],
   );
   // Memoized on purpose: a fresh slice every render defeats TanStack Table's
   // data-keyed memo, so _autoResetPageIndex fires each render and its setState
@@ -93,7 +95,7 @@ export function DomainPagesTable({
   return (
     <DataTable
       table={table}
-      empty={{ title: "No pages match this search." }}
+      empty={{ title: t("domain.pages_table.empty_title") }}
       {...frame}
     />
   );

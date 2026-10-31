@@ -1,4 +1,6 @@
 import type { TranslationDict } from "./de";
+import { backlinksEn } from "./backlinks.en";
+import { domainEn } from "./domain.en";
 import { ranksEn, savedKeywordsEn } from "./ranks.en";
 import { umamiEn } from "./umami.en";
 
@@ -91,6 +93,8 @@ export const en: TranslationDict = {
     status_code: "Status code",
     word_count: "Word count",
   },
+  domain: domainEn,
+  backlinks: backlinksEn,
   ranks: ranksEn,
   saved_keywords: savedKeywordsEn,
   settings: {

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { ExportMenu } from "@/client/components/ExportMenu";
 import {
   DataTableFilterToggle,
@@ -35,6 +36,7 @@ export function DomainTableToolbar({
   filterPanel,
   children,
 }: Props) {
+  const { t } = useLocale();
   return (
     <>
       <DataTableToolbar
@@ -61,8 +63,7 @@ export function DomainTableToolbar({
           <Alert variant="warning">
             <AlertTriangle />
             <AlertDescription className="text-foreground">
-              Saved filters exceed this scope&apos;s {overBudgetLimit}-condition
-              limit and were not applied. Open Filters to trim them.
+              {t("domain.toolbar.over_budget_limit", { overBudgetLimit })}
             </AlertDescription>
           </Alert>
         </div>

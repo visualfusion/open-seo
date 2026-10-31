@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
+import { useLocale } from "@/client/lib/i18n";
 import { SafeExternalLink } from "@/client/components/SafeExternalLink";
 import {
   DataTable,
@@ -14,81 +16,88 @@ import { formatNumber } from "./backlinksPageUtils";
 
 const columnHelper = createColumnHelper<TopPageRow>();
 
+type TranslateFn = (
+  key: string,
+  params?: Record<string, string | number>,
+) => string;
+
 // Column ids map to server-side sort fields; sorting re-queries DataForSEO
 // across all pages, not just the loaded page of results.
-const columns = [
-  columnHelper.accessor("page", {
-    id: "page",
-    enableSorting: false,
-    meta: { cellClassName: "min-w-80" },
-    header: () => (
-      <HelpLabel
-        label="Page"
-        helpText="Page on the target site receiving backlinks."
-      />
-    ),
-    cell: ({ getValue }) => {
-      const page = getValue();
-      return page ? (
-        <SafeExternalLink
-          url={page}
-          label={page}
-          className="inline-flex items-center gap-1 break-all underline-offset-4 hover:underline"
+function buildTopPagesColumns(t: TranslateFn) {
+  return [
+    columnHelper.accessor("page", {
+      id: "page",
+      enableSorting: false,
+      meta: { cellClassName: "min-w-80" },
+      header: () => (
+        <HelpLabel
+          label={t("backlinks.pages_table.page")}
+          helpText={t("backlinks.pages_table.page_help")}
         />
-      ) : (
-        "-"
-      );
-    },
-  }),
-  columnHelper.accessor("backlinks", {
-    id: "backlinks" satisfies TopPagesSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Backlinks"
-        helpText="Total backlinks pointing to this page."
-      />
-    ),
-    cell: ({ getValue }) => formatNumber(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("referringDomains", {
-    id: "referringDomains" satisfies TopPagesSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Referring Domains"
-        helpText="Unique domains linking to this page."
-      />
-    ),
-    cell: ({ getValue }) => formatNumber(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("rank", {
-    id: "rank" satisfies TopPagesSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Rank"
-        helpText="Authority score for this target page."
-      />
-    ),
-    cell: ({ getValue }) => formatNumber(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("brokenBacklinks", {
-    id: "brokenBacklinks" satisfies TopPagesSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Broken Backlinks"
-        helpText="Backlinks pointing here that are currently broken."
-      />
-    ),
-    cell: ({ getValue }) => formatNumber(getValue()),
-    sortDescFirst: true,
-  }),
-];
+      ),
+      cell: ({ getValue }) => {
+        const page = getValue();
+        return page ? (
+          <SafeExternalLink
+            url={page}
+            label={page}
+            className="inline-flex items-center gap-1 break-all underline-offset-4 hover:underline"
+          />
+        ) : (
+          "-"
+        );
+      },
+    }),
+    columnHelper.accessor("backlinks", {
+      id: "backlinks" satisfies TopPagesSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.pages_table.backlinks")}
+          helpText={t("backlinks.pages_table.backlinks_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatNumber(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("referringDomains", {
+      id: "referringDomains" satisfies TopPagesSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.pages_table.referring_domains")}
+          helpText={t("backlinks.pages_table.referring_domains_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatNumber(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("rank", {
+      id: "rank" satisfies TopPagesSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.pages_table.rank")}
+          helpText={t("backlinks.pages_table.rank_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatNumber(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("brokenBacklinks", {
+      id: "brokenBacklinks" satisfies TopPagesSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.pages_table.broken_backlinks")}
+          helpText={t("backlinks.pages_table.broken_backlinks_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatNumber(getValue()),
+      sortDescFirst: true,
+    }),
+  ];
+}
 
 export function TopPagesTable({
   rows,
@@ -100,6 +109,9 @@ export function TopPagesTable({
   sorting: SortingState;
   onSortingChange: OnChangeFn<SortingState>;
 }) {
+  const { t } = useLocale();
+  const columns = useMemo(() => buildTopPagesColumns(t), [t]);
+
   const table = useDataTable({
     data: rows,
     columns,
@@ -111,7 +123,7 @@ export function TopPagesTable({
   return (
     <DataTable
       table={table}
-      empty={{ title: "No top pages found for this target." }}
+      empty={{ title: t("backlinks.pages_table.empty_title") }}
       {...frame}
     />
   );

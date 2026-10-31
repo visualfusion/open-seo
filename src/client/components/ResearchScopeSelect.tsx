@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { useLocale } from "@/client/lib/i18n";
 import {
   Select,
   SelectContent,
@@ -9,7 +11,6 @@ import {
   RESEARCH_SCOPES,
   RESEARCH_SCOPE_DESCRIPTIONS,
   RESEARCH_SCOPE_EXAMPLES,
-  RESEARCH_SCOPE_LABELS,
   type ResearchScope,
 } from "@/shared/researchScope";
 
@@ -22,11 +23,6 @@ type Props = {
   "aria-label"?: string;
 };
 
-const SCOPE_ITEMS = RESEARCH_SCOPES.map((scope) => ({
-  value: scope,
-  label: RESEARCH_SCOPE_LABELS[scope],
-}));
-
 /**
  * The shared research-scope selector: Exact URL / Subfolder / Domain /
  * Subdomains. Each option explains what it covers. Every research input that
@@ -38,11 +34,53 @@ export function ResearchScopeSelect({
   onChange,
   disabledReason,
   className,
-  "aria-label": ariaLabel = "Research scope",
+  "aria-label": ariaLabel,
 }: Props) {
+  const { t } = useLocale();
+
+  const scopeLabels = useMemo<
+    Record<ResearchScope, { label: string; description: string }>
+  >(
+    () => ({
+      exact_url: {
+        label: t("domain.scopes.exact_url"),
+        description:
+          t("domain.scopes.exact_url_desc") ||
+          RESEARCH_SCOPE_DESCRIPTIONS.exact_url,
+      },
+      subfolder: {
+        label: t("domain.scopes.subfolder"),
+        description:
+          t("domain.scopes.subfolder_desc") ||
+          RESEARCH_SCOPE_DESCRIPTIONS.subfolder,
+      },
+      domain: {
+        label: t("domain.scopes.domain"),
+        description:
+          t("domain.scopes.domain_desc") || RESEARCH_SCOPE_DESCRIPTIONS.domain,
+      },
+      subdomains: {
+        label: t("domain.scopes.subdomains"),
+        description:
+          t("domain.scopes.subdomains_desc") ||
+          RESEARCH_SCOPE_DESCRIPTIONS.subdomains,
+      },
+    }),
+    [t],
+  );
+
+  const scopeItems = useMemo(
+    () =>
+      RESEARCH_SCOPES.map((scope) => ({
+        value: scope,
+        label: scopeLabels[scope].label,
+      })),
+    [scopeLabels],
+  );
+
   return (
     <Select
-      items={SCOPE_ITEMS}
+      items={scopeItems}
       value={value}
       onValueChange={(scope) => {
         if (scope != null) onChange(scope);
@@ -51,7 +89,7 @@ export function ResearchScopeSelect({
     >
       <SelectTrigger
         className={className}
-        aria-label={ariaLabel}
+        aria-label={ariaLabel ?? t("domain.scopes.aria_label")}
         title={disabledReason}
       >
         <SelectValue />
@@ -60,9 +98,9 @@ export function ResearchScopeSelect({
         {RESEARCH_SCOPES.map((scope) => (
           <SelectItem key={scope} value={scope} className="items-start py-1.5">
             <span className="flex flex-col whitespace-normal">
-              <span>{RESEARCH_SCOPE_LABELS[scope]}</span>
+              <span>{scopeLabels[scope].label}</span>
               <span className="text-xs text-muted-foreground">
-                {RESEARCH_SCOPE_DESCRIPTIONS[scope]}
+                {scopeLabels[scope].description}
               </span>
               <span className="font-mono text-xs text-muted-foreground/70">
                 {RESEARCH_SCOPE_EXAMPLES[scope]}

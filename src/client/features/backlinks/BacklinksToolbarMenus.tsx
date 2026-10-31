@@ -1,4 +1,5 @@
 import { ChevronDown, Gauge, Link2, MoreHorizontal } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { Button } from "@/client/components/ui/button";
 import {
   DropdownMenu,
@@ -18,11 +19,16 @@ export function BacklinksBestLinksMenu({
   hideSpam: boolean;
   onHideSpamChange: (hideSpam: boolean) => void;
 }) {
+  const { t } = useLocale();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="ghost" size="sm" />}>
         <Link2 data-icon="inline-start" />
-        Best links: {hideSpam ? "On" : "Off"}
+        {t("backlinks.toolbar.best_links_label", {
+          status: hideSpam
+            ? t("backlinks.toolbar.on")
+            : t("backlinks.toolbar.off"),
+        })}
         <ChevronDown data-icon="inline-end" className="opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-72">
@@ -32,17 +38,21 @@ export function BacklinksBestLinksMenu({
         >
           <DropdownMenuRadioItem value="best">
             <span>
-              <span className="block">Best links only</span>
+              <span className="block">{t("backlinks.toolbar.best_only")}</span>
               <span className="block text-xs text-muted-foreground">
-                Scores below {DEFAULT_BACKLINKS_SPAM_THRESHOLD} or unknown
+                {t("backlinks.toolbar.best_only_desc", {
+                  threshold: DEFAULT_BACKLINKS_SPAM_THRESHOLD,
+                })}
               </span>
             </span>
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="all">
             <span>
-              <span className="block">All links (spammy included)</span>
+              <span className="block">{t("backlinks.toolbar.all_links")}</span>
               <span className="block text-xs text-muted-foreground">
-                Includes scores {DEFAULT_BACKLINKS_SPAM_THRESHOLD} or higher
+                {t("backlinks.toolbar.all_links_desc", {
+                  threshold: DEFAULT_BACKLINKS_SPAM_THRESHOLD,
+                })}
               </span>
             </span>
           </DropdownMenuRadioItem>
@@ -61,6 +71,7 @@ export function BacklinksActionsMenu({
   loadRatings: (domains: string[]) => void | Promise<void>;
   ratableDomains: string[];
 }) {
+  const { t } = useLocale();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -68,8 +79,8 @@ export function BacklinksActionsMenu({
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Backlinks table actions"
-            title="Backlinks table actions"
+            aria-label={t("backlinks.toolbar.actions_aria_label")}
+            title={t("backlinks.toolbar.actions_aria_label")}
           />
         }
       >
@@ -79,10 +90,10 @@ export function BacklinksActionsMenu({
         <DropdownMenuItem
           onClick={() => void loadRatings(ratableDomains)}
           disabled={isLoadingRatings}
-          title="Look up Ahrefs Domain Rating for each domain in the table"
+          title={t("backlinks.toolbar.ahrefs_dr_title")}
         >
           {isLoadingRatings ? <Spinner /> : <Gauge />}
-          Ahrefs DR
+          {t("backlinks.toolbar.ahrefs_dr")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
