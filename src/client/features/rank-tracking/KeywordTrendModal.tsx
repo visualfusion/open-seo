@@ -35,6 +35,7 @@ import type { RankKeywordHistoryPoint } from "@/serverFunctions/rank-tracking";
 import { LOCATIONS } from "@/client/features/keywords/locations";
 import { formatLocationLabel } from "@/shared/keyword-locations";
 import { googleSerpUrl } from "@/shared/google-serp-url";
+import { useLocale } from "@/client/lib/i18n";
 import { csvChange, DeviceRankCell } from "./RankTrackingTableParts";
 import {
   RankTrendChart,
@@ -43,12 +44,9 @@ import {
   type TrendSeries,
 } from "./RankTrackingTrendChart";
 
-const DEVICE_STYLE: Record<
-  "desktop" | "mobile",
-  { label: string; color: string }
-> = {
-  desktop: { label: "Desktop", color: "#2563eb" },
-  mobile: { label: "Mobile", color: "#e69f00" },
+const DEVICE_COLOR: Record<"desktop" | "mobile", string> = {
+  desktop: "#2563eb",
+  mobile: "#e69f00",
 };
 
 export interface KeywordTrendTarget {
@@ -77,6 +75,7 @@ export function KeywordTrendModal({
   serpDepth: number;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const [sinceDays, setSinceDays] = useState(730);
 
   const historyQuery = useQuery({
@@ -115,12 +114,16 @@ export function KeywordTrendModal({
     [points, devices],
   );
 
-  const series: TrendSeries[] = devices.map((device) => ({
-    dataKey: device,
-    name: DEVICE_STYLE[device].label,
-    color: DEVICE_STYLE[device].color,
-    strokeDasharray: "4 3",
-  }));
+  const series: TrendSeries[] = useMemo(
+    () =>
+      devices.map((device) => ({
+        dataKey: device,
+        name: device === "desktop" ? t("ranks.desktop") : t("ranks.mobile"),
+        color: DEVICE_COLOR[device],
+        strokeDasharray: "4 3",
+      })),
+    [devices, t],
+  );
 
   const chartData = useMemo(
     () => buildChartData(points, serpDepth),
@@ -177,7 +180,7 @@ export function KeywordTrendModal({
               {locationName
                 ? formatLocationLabel(locationName, 2)
                 : (LOCATIONS[locationCode] ?? "US")}{" "}
-              &middot; Position over time
+              &middot; {t("ranks.view_history")}
             </DialogDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -207,7 +210,7 @@ export function KeywordTrendModal({
 
         <QueryState
           query={historyQuery}
-          errorFallback="Failed to load keyword history"
+          errorFallback={t("ranks.overview.failed_to_load")}
           loading={<Skeleton className="h-56 w-full" />}
         >
           {() =>
@@ -256,10 +259,12 @@ export function KeywordTrendModal({
                   <Table containerClassName="max-h-64">
                     <TableHeader className="sticky top-0 z-10 bg-popover">
                       <TableRow>
-                        <TableHead>Date</TableHead>
-                        {devices.length > 1 && <TableHead>Device</TableHead>}
-                        <TableHead>Position</TableHead>
-                        <TableHead>Δ vs previous check</TableHead>
+                        <TableHead>{t("common.date")}</TableHead>
+                        {devices.length > 1 && (
+                          <TableHead>{t("ranks.filters.device")}</TableHead>
+                        )}
+                        <TableHead>{t("ranks.position")}</TableHead>
+                        <TableHead>Δ vs {t("ranks.previous")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -277,7 +282,9 @@ export function KeywordTrendModal({
                             </TableCell>
                             {devices.length > 1 && (
                               <TableCell className="text-xs">
-                                {DEVICE_STYLE[r.device].label}
+                                {r.device === "desktop"
+                                  ? t("ranks.desktop")
+                                  : t("ranks.mobile")}
                               </TableCell>
                             )}
                             <TableCell>
@@ -421,7 +428,7 @@ const HISTORY_HEADERS = ["Date", "Device", "Position", "Change vs previous"];
 function historyExportRow(row: HistoryRow): CsvValue[] {
   return [
     new Date(row.checkedAt).toISOString(),
-    DEVICE_STYLE[row.device].label,
+    row.device === "desktop" ? "Desktop" : "Mobile",
     row.position ?? "",
     csvChange(row.position, row.previousPosition),
   ];

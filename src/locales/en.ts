@@ -1,4 +1,5 @@
 import type { TranslationDict } from "./de";
+import { ranksEn, savedKeywordsEn } from "./ranks.en";
 import { umamiEn } from "./umami.en";
 
 export const en: TranslationDict = {
@@ -90,21 +91,8 @@ export const en: TranslationDict = {
     status_code: "Status code",
     word_count: "Word count",
   },
-  ranks: {
-    title: "Rank Tracking",
-    keyword: "Keyword",
-    position: "Position",
-    previous: "Previous",
-    change: "Change",
-    best: "Best",
-    location: "Location",
-    search_volume: "Search Volume",
-    serp_features: "SERP Features",
-    last_checked: "Last checked",
-    refresh: "Refresh now",
-    add_keyword: "Add keyword",
-    no_keywords: "No keywords tracked yet.",
-  },
+  ranks: ranksEn,
+  saved_keywords: savedKeywordsEn,
   settings: {
     title: "Settings",
     personal: "Personal",

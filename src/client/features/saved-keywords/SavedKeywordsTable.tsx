@@ -16,6 +16,7 @@ import { SortableHeader } from "@/client/components/table/SortableHeader";
 import { ScoreBadge } from "@/client/components/table/ScoreBadge";
 import { IntentBadge } from "@/client/features/keywords/components";
 import type { KeywordIntent, SavedKeywordRow } from "@/types/keywords";
+import { useLocale } from "@/client/lib/i18n";
 import { TagChip } from "./TagChip";
 import {
   formatSavedKeywordDate,
@@ -47,13 +48,14 @@ export function SavedKeywordsTable({
   toolbar: ReactNode;
   footer: ReactNode;
 }) {
+  const { t } = useLocale();
   const selectAnchorRef = useSelectionAnchor();
   const columns = useMemo<ColumnDef<SavedKeywordRow>[]>(
     () => [
       makeSelectionColumn<SavedKeywordRow>(selectAnchorRef),
       columnHelper.accessor("keyword", {
         header: ({ column }) => (
-          <SortableHeader column={column} label="Keyword" />
+          <SortableHeader column={column} label={t("ranks.keyword")} />
         ),
         cell: ({ getValue }) => (
           <span className="font-medium">{getValue()}</span>
@@ -61,12 +63,14 @@ export function SavedKeywordsTable({
       }),
       columnHelper.accessor("searchVolume", {
         header: ({ column }) => (
-          <SortableHeader column={column} label="Volume" />
+          <SortableHeader column={column} label={t("ranks.search_volume")} />
         ),
         cell: ({ getValue }) => formatSavedKeywordNumber(getValue()),
       }),
       columnHelper.accessor("cpc", {
-        header: ({ column }) => <SortableHeader column={column} label="CPC" />,
+        header: ({ column }) => (
+          <SortableHeader column={column} label={t("ranks.cpc")} />
+        ),
         cell: ({ getValue }) => {
           const value = getValue();
           return value == null ? "-" : `$${value.toFixed(2)}`;
@@ -89,8 +93,8 @@ export function SavedKeywordsTable({
         header: ({ column }) => (
           <SortableHeader
             column={column}
-            label="Difficulty"
-            helpText="Organic ranking difficulty (0-100): higher means harder to reach Google's top 10."
+            label={t("ranks.kd")}
+            helpText={t("ranks.tooltips.kd")}
           />
         ),
         cell: ({ getValue }) => <ScoreBadge value={getValue()} />,
@@ -111,7 +115,7 @@ export function SavedKeywordsTable({
       }),
       columnHelper.accessor("fetchedAt", {
         header: ({ column }) => (
-          <SortableHeader column={column} label="Last Fetched" />
+          <SortableHeader column={column} label={t("ranks.last_checked")} />
         ),
         cell: ({ getValue }) => (
           <span className="text-xs text-muted-foreground">
@@ -120,7 +124,7 @@ export function SavedKeywordsTable({
         ),
       }),
     ],
-    [selectAnchorRef],
+    [selectAnchorRef, t],
   );
   const table = useDataTable({
     data: rows,
@@ -144,8 +148,8 @@ export function SavedKeywordsTable({
       isFiltered={hasActiveFilters}
       onClearFilters={onClearFilters}
       empty={{
-        title: "No saved keywords yet",
-        description: "Use the Keyword Research page to find and save keywords.",
+        title: t("saved_keywords.no_keywords"),
+        description: t("saved_keywords.no_keywords_desc"),
       }}
       toolbar={toolbar}
       footer={footer}

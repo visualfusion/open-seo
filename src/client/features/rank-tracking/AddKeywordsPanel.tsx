@@ -7,6 +7,7 @@ import { Button } from "@/client/components/ui/button";
 import { Checkbox } from "@/client/components/ui/checkbox";
 import { Label } from "@/client/components/ui/label";
 import { Textarea } from "@/client/components/ui/textarea";
+import { useLocale } from "@/client/lib/i18n";
 
 export function AddKeywordsPanel({
   configId,
@@ -23,6 +24,7 @@ export function AddKeywordsPanel({
   }) => void;
   onCancel: () => void;
 }) {
+  const { t } = useLocale();
   const matchCaseId = useId();
   const [keywordInput, setKeywordInput] = useState("");
   const [matchCase, setMatchCase] = useState(false);
@@ -44,14 +46,14 @@ export function AddKeywordsPanel({
           rows={3}
           // The field grows with its text; a long line must wrap, not widen the card.
           className="min-w-0"
-          aria-label="Keywords to add"
-          placeholder="Enter keywords, one per line"
+          aria-label={t("ranks.modals.add_keywords_placeholder")}
+          placeholder={t("ranks.modals.add_keywords_placeholder")}
           value={keywordInput}
           onChange={(e) => setKeywordInput(e.target.value)}
         />
         <div
           className="flex w-fit items-center gap-2"
-          title="Track these keywords exactly as typed instead of lowercasing them. Google can return different results for a capitalized brand name."
+          title={t("ranks.modals.match_case_desc")}
         >
           <Checkbox
             id={matchCaseId}
@@ -59,7 +61,7 @@ export function AddKeywordsPanel({
             onCheckedChange={(checked) => setMatchCase(checked)}
           />
           <Label htmlFor={matchCaseId} className="text-xs font-normal">
-            Match case
+            {t("ranks.modals.match_case_label")}
           </Label>
         </div>
       </div>
@@ -74,7 +76,9 @@ export function AddKeywordsPanel({
               .filter(Boolean);
             if (lines.some((l) => l.length > MAX_TRACKED_KEYWORD_LENGTH)) {
               toast.error(
-                `Keywords must be ${MAX_TRACKED_KEYWORD_LENGTH} characters or fewer.`,
+                t("ranks.modals.max_length_error", {
+                  max: MAX_TRACKED_KEYWORD_LENGTH,
+                }),
               );
               return;
             }
@@ -82,10 +86,10 @@ export function AddKeywordsPanel({
           }}
           disabled={!keywordInput.trim()}
         >
-          Add
+          {t("ranks.modals.add_button")}
         </Button>
         <Button variant="ghost" size="sm" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </div>

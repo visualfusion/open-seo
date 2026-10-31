@@ -4,6 +4,7 @@ import { ConfirmDialog } from "@/client/components/ConfirmDialog";
 import { ExportMenu } from "@/client/components/ExportMenu";
 import { PageHeader } from "@/client/components/PageHeader";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 
 export function SavedKeywordsHeader({
   totalCount,
@@ -20,20 +21,21 @@ export function SavedKeywordsHeader({
   onExportSheets: () => void;
   onRefreshMetrics: () => void;
 }) {
+  const { t } = useLocale();
   const [confirmingRefresh, setConfirmingRefresh] = useState(false);
   const disabled = totalCount === 0 || exporting != null;
 
   return (
     <>
       <PageHeader
-        title="Saved Keywords"
-        description="Save keyword ideas from research, organize them with tags, and revisit when you're ready to act."
+        title={t("saved_keywords.title")}
+        description={t("saved_keywords.description")}
         actions={
           <>
             <Button
               variant="outline"
               size="sm"
-              title="Fetch new volume, difficulty, and CPC"
+              title={t("saved_keywords.confirm_desc")}
               disabled={disabled || metricsRefreshing}
               onClick={() => setConfirmingRefresh(true)}
             >
@@ -41,7 +43,9 @@ export function SavedKeywordsHeader({
                 data-icon="inline-start"
                 className={metricsRefreshing ? "animate-spin" : ""}
               />
-              {metricsRefreshing ? "Updating..." : "Update keyword stats"}
+              {metricsRefreshing
+                ? t("saved_keywords.updating")
+                : t("saved_keywords.update_stats")}
             </Button>
 
             <ExportMenu
@@ -58,16 +62,15 @@ export function SavedKeywordsHeader({
 
       {confirmingRefresh ? (
         <ConfirmDialog
-          title="Update keyword stats?"
-          confirmLabel="Update stats"
+          title={t("saved_keywords.confirm_title")}
+          confirmLabel={t("saved_keywords.confirm_button")}
           onConfirm={() => {
             setConfirmingRefresh(false);
             onRefreshMetrics();
           }}
           onClose={() => setConfirmingRefresh(false)}
         >
-          This fetches new volume, difficulty, and CPC for every saved keyword
-          in this project. Each keyword uses credits.
+          {t("saved_keywords.confirm_desc")}
         </ConfirmDialog>
       ) : null}
     </>

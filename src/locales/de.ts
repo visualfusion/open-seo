@@ -1,3 +1,4 @@
+import { ranksDe, savedKeywordsDe } from "./ranks.de";
 import { umamiDe } from "./umami.de";
 
 export const de = {
@@ -90,21 +91,8 @@ export const de = {
     status_code: "Statuscode",
     word_count: "Wortanzahl",
   },
-  ranks: {
-    title: "Rank-Tracking",
-    keyword: "Keyword",
-    position: "Position",
-    previous: "Vorher",
-    change: "Veränderung",
-    best: "Beste",
-    location: "Standort",
-    search_volume: "Suchvolumen",
-    serp_features: "SERP-Features",
-    last_checked: "Zuletzt geprüft",
-    refresh: "Jetzt prüfen",
-    add_keyword: "Keyword hinzufügen",
-    no_keywords: "Noch keine Keywords hinterlegt.",
-  },
+  ranks: ranksDe,
+  saved_keywords: savedKeywordsDe,
   settings: {
     title: "Einstellungen",
     personal: "Persönlich",

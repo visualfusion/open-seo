@@ -14,6 +14,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/client/components/ui/chart";
+import { useLocale } from "@/client/lib/i18n";
 
 export interface TrendSeries {
   /** key into each data row holding the position value (1 = best, serpDepth = bottom band) */
@@ -46,6 +47,7 @@ export function RankTrendChart({
    * single keyword's position line, not for an averaged value. */
   showBottomBand?: boolean;
 }) {
+  const { t } = useLocale();
   const config: ChartConfig = Object.fromEntries(
     series.map((s) => [s.dataKey, { label: s.name, color: s.color }]),
   );
@@ -53,9 +55,9 @@ export function RankTrendChart({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>Google position (1 = best)</span>
+        <span>{t("ranks.overview.google_position")}</span>
         <span className="inline-flex items-center gap-1">
-          Better <span aria-hidden>↑</span>
+          {t("ranks.overview.better")} <span aria-hidden>↑</span>
         </span>
       </div>
       <ChartContainer config={config} className="h-56">
@@ -119,16 +121,16 @@ export const TIME_AXIS = {
 } as const;
 
 function formatDateTick(value: number): string {
-  return new Date(value).toLocaleDateString("en-US", {
+  return new Date(value).toLocaleDateString([], {
     month: "short",
     day: "numeric",
   });
 }
 
-/** Tooltip label for a `checkedAt` timestamp: "Sep 28, 2026". */
+/** Tooltip label for a `checkedAt` timestamp: "Sep 28, 2026" / "28. Sep. 2026". */
 export function formatDateLabel(label: unknown): string {
   return typeof label === "number"
-    ? new Date(label).toLocaleDateString("en-US", {
+    ? new Date(label).toLocaleDateString([], {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -162,15 +164,20 @@ export function TrendRangeToggle({
 
 /** Shown instead of a trend chart until there are two checks to connect. */
 export function TrendEmptyState({ checks }: { checks: number }) {
+  const { t } = useLocale();
   return (
     <EmptyState
       icon={TrendingUp}
       size="sm"
-      title={checks === 0 ? "No history yet" : "Only 1 check so far"}
+      title={
+        checks === 0
+          ? t("ranks.overview.no_history_title")
+          : t("ranks.overview.one_check_title")
+      }
       description={
         checks === 0
-          ? "Run a check to start tracking positions over time."
-          : "The trend fills in after the next check."
+          ? t("ranks.overview.no_history_desc")
+          : t("ranks.overview.one_check_desc")
       }
     />
   );

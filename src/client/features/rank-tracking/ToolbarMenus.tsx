@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/client/components/ui/dropdown-menu";
+import { useLocale } from "@/client/lib/i18n";
 
 function ItemText({
   label,
@@ -39,6 +40,7 @@ export function MoreMenu({
   trackedKeywordCount: number;
   hasData: boolean;
 }) {
+  const { t } = useLocale();
   const [confirmingRefresh, setConfirmingRefresh] = useState(false);
   return (
     <>
@@ -48,8 +50,8 @@ export function MoreMenu({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="More actions"
-              title="More actions"
+              aria-label={t("ranks.toolbar.more_actions")}
+              title={t("ranks.toolbar.more_actions")}
             />
           }
         >
@@ -59,8 +61,12 @@ export function MoreMenu({
           <DropdownMenuItem onClick={onCheckNow} disabled={checkBusy}>
             <Play />
             <ItemText
-              label={checkBusy ? "Running..." : "Check rankings"}
-              description="Fetch current Google positions"
+              label={
+                checkBusy
+                  ? t("ranks.toolbar.running")
+                  : t("ranks.toolbar.check_rankings")
+              }
+              description={t("ranks.toolbar.check_rankings_desc")}
             />
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -70,27 +76,28 @@ export function MoreMenu({
             <RefreshCw className={metricsRefreshing ? "animate-spin" : ""} />
             <ItemText
               label={
-                metricsRefreshing ? "Refreshing..." : "Update keyword stats"
+                metricsRefreshing
+                  ? t("ranks.toolbar.refreshing")
+                  : t("ranks.toolbar.update_stats")
               }
-              description="Volume, difficulty & CPC — not rankings"
+              description={t("ranks.toolbar.update_stats_desc")}
             />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {confirmingRefresh ? (
         <ConfirmDialog
-          title="Update keyword stats?"
-          confirmLabel="Update stats"
+          title={t("ranks.toolbar.update_confirm_title")}
+          confirmLabel={t("ranks.toolbar.update_confirm_button")}
           onConfirm={() => {
             setConfirmingRefresh(false);
             onRefreshMetrics();
           }}
           onClose={() => setConfirmingRefresh(false)}
         >
-          This fetches new volume, difficulty, and CPC for all{" "}
-          {trackedKeywordCount} tracked keyword
-          {trackedKeywordCount !== 1 ? "s" : ""}. Each keyword uses credits.
-          Rankings do not change.
+          {t("ranks.toolbar.update_confirm_desc", {
+            count: trackedKeywordCount,
+          })}
         </ConfirmDialog>
       ) : null}
     </>

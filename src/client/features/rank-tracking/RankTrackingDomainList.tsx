@@ -47,6 +47,7 @@ import { Skeleton } from "@/client/components/ui/skeleton";
 import { useDebouncedDraft } from "@/client/hooks/useDebouncedDraft";
 import type { RankTrackingListSearch } from "@/types/schemas/rank-tracking-search";
 import { QueryError } from "@/client/components/QueryState";
+import { useLocale } from "@/client/lib/i18n";
 
 type ConfigSummary = Awaited<
   ReturnType<typeof getRankTrackingConfigSummaries>
@@ -68,6 +69,7 @@ export function RankTrackingDomainList({
   onSearchChange: (next: RankTrackingListSearch) => void;
   onAddDomain: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [archiveTarget, setArchiveTarget] = useState<ConfigSummary | null>(
     null,
@@ -151,12 +153,14 @@ export function RankTrackingDomainList({
       <Card className="gap-0 py-0">
         <CardHeader className="px-5 pt-4 pb-3">
           <CardTitle>
-            <h2 className="text-sm font-semibold">Tracked Domains</h2>
+            <h2 className="text-sm font-semibold">
+              {t("ranks.tracked_domains")}
+            </h2>
           </CardTitle>
           <CardAction className="self-center">
             <Button size="sm" onClick={onAddDomain}>
               <Plus data-icon="inline-start" />
-              Add Domain
+              {t("ranks.add_domain")}
             </Button>
           </CardAction>
         </CardHeader>
@@ -194,8 +198,8 @@ export function RankTrackingDomainList({
             <EmptyState
               variant="plain"
               icon={Globe}
-              title="No tracked domains yet"
-              description="Add a domain to start monitoring keyword rankings over time."
+              title={t("ranks.no_domains")}
+              description={t("ranks.no_domains_desc")}
             />
           ) : filteredSummaries.length === 0 ? (
             <EmptyState
@@ -205,7 +209,7 @@ export function RankTrackingDomainList({
               description="Try clearing search or adjusting filters."
               action={
                 <Button variant="outline" size="sm" onClick={clearFilters}>
-                  Clear filters
+                  {t("ranks.filters.clear")}
                 </Button>
               }
             />
@@ -258,6 +262,7 @@ function DomainRow({
   showLanguage: boolean;
   onArchive: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <div className="relative flex w-full items-center gap-4 px-5 py-3.5 transition-colors hover:bg-foreground/[0.03]">
       <Link
@@ -283,13 +288,21 @@ function DomainRow({
           &middot; {devicesLabel(summary.devices)} &middot;{" "}
           {scheduleLabel(summary.scheduleInterval)}
           {summary.scheduleInterval !== "manual" && summary.nextCheckAt && (
-            <> &middot; Next: {formatNextCheck(summary.nextCheckAt)}</>
+            <>
+              {" "}
+              &middot;{" "}
+              {t("ranks.next_check", {
+                time: formatNextCheck(summary.nextCheckAt),
+              })}
+            </>
           )}
           {summary.lastRunCompletedAt && (
             <>
               {" "}
-              &middot; Last:{" "}
-              {new Date(summary.lastRunCompletedAt).toLocaleDateString()}
+              &middot;{" "}
+              {t("ranks.last_check", {
+                date: new Date(summary.lastRunCompletedAt).toLocaleDateString(),
+              })}
             </>
           )}
         </p>
@@ -314,7 +327,7 @@ function DomainRow({
         {summary.keywordCount > 0 && (
           <div className="text-center">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              Keywords
+              {t("ranks.keyword")}
             </p>
             <p className="font-mono font-medium">{summary.keywordCount}</p>
           </div>
