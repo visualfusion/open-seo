@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { cn } from "cn";
 import { Spinner as SpinnerIcon } from "@/client/components/ui/spinner";
 
@@ -11,6 +12,7 @@ export function Spinner({
   label?: string;
   className?: string;
 }) {
+  const { t } = useLocale();
   return (
     <span
       className={cn(
@@ -20,7 +22,7 @@ export function Spinner({
     >
       {/* The icon is the status element, so it carries the label for screen readers. */}
       <SpinnerIcon
-        aria-label={label ?? "Loading"}
+        aria-label={label ?? t("common.loading")}
         className={size === "sm" ? "size-4" : "size-6"}
       />
       {label ? <span aria-hidden>{label}</span> : null}

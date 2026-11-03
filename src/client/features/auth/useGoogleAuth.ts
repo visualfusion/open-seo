@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { authClient } from "@/lib/auth-client";
 import { toAuthCallbackURL } from "@/lib/auth-redirect";
@@ -10,6 +11,7 @@ export function useGoogleAuth({
   redirectTo: string;
   postSignupRedirect?: string;
 }) {
+  const { t } = useLocale();
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isSignUp = postSignupRedirect !== undefined;
@@ -41,8 +43,8 @@ export function useGoogleAuth({
   }
 
   const fallbackMessage = isSignUp
-    ? "Google sign up is not available right now."
-    : "Google sign in is not available right now.";
+    ? t("auth.google_auth.sign_up_unavailable")
+    : t("auth.google_auth.sign_in_unavailable");
 
   return { isStarting, error, start, clearError: () => setError(null) };
 }

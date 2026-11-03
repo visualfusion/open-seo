@@ -4,6 +4,7 @@ import {
   helpLinkClassName,
   SecretHelpPage,
 } from "@/client/features/help/SecretHelpPage";
+import { useLocale } from "@/client/lib/i18n";
 
 const OPENROUTER_KEYS_URL = "https://openrouter.ai/settings/keys";
 
@@ -12,9 +13,10 @@ export const Route = createFileRoute("/_app/help/openrouter-api-key")({
 });
 
 function OpenrouterApiKeyHelpPage() {
+  const { t } = useLocale();
   const accountStep = (
     <li>
-      Create an account at{" "}
+      {t("sam.help.openrouter.account_prefix")}
       <a
         className={helpLinkClassName}
         href="https://openrouter.ai"
@@ -22,54 +24,57 @@ function OpenrouterApiKeyHelpPage() {
         rel="noreferrer"
       >
         openrouter.ai
-      </a>{" "}
-      and add credits (pay-as-you-go, like DataForSEO).
+      </a>
+      {t("sam.help.openrouter.account_suffix")}
     </li>
   );
   const keyStep = (
     <li>
-      Go to{" "}
+      {t("sam.help.openrouter.key_prefix")}
       <a
         className={helpLinkClassName}
         href={OPENROUTER_KEYS_URL}
         target="_blank"
         rel="noreferrer"
       >
-        OpenRouter API Keys
-      </a>{" "}
-      and click "Create API Key".
+        {t("sam.help.openrouter.key_link")}
+      </a>
+      {t("sam.help.openrouter.key_suffix")}
     </li>
   );
   return (
     <SecretHelpPage
-      title="Set up your OpenRouter API key"
+      title={t("sam.help.openrouter.title")}
       intro={
         <>
-          OpenSEO needs the <code>OPENROUTER_API_KEY</code> secret before AI
-          features like SAM, the in-app SEO agent, can run. It is optional —
-          everything else in OpenSEO works without it.
+          {t("sam.help.openrouter.intro_prefix")}
+          <code>OPENROUTER_API_KEY</code>
+          {t("sam.help.openrouter.intro_suffix")}
         </>
       }
-      everyAppIntro="SAM, prompt suggestions and website research run on OpenRouter. On Every App the gateway holds the key once, for every app."
+      everyAppIntro={t("sam.help.openrouter.everyapp_intro")}
       secretName="OPENROUTER_API_KEY"
       steps={
         <>
           {accountStep}
           {keyStep}
           <li>
-            Save the key as the <code>OPENROUTER_API_KEY</code> secret in your
-            environment:
+            {t("sam.help.openrouter.save_env_prefix")}
+            <code>OPENROUTER_API_KEY</code>
+            {t("sam.help.openrouter.save_env_suffix")}
             <ul className="mt-2 list-disc space-y-1 pl-5">
               <li>
-                Docker self-hosting: <code>.env</code>
+                {t("sam.help.openrouter.env_docker")}
+                <code>.env</code>
               </li>
-              <li>Cloudflare: set it in the Workers UI (see below)</li>
+              <li>{t("sam.help.openrouter.env_cf")}</li>
               <li>
-                Local development: <code>.env.local</code>
+                {t("sam.help.openrouter.env_local")}
+                <code>.env.local</code>
               </li>
             </ul>
           </li>
-          <li>Restart OpenSEO.</li>
+          <li>{t("sam.help.openrouter.restart")}</li>
         </>
       }
       everyAppSteps={
@@ -77,15 +82,14 @@ function OpenrouterApiKeyHelpPage() {
           {accountStep}
           {keyStep}
           <li>
-            An owner or admin runs this from the Every App checkout and pastes
-            the key:
+            {t("sam.help.openrouter.everyapp_run")}
             <CommandBlock command="pnpm everyapp secret set OPENROUTER_API_KEY" />
           </li>
-          <li>Reload OpenSEO.</li>
+          <li>{t("sam.help.openrouter.everyapp_reload")}</li>
         </>
       }
-      dashboardPasteStep="Paste your OpenRouter API key and save."
-      terminalPromptHint="Paste your OpenRouter API key when prompted."
+      dashboardPasteStep={t("sam.help.openrouter.dashboard_paste")}
+      terminalPromptHint={t("sam.help.openrouter.terminal_hint")}
     />
   );
 }

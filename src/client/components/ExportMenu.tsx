@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Fragment, type ReactNode } from "react";
 import {
   ChevronDown,
@@ -25,12 +26,12 @@ import type { ExportFormat } from "@/client/lib/exportRows";
 type ExportAction = ExportFormat | "copy-list";
 
 const ACTION_ITEMS: Record<ExportAction, { label: string; icon: ReactNode }> = {
-  sheets: { label: "Export to Sheets", icon: <Sheet /> },
-  csv: { label: "Export CSV", icon: <FileDown /> },
-  excel: { label: "Export Excel", icon: <FileSpreadsheet /> },
-  json: { label: "Download JSON", icon: <FileJson /> },
-  "copy-json": { label: "Copy JSON", icon: <Copy /> },
-  "copy-list": { label: "Copy list", icon: <List /> },
+  sheets: { label: "ui.details.export_to_sheets", icon: <Sheet /> },
+  csv: { label: "ui.details.export_csv", icon: <FileDown /> },
+  excel: { label: "ui.details.export_excel", icon: <FileSpreadsheet /> },
+  json: { label: "ui.details.download_json", icon: <FileJson /> },
+  "copy-json": { label: "ui.details.copy_json", icon: <Copy /> },
+  "copy-list": { label: "ui.details.copy_list", icon: <List /> },
 };
 
 /**
@@ -57,13 +58,14 @@ export function ExportMenu<A extends ExportAction>({
   copyListLabel?: string;
   scopes?: { id: string; label: string; actions?: A[] }[];
 }) {
+  const { t } = useLocale();
   const renderItems = (scope?: string, scopeActions: A[] = actions) =>
     scopeActions.map((action) => (
       <DropdownMenuItem key={action} onClick={() => onExport(action, scope)}>
         {ACTION_ITEMS[action].icon}
         {action === "copy-list" && copyListLabel
           ? copyListLabel
-          : ACTION_ITEMS[action].label}
+          : t(ACTION_ITEMS[action].label)}
       </DropdownMenuItem>
     ));
 
@@ -80,7 +82,7 @@ export function ExportMenu<A extends ExportAction>({
         }
       >
         {busy ? null : <Download data-icon="inline-start" />}
-        Export
+        {t("ui.export_menu.export")}
         <ChevronDown data-icon="inline-end" className="opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

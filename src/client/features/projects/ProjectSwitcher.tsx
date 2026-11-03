@@ -6,6 +6,7 @@ import { findLast } from "remeda";
 import { FolderCog, Plus, Settings } from "lucide-react";
 import { setLastProjectId } from "@/client/lib/active-project";
 import { CreateProjectModal } from "@/client/features/projects/CreateProjectModal";
+import { useLocale } from "@/client/lib/i18n";
 import {
   Combobox,
   ComboboxContent,
@@ -41,6 +42,7 @@ export function ProjectSwitcher({
   onCloseDrawer?: () => void;
 }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [creating, setCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const projectsQuery = useQuery({ ...projectsQueryOptions(), enabled: ready });
@@ -109,12 +111,12 @@ export function ProjectSwitcher({
       >
         <div className="flex items-stretch rounded-lg border border-sidebar-border bg-card">
           <ComboboxTrigger
-            aria-label="Switch project"
+            aria-label={t("projects.switcher.switch_project")}
             className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded-l-lg px-3 py-1.5 text-left hover:bg-accent"
           >
             <span className="flex min-w-0 flex-col">
               <span className="truncate text-sm font-medium">
-                {activeProject?.name ?? "Select project"}
+                {activeProject?.name ?? t("projects.switcher.select_project")}
               </span>
               {activeProject?.domain ? (
                 <span className="truncate text-xs text-muted-foreground">
@@ -130,8 +132,8 @@ export function ProjectSwitcher({
                 <Link
                   to="/p/$projectId/settings"
                   params={{ projectId: activeProject.id }}
-                  aria-label="Project settings"
-                  title="Project settings"
+                  aria-label={t("projects.switcher.project_settings")}
+                  title={t("projects.switcher.project_settings")}
                   onClick={() => {
                     setOpen(false);
                     onCloseDrawer?.();
@@ -149,13 +151,13 @@ export function ProjectSwitcher({
           {projects.length >= SEARCH_THRESHOLD ? (
             <ComboboxInput
               className="w-auto"
-              placeholder="Find project…"
-              aria-label="Filter projects"
+              placeholder={t("projects.switcher.find_project")}
+              aria-label={t("projects.switcher.filter_projects")}
               showTrigger={false}
             />
           ) : null}
           {projects.length > 0 ? (
-            <ComboboxEmpty>No projects match.</ComboboxEmpty>
+            <ComboboxEmpty>{t("projects.switcher.no_match")}</ComboboxEmpty>
           ) : null}
           <ComboboxList className="max-h-[min(60vh,21rem)]">
             {(project: ProjectSummary) => (
@@ -182,7 +184,7 @@ export function ProjectSwitcher({
               }}
             >
               <Plus className="size-4" />
-              New project
+              {t("projects.switcher.new_project")}
             </Button>
             <Button
               nativeButton={false}
@@ -199,7 +201,7 @@ export function ProjectSwitcher({
               className="justify-start"
             >
               <FolderCog className="size-4" />
-              Manage projects
+              {t("projects.switcher.manage_projects")}
             </Button>
           </div>
         </ComboboxContent>

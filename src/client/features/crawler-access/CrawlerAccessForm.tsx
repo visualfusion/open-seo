@@ -6,6 +6,7 @@ import { useAppForm } from "@/client/components/form/useAppForm";
 import { useAuditCapabilities } from "@/client/features/audit/shared";
 import { isEveryAppClientAuthMode } from "@/lib/auth-mode";
 import { saveCrawlerCredential } from "@/serverFunctions/crawlerAccess";
+import { useLocale, getTranslation } from "@/client/lib/i18n";
 import {
   isCrawlerAccessExpired,
   parseSignatureExpiry,
@@ -19,9 +20,11 @@ export const saveCrawlerCredentialMutationKey = ["save-crawler-credential"];
  * crawl warning say how to set it instead of failing on save.
  */
 export function CrawlerAccessSetupHint() {
+  const { t } = useLocale();
   return (
     <>
-      An admin sets <code>CRAWLER_ACCESS_SECRET</code> with{" "}
+      {t("ui.details.an_admin_sets")} <code>CRAWLER_ACCESS_SECRET</code>{" "}
+      {t("ui.details.with")}{" "}
       <code>pnpm everyapp secret set CRAWLER_ACCESS_SECRET --app openseo</code>.
     </>
   );
@@ -34,16 +37,22 @@ export function useCrawlerAccessNeedsSetup(projectId: string) {
 }
 
 const signatureSchema = z.object({
-  host: z.string().trim().min(1, "Enter a domain."),
+  host: z
+    .string()
+    .trim()
+    .min(1, getTranslation("settings.crawler_access.form.domain_required")),
   signatureInput: z
     .string()
     .trim()
-    .min(1, "Enter Signature-Input.")
+    .min(1, getTranslation("settings.crawler_access.form.input_required"))
     .refine(
       (value) => !isCrawlerAccessExpired(parseSignatureExpiry(value)),
-      "This signature has already expired. Create a new one in Shopify admin.",
+      getTranslation("settings.crawler_access.form.input_expired"),
     ),
-  signature: z.string().trim().min(1, "Enter Signature."),
+  signature: z
+    .string()
+    .trim()
+    .min(1, getTranslation("settings.crawler_access.form.sig_required")),
 });
 
 /**
@@ -62,6 +71,7 @@ export function CrawlerAccessForm({
   lockHost?: boolean;
   onSaved?: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
@@ -75,7 +85,11 @@ export function CrawlerAccessForm({
       await queryClient.invalidateQueries({
         queryKey: crawlerCredentialsQueryKey,
       });
-      toast.success(`Crawler access saved for ${result.credential.host}`);
+      toast.success(
+        t("settings.crawler_access.form.success", {
+          host: result.credential.host,
+        }),
+      );
       onSaved?.();
     },
   });
@@ -93,8 +107,13 @@ export function CrawlerAccessForm({
             fields: {
               signatureInput:
                 problem.reason === "wrong_domain"
-                  ? `This signature was created for ${problem.signedHost}, not ${problem.host}. In Shopify admin, create a signature for ${problem.host}.`
-                  : `Shopify won't accept this signature for ${problem.host}. Check that you created it for ${problem.host} and copied both values in full.`,
+                  ? t("settings.crawler_access.form.err_wrong_domain", {
+                      signedHost: problem.signedHost,
+                      host: problem.host,
+                    })
+                  : t("settings.crawler_access.form.err_rejected", {
+                      host: problem.host,
+                    }),
             },
           },
         });
@@ -107,7 +126,8 @@ export function CrawlerAccessForm({
   if (useCrawlerAccessNeedsSetup(projectId)) {
     return (
       <p className="text-sm text-muted-foreground">
-        Crawler access isn't set up yet. <CrawlerAccessSetupHint />
+        {t("settings.crawler_access.form.needs_setup")}{" "}
+        <CrawlerAccessSetupHint />
       </p>
     );
   }
@@ -119,8 +139,10 @@ export function CrawlerAccessForm({
           <form.AppField name="host">
             {(field) => (
               <field.TextField
-                label="Domain"
-                placeholder="store.example.com"
+                label={t("settings.crawler_access.form.domain_label")}
+                placeholder={t(
+                  "settings.crawler_access.form.domain_placeholder",
+                )}
                 className="font-mono"
                 required
               />
@@ -130,12 +152,12 @@ export function CrawlerAccessForm({
         <form.AppField name="signatureInput">
           {(field) => (
             <field.TextField
-              label="Signature-Input"
+              label={t("settings.crawler_access.form.input_label")}
               type="password"
               autoComplete="off"
               data-ph-mask
               className="font-mono"
-              placeholder="sig1=(...);expires=..."
+              placeholder={t("settings.crawler_access.form.input_placeholder")}
               required
             />
           )}
@@ -143,19 +165,19 @@ export function CrawlerAccessForm({
         <form.AppField name="signature">
           {(field) => (
             <field.TextField
-              label="Signature"
-              description="Shopify also shows a Signature-Agent value. You don't need to paste it: OpenSEO sends it with every request."
+              label={t("settings.crawler_access.form.sig_label")}
+              description={t("settings.crawler_access.form.sig_desc")}
               type="password"
               autoComplete="off"
               data-ph-mask
               className="font-mono"
-              placeholder="sig1=:...:"
+              placeholder={t("settings.crawler_access.form.sig_placeholder")}
               required
             />
           )}
         </form.AppField>
         <form.SubmitButton disabled={!projectId}>
-          Save signature
+          {t("settings.crawler_access.form.submit")}
         </form.SubmitButton>
       </form.Form>
     </form.AppForm>

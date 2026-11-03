@@ -1,3 +1,4 @@
+import { getCurrentLocale, getTranslation } from "@/client/lib/i18n";
 const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["year", 365 * 24 * 60 * 60 * 1000],
   ["month", 30 * 24 * 60 * 60 * 1000],
@@ -7,14 +8,17 @@ const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 ];
 
 /** "3 hours ago" for an ISO timestamp; "just now" under a minute. */
-export function formatRelativeTime(iso: string): string {
+export function formatRelativeTime(
+  iso: string,
+  locale: "de" | "en" = getCurrentLocale(),
+): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return "";
   const diff = then - Date.now();
   const absolute = Math.abs(diff);
-  const formatter = new Intl.RelativeTimeFormat("en-US", { numeric: "auto" });
+  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   for (const [unit, ms] of RELATIVE_UNITS) {
     if (absolute >= ms) return formatter.format(Math.round(diff / ms), unit);
   }
-  return "just now";
+  return getTranslation("ui.relative_time.just_now", locale);
 }

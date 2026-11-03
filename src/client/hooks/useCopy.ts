@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -6,6 +7,7 @@ import { toast } from "sonner";
  * seconds after a copy, for a check mark on the button.
  */
 export function useCopy() {
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -13,7 +15,7 @@ export function useCopy() {
     try {
       await navigator.clipboard.writeText(value);
     } catch {
-      toast.error("Could not copy to clipboard");
+      toast.error(t("ui.details.could_not_copy_to_clipboard"));
       return false;
     }
     toast.success(successMessage);

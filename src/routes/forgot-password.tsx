@@ -8,13 +8,17 @@ import {
   authRedirectSearchSchema,
 } from "@/client/features/auth/AuthPage";
 import { getFormError } from "@/client/lib/forms";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { authClient } from "@/lib/auth-client";
 import { isHostedClientAuthMode, usesBetterAuthClient } from "@/lib/auth-mode";
 import { getSignInSearch, normalizeAuthRedirect } from "@/lib/auth-redirect";
 import { z } from "zod";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address."),
+  email: z
+    .string()
+    .trim()
+    .email({ error: () => getTranslation("auth.common.email_invalid") }),
 });
 
 export const Route = createFileRoute("/forgot-password")({
@@ -23,6 +27,7 @@ export const Route = createFileRoute("/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const { t } = useLocale();
   const search = Route.useSearch();
   const redirectTo = normalizeAuthRedirect(search.redirect);
   const isHostedMode = isHostedClientAuthMode();
@@ -50,7 +55,7 @@ function ForgotPasswordPage() {
         if (result.error) {
           formApi.setErrorMap({
             onSubmit: {
-              form: result.error.message || "We couldn't send the reset email.",
+              form: result.error.message || t("auth.forgot_password.failed"),
               fields: {},
             },
           });
@@ -59,7 +64,7 @@ function ForgotPasswordPage() {
       } catch {
         formApi.setErrorMap({
           onSubmit: {
-            form: "We couldn't send the reset email right now. Please try again.",
+            form: t("auth.forgot_password.failed_retry"),
             fields: {},
           },
         });
@@ -82,15 +87,19 @@ function ForgotPasswordPage() {
 
           return (
             <AuthPageCard
-              title={isSuccess ? "Check your email" : "Forgot password"}
+              title={
+                isSuccess
+                  ? t("auth.forgot_password.check_email_title")
+                  : t("auth.forgot_password.title")
+              }
               helperText={
                 isSuccess
                   ? undefined
                   : isHostedMode
-                    ? "Enter your email and we'll send you a password reset link."
+                    ? t("auth.forgot_password.helper_hosted")
                     : isOperatorReset
-                      ? "Ask your server administrator to reset your password."
-                      : "Password reset isn't available right now."
+                      ? t("auth.forgot_password.helper_operator")
+                      : t("auth.forgot_password.helper_unavailable")
               }
               footer={
                 <p className="text-sm">
@@ -99,7 +108,7 @@ function ForgotPasswordPage() {
                     search={getSignInSearch(redirectTo)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Back to sign in
+                    {t("auth.common.back_to_sign_in")}
                   </Link>
                 </p>
               }
@@ -107,8 +116,9 @@ function ForgotPasswordPage() {
               {isSuccess ? (
                 <Alert variant="success">
                   <AlertDescription>
-                    If an account exists for {submittedEmail}, you'll receive
-                    password reset instructions shortly.
+                    {t("auth.forgot_password.sent_desc", {
+                      email: submittedEmail,
+                    })}
                   </AlertDescription>
                 </Alert>
               ) : (
@@ -117,9 +127,9 @@ function ForgotPasswordPage() {
                     <form.AppField name="email">
                       {(field) => (
                         <field.TextField
-                          label="Email address"
+                          label={t("auth.common.email_label")}
                           type="email"
-                          placeholder="Email address..."
+                          placeholder={t("auth.common.email_placeholder")}
                           autoComplete="email"
                           disabled={!isHostedMode}
                           required
@@ -140,8 +150,8 @@ function ForgotPasswordPage() {
                       disabled={!isHostedMode}
                     >
                       {isSubmitting
-                        ? "Sending reset link..."
-                        : "Send reset link"}
+                        ? t("auth.forgot_password.submitting")
+                        : t("auth.forgot_password.submit")}
                     </Button>
                   </form.Form>
                 </form.AppForm>

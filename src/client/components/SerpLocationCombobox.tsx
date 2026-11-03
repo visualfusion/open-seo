@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin } from "lucide-react";
@@ -45,10 +46,11 @@ export function SerpLocationCombobox({
   value,
   onChange,
   countryCode,
-  placeholder = "Search cities...",
+  placeholder,
   id,
   invalid,
 }: Props) {
+  const { t } = useLocale();
   // The list lines up with the whole field, not only the text input.
   const anchor = useComboboxAnchor();
   const [query, setQuery] = useState("");
@@ -72,12 +74,14 @@ export function SerpLocationCombobox({
     : null;
 
   const emptyMessage = !trimmed
-    ? "Type a city, county, or region"
+    ? t("ui.details.type_a_city_county_or_region")
     : searching
-      ? "Searching..."
+      ? t("ui.serp_location.searching")
       : searchQuery.isError
-        ? "Unable to load locations"
-        : `No locations found for "${trimmed}"`;
+        ? t("ui.details.unable_to_load_locations")
+        : t("ui.details.no_locations_found_for_value", {
+            v1: trimmed,
+          });
 
   return (
     <Combobox
@@ -108,7 +112,7 @@ export function SerpLocationCombobox({
           id={id}
           aria-invalid={invalid || undefined}
           className="w-full"
-          placeholder={placeholder}
+          placeholder={placeholder ?? t("ui.serp_location.placeholder")}
           showTrigger={false}
         >
           <InputGroupAddon align="inline-start">

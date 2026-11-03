@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/client/components/ui/button";
@@ -34,6 +35,7 @@ export function GscReEngagementModal({
   projectId: string | null;
   suppressed: boolean;
 }) {
+  const { t } = useLocale();
   const hosted = isHostedClientAuthMode();
   const queryClient = useQueryClient();
   const [closed, setClosed] = React.useState(false);
@@ -93,7 +95,7 @@ export function GscReEngagementModal({
 
   function handleConnect() {
     captureClientEvent("gsc:nudge_connect_clicked");
-    // Resolve the nudge up front: the user is leaving for Google's consent
+    // Resolve the nudge up fronthe user is leaving for Google's consent
     // screen, and on return they'll either have a grant (which suppresses this
     // anyway) or have abandoned it — neither case should re-nag.
     persistDismiss();
@@ -115,11 +117,10 @@ export function GscReEngagementModal({
       <DialogContent className="sm:max-w-lg" initialFocus={connectRef}>
         <DialogHeader>
           <DialogTitle className="text-lg">
-            Connect Google Search Console
+            {t("integrations.dashboard_ext.site_parts.connect_gsc_title")}
           </DialogTitle>
           <DialogDescription>
-            Bring your real clicks, impressions, and rankings into OpenSEO and
-            query them from Claude or Codex over MCP. It never uses credits.
+            {t("integrations.details.bring_your_real_clicks_openseo_and")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -128,14 +129,14 @@ export function GscReEngagementModal({
             className="px-2 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:underline"
             onClick={handleDismiss}
           >
-            Maybe later
+            {t("integrations.details.maybe_later")}
           </button>
           <Button ref={connectRef} onClick={handleConnect}>
             {/* Google's mark needs a white tile to stay legible on a colored button. */}
             <span className="flex size-6 items-center justify-center rounded bg-white">
               <GoogleGlyph className="size-[16px]" />
             </span>
-            Connect with Google
+            {t("auth.onboarding.gsc.connect_google")}
           </Button>
         </DialogFooter>
       </DialogContent>

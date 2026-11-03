@@ -20,6 +20,7 @@ import {
 } from "@/client/features/integrations/startGoogleLink";
 import { hasNoGscWebsites } from "@/client/features/integrations/GscPropertySetupHelp";
 import { getErrorCode } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { Button } from "@/client/components/ui/button";
 import { Spinner as SpinnerIcon } from "@/client/components/ui/spinner";
@@ -27,11 +28,6 @@ import { WizardFooter } from "@/client/features/onboarding/WizardFooter";
 
 const GRANT_STATUS_KEY = ["gscGrantStatus"];
 
-/**
- * Onboarding step for connecting Google Search Console: link the account-level
- * OAuth grant, then bind a verified property to the user's first project — the
- * same binding the project's Integrations page does.
- */
 type NavigationProps = {
   onNext: () => void;
   onBack?: () => void;
@@ -39,6 +35,7 @@ type NavigationProps = {
 };
 
 export function SearchConsoleOnboardingStep(props: NavigationProps) {
+  const { t } = useLocale();
   const projectsQuery = useQuery(projectsQueryOptions());
   const project = projectsQuery.data?.[0];
 
@@ -46,10 +43,10 @@ export function SearchConsoleOnboardingStep(props: NavigationProps) {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Connect Google Search Console
+          {t("auth.onboarding.gsc.title")}
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          See which Google searches bring people to your site.
+          {t("auth.onboarding.gsc.subtitle")}
         </p>
       </div>
 
@@ -60,18 +57,18 @@ export function SearchConsoleOnboardingStep(props: NavigationProps) {
           {projectsQuery.isError ? (
             <QueryError
               error={projectsQuery.error}
-              fallback="Couldn't load your project."
+              fallback={t("auth.onboarding.failed_load_project")}
               onRetry={() => void projectsQuery.refetch()}
               isRetrying={projectsQuery.isFetching}
             />
           ) : (
-            <Spinner size="sm" label="Checking…" />
+            <Spinner size="sm" label={t("auth.onboarding.checking")} />
           )}
           <WizardFooter
             onBack={props.onBack}
             onSkip={props.onSkip}
-            skipLabel="Skip for now"
-            continueLabel="Save and continue"
+            skipLabel={t("auth.onboarding.skip_for_now")}
+            continueLabel={t("auth.onboarding.save_and_continue")}
           />
         </>
       )}
@@ -86,6 +83,7 @@ function GscConnect({
   onBack,
   onSkip,
 }: { projectId: string } & NavigationProps) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const linking = useGoogleLinkPending();
   const [selection, setSelection] =
@@ -162,10 +160,10 @@ function GscConnect({
   return (
     <fieldset disabled={busy} className="min-w-0">
       {connectionQuery.isLoading ? (
-        <Spinner size="sm" label="Checking…" />
+        <Spinner size="sm" label={t("auth.onboarding.checking")} />
       ) : connectionQuery.isError && !connection ? (
         <QueryError
-          fallback="Couldn't check your Google connection."
+          fallback={t("auth.onboarding.gsc.check_failed")}
           onRetry={() => void connectionQuery.refetch()}
           isRetrying={connectionQuery.isFetching}
         />
@@ -175,7 +173,7 @@ function GscConnect({
             <Check className="size-3.5" />
           </span>
           <span className="min-w-0 text-foreground/80">
-            Connected to{" "}
+            {t("auth.onboarding.gsc.connected_to")}
             <span className="font-mono break-all">{connection?.property}</span>.
           </span>
         </div>
@@ -198,9 +196,11 @@ function GscConnect({
                 <WizardFooter
                   onBack={onBack}
                   onSkip={onSkip}
-                  skipLabel="Skip for now"
+                  skipLabel={t("auth.onboarding.skip_for_now")}
                   continueLabel={
-                    setSiteMutation.isPending ? "Saving…" : "Save and continue"
+                    setSiteMutation.isPending
+                      ? t("auth.onboarding.saving")
+                      : t("auth.onboarding.save_and_continue")
                   }
                   continueDisabled={disabled}
                   continueRef={continueRef}
@@ -227,7 +227,9 @@ function GscConnect({
               ) : (
                 <GoogleGlyph className="size-[18px]" />
               )}
-              {linking ? "Opening Google…" : "Connect with Google"}
+              {linking
+                ? t("auth.onboarding.gsc.opening_google")
+                : t("auth.onboarding.gsc.connect_google")}
             </Button>
           )}
         </div>
@@ -236,9 +238,13 @@ function GscConnect({
         <WizardFooter
           onBack={onBack}
           onSkip={connected ? undefined : onSkip}
-          skipLabel="Skip for now"
+          skipLabel={t("auth.onboarding.skip_for_now")}
           onContinue={connected ? onNext : undefined}
-          continueLabel={connected ? "Continue" : "Save and continue"}
+          continueLabel={
+            connected
+              ? t("auth.onboarding.continue")
+              : t("auth.onboarding.save_and_continue")
+          }
         />
       )}
     </fieldset>

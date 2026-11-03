@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/client/components/ui/button";
 import { getSearchPerformanceReport } from "@/serverFunctions/searchPerformance";
@@ -33,6 +34,7 @@ export function DashboardKeywords({
   connected: boolean;
   siteUrl: string | null;
 }) {
+  const { t } = useLocale();
   const [source, setSource] = useState<Source>("new");
   const emerging = useQuery({
     queryKey: ["dashboardEmergingQueries", projectId, siteUrl],
@@ -89,7 +91,7 @@ export function DashboardKeywords({
         query.isError ? (
           <QueryError
             error={query.error}
-            fallback="Could not load keywords"
+            fallback={t("dashboard.details.could_not_load_keywords")}
             onRetry={() => void query.refetch()}
             isRetrying={query.isFetching}
           />
@@ -100,12 +102,16 @@ export function DashboardKeywords({
           ? {
               title:
                 emerging.data?.value.hasSearchData === false
-                  ? "No search data yet"
-                  : "No new keywords this week",
+                  ? t("dashboard.cards.no_search_data")
+                  : t("dashboard.cards.no_new_keywords"),
             }
           : source === "striking"
-            ? { title: "No keywords at positions 5–20 in this period" }
-            : { title: "No keywords yet" }
+            ? {
+                title: t(
+                  "dashboard.details.no_keywords_at_positions_this_period",
+                ),
+              }
+            : { title: t("ranks.table_ext.empty_title") }
       }
       tabs={
         <DataTableTabs
@@ -126,7 +132,7 @@ export function DashboardKeywords({
                 />
               }
             >
-              View full GSC insights →
+              {t("dashboard.cards.view_full_gsc")}
             </Button>
           }
           description={
@@ -136,9 +142,15 @@ export function DashboardKeywords({
             </>
           }
         >
-          <TabsTrigger value="new">New keywords</TabsTrigger>
-          <TabsTrigger value="top">Top keywords</TabsTrigger>
-          <TabsTrigger value="striking">Striking distance</TabsTrigger>
+          <TabsTrigger value="new">
+            {t("dashboard.cards.new_keywords_title")}
+          </TabsTrigger>
+          <TabsTrigger value="top">
+            {t("integrations.dashboard_ext.keywords_tab.top_keywords")}
+          </TabsTrigger>
+          <TabsTrigger value="striking">
+            {t("search_performance.tabs.striking")}
+          </TabsTrigger>
         </DataTableTabs>
       }
     />

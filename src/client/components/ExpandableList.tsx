@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/client/components/ui/button";
 
@@ -16,6 +17,7 @@ export function ExpandableList<TItem>({
   renderItem: (item: TItem, index: number) => ReactNode;
   className?: string;
 }) {
+  const { t } = useLocale();
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, LIMIT);
 
@@ -30,7 +32,11 @@ export function ExpandableList<TItem>({
           aria-expanded={expanded}
           onClick={() => setExpanded((current) => !current)}
         >
-          {expanded ? "Show less" : `+${items.length - LIMIT} more`}
+          {expanded
+            ? t("ui.expandable_list.show_less")
+            : t("ui.expandable_list.show_more", {
+                count: items.length - LIMIT,
+              })}
         </Button>
       ) : null}
     </div>

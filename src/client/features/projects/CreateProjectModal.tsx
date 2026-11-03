@@ -27,24 +27,25 @@ import { ProjectMarketFields } from "@/client/features/projects/ProjectMarketFie
 import { toastInitialAudit } from "@/client/features/projects/initialAuditToast";
 import { createProject } from "@/serverFunctions/projects";
 import { isEveryAppClientAuthMode } from "@/lib/auth-mode";
-
-const createProjectSchema = z.object({
-  name: z.string().trim().min(1, "Project name is required"),
-  domain: z.string(),
-  market: z.object({ locationCode: z.number(), languageCode: z.string() }),
-});
-
-// The server sends only the error code, so the field messages live here.
-const SERVER_FIELD_ERRORS: Record<string, Record<string, string>> = {
-  VALIDATION_ERROR: { domain: "Enter a valid domain, like acme.com." },
-  CONFLICT: {
-    name: 'A project named "Default" with no domain already exists. Pick a different name or add a domain.',
-  },
-};
+import { useLocale } from "@/client/lib/i18n";
 
 export function CreateProjectModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLocale();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const createProjectSchema = z.object({
+    name: z.string().trim().min(1, t("projects.create.name_required")),
+    domain: z.string(),
+    market: z.object({ locationCode: z.number(), languageCode: z.string() }),
+  });
+
+  const serverFieldErrors: Record<string, Record<string, string>> = {
+    VALIDATION_ERROR: { domain: t("projects.create.domain_validation_error") },
+    CONFLICT: {
+      name: t("projects.create.conflict_error"),
+    },
+  };
 
   const createMutation = useMutation({
     mutationFn: (values: z.infer<typeof createProjectSchema>) =>
@@ -66,7 +67,7 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
         queryKey: ["dashboardActivation"],
       });
       onClose();
-      toast.success("Project created");
+      toast.success(t("projects.create.success"));
       toastInitialAudit(created.initialAudit);
       // Continue setup through the new project’s dashboard.
       void navigate({
@@ -91,7 +92,7 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
       try {
         await createMutation.mutateAsync(value);
       } catch (error) {
-        const fields = SERVER_FIELD_ERRORS[getErrorCode(error) ?? ""];
+        const fields = serverFieldErrors[getErrorCode(error) ?? ""];
         if (fields) {
           formApi.setErrorMap({ onSubmit: { fields } });
         } else {
@@ -112,14 +113,14 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
         <form.AppForm>
           <form.Form className="flex flex-col gap-4">
             <DialogHeader>
-              <DialogTitle>New project</DialogTitle>
+              <DialogTitle>{t("projects.create.title")}</DialogTitle>
             </DialogHeader>
 
             <form.AppField name="name">
               {(field) => (
                 <field.TextField
-                  label="Name"
-                  placeholder="Acme Inc."
+                  label={t("projects.create.name")}
+                  placeholder={t("projects.create.name_placeholder")}
                   maxLength={120}
                   required
                 />
@@ -128,22 +129,22 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
 
             <p className="text-sm text-muted-foreground">
               {isEveryAppClientAuthMode()
-                ? "Adding your website starts a 50-page site audit."
-                : "Adding your website starts a 50-page scan with JavaScript rendering. Rendering uses your credits."}
+                ? t("projects.create.scan_notice_everyapp")
+                : t("projects.create.scan_notice")}
             </p>
             <form.AppField name="domain">
               {(field) => (
                 <field.TextField
                   label={
                     <>
-                      Domain{" "}
+                      {t("projects.create.domain")}{" "}
                       <span className="font-normal text-muted-foreground">
-                        (optional)
+                        {t("projects.create.optional")}
                       </span>
                     </>
                   }
-                  description="You can connect Search Console and set up rank tracking after creating the project."
-                  placeholder="example.com"
+                  description={t("projects.create.domain_description")}
+                  placeholder={t("projects.create.domain_placeholder")}
                   maxLength={255}
                 />
               )}
@@ -159,9 +160,7 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
                 )}
               </form.Field>
               <FieldDescription>
-                Keyword, SERP, and domain data uses this country and language
-                unless a call asks for a different one. Change it later in
-                project settings.
+                {t("projects.create.market_description")}
               </FieldDescription>
             </div>
 
@@ -172,9 +171,11 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
                 onClick={onClose}
                 disabled={createMutation.isPending}
               >
-                Cancel
+                {t("projects.create.cancel")}
               </Button>
-              <form.SubmitButton>Create project</form.SubmitButton>
+              <form.SubmitButton>
+                {t("projects.create.submit")}
+              </form.SubmitButton>
             </DialogFooter>
           </form.Form>
         </form.AppForm>

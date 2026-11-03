@@ -13,7 +13,7 @@ const translations: Record<Locale, TranslationDict> = { de, en };
 
 let unsavedLocale: Locale | null = null;
 
-function getCurrentLocale(): Locale {
+export function getCurrentLocale(): Locale {
   if (typeof window === "undefined") {
     return DEFAULT_LOCALE;
   }

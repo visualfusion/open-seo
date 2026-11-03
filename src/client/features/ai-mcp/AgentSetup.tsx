@@ -3,11 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Check } from "lucide-react";
 import { AgentList } from "./AgentList";
 import { ONE_CLICK_INSTALLS } from "./agentInstalls";
-import { AgentSetupPanel, AGENT_SETUP_DESCRIPTION } from "./AgentSetupPanel";
+import { AgentSetupPanel } from "./AgentSetupPanel";
 import { getAgentSetupPrompt } from "./agentSetupPrompt";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { WizardFooter } from "@/client/features/onboarding/WizardFooter";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 import { getMcpAuthorizedAt } from "@/serverFunctions/onboarding";
 
 /** Last onboarding step. Onboarding finishes when the user clicks Go to
@@ -19,6 +20,7 @@ export function AgentSetup({
   onFinish: () => void;
   onBack: () => void;
 }) {
+  const { t } = useLocale();
   const prompt = getAgentSetupPrompt(window.location.origin);
   const [copied, setCopied] = useState(false);
   // Once the user copies the prompt or opens an agent listing, Go to dashboard
@@ -45,10 +47,10 @@ export function AgentSetup({
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Set up your agent
+          {t("ai.setup.title")}
         </h1>
         <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground">
-          {AGENT_SETUP_DESCRIPTION}
+          {t("ai.panel.description")}
         </p>
         <AgentList />
       </div>
@@ -76,7 +78,7 @@ export function AgentSetup({
             <Icon data-icon="inline-start" />
             {/* "Add to" drops on narrow screens so both buttons fit one row. */}
             <span>
-              <span className="max-sm:sr-only">Add to </span>
+              <span className="max-sm:sr-only">{t("ai.details.add_to")} </span>
               {name}
             </span>
           </Button>
@@ -88,11 +90,11 @@ export function AgentSetup({
             className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-success"
           >
             <Check className="size-4" aria-hidden />
-            Connected
+            {t("settings.connected_agents_connected")}
           </p>
         ) : copied ? (
           <p className="mt-3 text-center text-xs text-muted-foreground">
-            Paste it into your agent and approve the connection.
+            {t("ai.details.paste_it_into_your_the_connection")}
           </p>
         ) : null}
       </AgentSetupPanel>
@@ -111,7 +113,8 @@ export function AgentSetup({
               }
               onClick={onFinish}
             >
-              Go to dashboard <ArrowRight className="size-4" />
+              {t("ai.onboarding.go_to_dashboard")}{" "}
+              <ArrowRight className="size-4" />
             </Button>
           }
         />

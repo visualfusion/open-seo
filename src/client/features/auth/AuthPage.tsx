@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 import {
   getCurrentAuthRedirect,
   getOAuthSignedQuery,
@@ -43,34 +44,36 @@ const termsLinkClassName =
 // Clickwrap: shown next to every button that can create an account, so
 // clicking it is the affirmative acceptance the signup hook records.
 export function TermsAgreementNotice({ action }: { action: string }) {
+  const { t } = useLocale();
   return (
     <p className="text-center text-sm leading-relaxed text-muted-foreground">
-      {action}, you agree to our{" "}
+      {action}
+      {t("auth.common.terms_prefix")}
       <a
         href={TERMS_URL}
         target="_blank"
         rel="noreferrer"
         className={termsLinkClassName}
       >
-        Terms
-      </a>{" "}
-      and{" "}
+        {t("auth.common.terms_link")}
+      </a>
+      {t("auth.common.terms_and")}
       <a
         href={PRIVACY_URL}
         target="_blank"
         rel="noreferrer"
         className={termsLinkClassName}
       >
-        Privacy Policy
+        {t("auth.common.privacy_link")}
       </a>
-      .
+      {t("auth.common.terms_suffix")}
     </p>
   );
 }
 
 export function AuthMethodChooser({
   googleLabel,
-  emailLabel = "Continue with email",
+  emailLabel,
   isBusy,
   disabled,
   onContinueWithGoogle,
@@ -83,6 +86,7 @@ export function AuthMethodChooser({
   onContinueWithGoogle: () => void;
   onContinueWithEmail: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <div className="space-y-3">
       <Button
@@ -93,7 +97,7 @@ export function AuthMethodChooser({
         disabled={disabled || isBusy}
       >
         <GoogleLogo />
-        {isBusy ? "Opening Google..." : googleLabel}
+        {isBusy ? t("auth.common.opening_google") : googleLabel}
       </Button>
 
       <Button
@@ -103,7 +107,7 @@ export function AuthMethodChooser({
         onClick={onContinueWithEmail}
         disabled={disabled || isBusy}
       >
-        {emailLabel}
+        {emailLabel ?? t("auth.common.continue_email")}
       </Button>
     </div>
   );

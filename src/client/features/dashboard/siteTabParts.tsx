@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Popover } from "@base-ui/react/popover";
 import { Info } from "lucide-react";
 import type { ReactNode } from "react";
@@ -12,16 +13,17 @@ export function Freshness({
   stale: boolean;
   refreshError: string | null;
 }) {
+  const { t } = useLocale();
   if (!stale && !refreshError) return null;
   return (
     <p role="status" className="text-xs text-muted-foreground">
-      Showing saved results
+      {t("dashboard.details.showing_saved_results")}
       {refreshError
         ? ` · ${getStandardErrorMessage(new Error(refreshError), "Could not update. Showing saved results.")}`
         : ""}
       {refreshError === "INSUFFICIENT_CREDITS" ? (
         <Link to="/billing" className="ml-2 text-primary underline">
-          Add credits
+          {t("dashboard.details.add_credits")}
         </Link>
       ) : null}
     </p>

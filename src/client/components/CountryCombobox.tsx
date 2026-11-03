@@ -1,3 +1,5 @@
+import { countryLabel } from "@/client/features/keywords/locations";
+import { useLocale } from "@/client/lib/i18n";
 import {
   Combobox,
   ComboboxContent,
@@ -35,11 +37,17 @@ export function CountryCombobox({
   /** Defaults to the full country list. */
   options?: readonly LocationOption[];
 }) {
-  const country = options.find((option) => option.code === value) ?? null;
+  const { t, locale } = useLocale();
+  const localizedOptions = options.map((option) => ({
+    ...option,
+    label: countryLabel(option.code, locale) ?? option.label,
+  }));
+  const country =
+    localizedOptions.find((option) => option.code === value) ?? null;
 
   return (
     <Combobox
-      items={options}
+      items={localizedOptions}
       value={country}
       itemToStringLabel={(option) => option.label}
       autoHighlight
@@ -51,10 +59,10 @@ export function CountryCombobox({
       <ComboboxInput
         id={id}
         className="w-full"
-        placeholder="Search countries"
+        placeholder={t("ui.country_combobox.search_placeholder")}
       />
       <ComboboxContent>
-        <ComboboxEmpty>No countries match.</ComboboxEmpty>
+        <ComboboxEmpty>{t("ui.details.no_countries_match")}</ComboboxEmpty>
         <ComboboxList>
           {(option: LocationOption) => (
             <ComboboxItem key={option.code} value={option}>

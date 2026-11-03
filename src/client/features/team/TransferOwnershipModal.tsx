@@ -12,6 +12,7 @@ import {
 import { getErrorCode } from "@/client/lib/error-messages";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { transferOwnership } from "@/serverFunctions/organization";
+import { useLocale } from "@/client/lib/i18n";
 
 // NOT_FOUND: the member left. FORBIDDEN: the caller is no longer the owner
 // (another tab). CONFLICT: a row changed mid-transfer.
@@ -29,13 +30,14 @@ export function TransferOwnershipModal({
   onClose: () => void;
   onTransferred: () => void;
 }) {
+  const { t } = useLocale();
   const displayName = member.user.name || member.user.email;
 
   const transferMutation = useMutation({
     mutationFn: () => transferOwnership({ data: { memberId: member.id } }),
     onSuccess: () => {
       captureClientEvent("team:ownership_transfer");
-      toast.success(`${displayName} is now the owner`);
+      toast.success(t("team.transfer_modal.success", { name: displayName }));
       onTransferred();
       onClose();
     },
@@ -43,8 +45,8 @@ export function TransferOwnershipModal({
       const teamChanged = isTeamChangedError(error);
       toast.error(
         teamChanged
-          ? "Your team changed while this was open. Ownership didn't change."
-          : "We couldn't transfer ownership. Ownership didn't change.",
+          ? t("team.transfer_modal.error_team_changed")
+          : t("team.transfer_modal.error_generic"),
       );
       // Refresh either way so the list and the caller's role are current.
       onTransferred();
@@ -64,17 +66,12 @@ export function TransferOwnershipModal({
     >
       <DialogContent showCloseButton={false} className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Transfer ownership?</DialogTitle>
+          <DialogTitle>{t("team.transfer_modal.title")}</DialogTitle>
           <DialogDescription>
-            <span className="font-medium text-foreground" data-ph-mask>
-              {displayName}
-            </span>{" "}
-            becomes the owner of this organization and manages its billing. You
-            become an Admin and keep full access to each project.
+            {t("team.transfer_modal.description_1", { name: displayName })}
           </DialogDescription>
           <DialogDescription>
-            Projects, data, and the subscription stay with the organization.
-            Only the new owner can transfer ownership again.
+            {t("team.transfer_modal.description_2")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -83,13 +80,13 @@ export function TransferOwnershipModal({
             onClick={onClose}
             disabled={transferMutation.isPending}
           >
-            Cancel
+            {t("team.transfer_modal.cancel")}
           </Button>
           <Button
             onClick={() => transferMutation.mutate()}
             pending={transferMutation.isPending}
           >
-            Transfer ownership
+            {t("team.transfer_modal.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -5,6 +5,7 @@ import { EmptyState } from "@/client/components/EmptyState";
 import { InlineConfirm } from "@/client/components/InlineConfirm";
 import { SectionHeader } from "@/client/components/PageHeader";
 import { RowActions, listClass } from "./shared";
+import { useLocale } from "@/client/lib/i18n";
 
 /** The same add, edit, and remove interaction for both context lists. */
 export function EditableListSection<T>({
@@ -34,6 +35,7 @@ export function EditableListSection<T>({
   onRemove: (item: T) => void;
   pending: boolean;
 }) {
+  const { t } = useLocale();
   const [editing, setEditing] = useState<string | null>(null);
   const close = () => setEditing(null);
 
@@ -83,13 +85,17 @@ export function EditableListSection<T>({
                     variant="ghost"
                     size="icon-xs"
                     disabled={pending}
-                    aria-label={`Edit ${getLabel(item)}`}
+                    aria-label={t("context.editable_list.edit_aria", {
+                      label: getLabel(item),
+                    })}
                     onClick={() => setEditing(id)}
                   >
                     <Pencil className="size-3.5" />
                   </Button>
                   <InlineConfirm
-                    label={`Remove ${getLabel(item)}`}
+                    label={t("context.editable_list.remove_label", {
+                      label: getLabel(item),
+                    })}
                     pending={pending}
                     onConfirm={() => onRemove(item)}
                   />

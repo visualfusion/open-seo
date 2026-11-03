@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ComponentType, ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn } from "cn";
@@ -14,12 +15,15 @@ const actionClassName = "h-9 px-3 text-xs sm:text-sm";
 
 // For people who haven't connected an agent.
 export function DashboardAgentCard({ projectId }: { projectId: string }) {
+  const { t } = useLocale();
   return (
     <AgentCard
       projectId={projectId}
       icons={ONE_CLICK_INSTALLS.map(({ Icon }) => Icon)}
-      title="Use OpenSEO in ChatGPT or Claude"
-      description="Research keywords and audit your site from the chatbot you already use."
+      title={t("dashboard.details.use_openseo_in_chatgpt_or_claude")}
+      description={t(
+        "dashboard.details.research_keywords_and_audit_chatbot_you",
+      )}
     >
       {ONE_CLICK_INSTALLS.map(({ agent, name, href, Icon }) => (
         <Button
@@ -36,7 +40,7 @@ export function DashboardAgentCard({ projectId }: { projectId: string }) {
           }
         >
           <Icon data-icon="inline-start" />
-          Add to {name}
+          {t("dashboard.details.add_to")} {name}
         </Button>
       ))}
     </AgentCard>
@@ -52,6 +56,7 @@ export function DashboardAgentPromptCard({
   projectId: string;
   domain: string | null;
 }) {
+  const { t } = useLocale();
   const connections = useQuery({
     queryKey: ["mcpConnections"],
     queryFn: () => listMcpConnections(),
@@ -65,14 +70,23 @@ export function DashboardAgentPromptCard({
     ({ agent }) =>
       grants.length === 0 || grants.some((grant) => grant.webChat === agent),
   );
-  const prompt = `Use OpenSEO to audit ${domain ?? "my website"} and tell me the 3 most important next steps.`;
+  const prompt = t("dashboard.details.use_openseo_to_audit_the_3", {
+    v1: domain ?? "my website",
+  });
 
   return (
     <AgentCard
       projectId={projectId}
       icons={chats.length > 0 ? chats.map(({ Icon }) => Icon) : [Bot]}
-      title={`Ask ${chats.length === 1 ? chats[0].name : "your agent"} about your site`}
-      description={`Try: “${prompt}”`}
+      title={t("dashboard.details.ask_value_about_your_site", {
+        v1:
+          chats.length === 1
+            ? chats[0].name
+            : t("dashboard.details.your_agent"),
+      })}
+      description={t("dashboard.details.try_value", {
+        v1: prompt,
+      })}
     >
       {chats.map(({ agent, name, newChatUrl, Icon }) => (
         <Button
@@ -88,13 +102,13 @@ export function DashboardAgentPromptCard({
           }
         >
           <Icon data-icon="inline-start" />
-          Open in {name}
+          {t("dashboard.details.open_in")} {name}
         </Button>
       ))}
       <CopyButton
         value={prompt}
         successMessage="Prompt copied"
-        label="Copy prompt"
+        label={t("settings.indexnow.agent_copy_label")}
         size="default"
         className={actionClassName}
         onCopy={() => captureClientEvent("dashboard:agent_prompt_copy")}
@@ -116,6 +130,7 @@ function AgentCard({
   description: string;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const dismiss = useMutation({
     mutationFn: () => dismissDashboardAgentCard({ data: { projectId } }),
@@ -159,7 +174,7 @@ function AgentCard({
         variant="ghost"
         size="icon-xs"
         className="absolute right-1 top-1 text-muted-foreground"
-        aria-label="Dismiss chatbot card"
+        aria-label={t("dashboard.details.dismiss_chatbot_card")}
         disabled={dismiss.isPending}
         onClick={() => dismiss.mutate()}
       >

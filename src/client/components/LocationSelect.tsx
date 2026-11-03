@@ -1,3 +1,5 @@
+import { countryLabel } from "@/client/features/keywords/locations";
+import { useLocale } from "@/client/lib/i18n";
 import {
   Combobox,
   ComboboxContent,
@@ -35,11 +37,17 @@ export function LocationSelect({
   options = LOCATION_OPTIONS,
   className = "w-full",
 }: Props) {
-  const selected = options.find((option) => option.code === value) ?? null;
+  const { t, locale } = useLocale();
+  const localizedOptions = options.map((option) => ({
+    ...option,
+    label: countryLabel(option.code, locale) ?? option.label,
+  }));
+  const selected =
+    localizedOptions.find((option) => option.code === value) ?? null;
 
   return (
     <Combobox
-      items={options}
+      items={localizedOptions}
       value={selected}
       itemToStringLabel={(option) => option.label}
       autoHighlight
@@ -50,11 +58,11 @@ export function LocationSelect({
     >
       <ComboboxInput
         className={className}
-        placeholder="Select country"
-        aria-label="Country"
+        placeholder={t("ui.details.select_country")}
+        aria-label={t("ui.location_select.country")}
       />
       <ComboboxContent>
-        <ComboboxEmpty>No countries match.</ComboboxEmpty>
+        <ComboboxEmpty>{t("ui.details.no_countries_match")}</ComboboxEmpty>
         <ComboboxList>
           {(option: LocationOption) => (
             <ComboboxItem key={option.code} value={option}>

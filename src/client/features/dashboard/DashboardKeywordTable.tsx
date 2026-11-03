@@ -1,3 +1,4 @@
+import { useLocale, getTranslation } from "@/client/lib/i18n";
 import { ExternalPage } from "./siteTabParts";
 import type { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "@/client/components/table/SortableHeader";
@@ -14,7 +15,12 @@ type Keyword = {
 const columns: ColumnDef<Keyword>[] = [
   {
     accessorKey: "query",
-    header: ({ column }) => <SortableHeader column={column} label="Keyword" />,
+    header: ({ column }) => (
+      <SortableHeader
+        column={column}
+        label={getTranslation("dashboard.cards.keyword")}
+      />
+    ),
     filterFn: "includesString",
   },
   ...(["impressions", "clicks", "position"] as const).map(
@@ -26,10 +32,10 @@ const columns: ColumnDef<Keyword>[] = [
             column={column}
             label={
               id === "position"
-                ? "Avg. position"
+                ? getTranslation("ai_visibility.col_avg_position")
                 : id === "clicks"
-                  ? "Clicks"
-                  : "Impressions"
+                  ? getTranslation("dashboard.cards.clicks")
+                  : getTranslation("dashboard.cards.impressions")
             }
             align="right"
           />
@@ -59,9 +65,10 @@ export function DashboardKeywordTable({
   ComponentProps<typeof DashboardDataTable>,
   "tabs" | "resetKey" | "isLoading" | "error" | "empty"
 >) {
+  const { t } = useLocale();
   const pageColumn: ColumnDef<Keyword> = {
     accessorKey: "page",
-    header: "Page",
+    header: t("domain.pages_table.page"),
     filterFn: "includesString",
     cell: ({ row }) => <ExternalPage url={row.original.page ?? null} />,
   };
@@ -74,13 +81,35 @@ export function DashboardKeywordTable({
       }
       initialSorting={[{ id: sortBy, desc: true }]}
       filters={[
-        { id: "query", label: "Keyword", kind: "text" },
+        {
+          id: "query",
+          label: t("dashboard.cards.keyword"),
+          kind: "text",
+        },
         ...(showPages
-          ? [{ id: "page", label: "Page", kind: "text" as const }]
+          ? [
+              {
+                id: "page",
+                label: t("domain.pages_table.page"),
+                kind: "text" as const,
+              },
+            ]
           : []),
-        { id: "impressions", label: "Impressions", kind: "number" },
-        { id: "clicks", label: "Clicks", kind: "number" },
-        { id: "position", label: "Average position", kind: "number" },
+        {
+          id: "impressions",
+          label: t("dashboard.cards.impressions"),
+          kind: "number",
+        },
+        {
+          id: "clicks",
+          label: t("dashboard.cards.clicks"),
+          kind: "number",
+        },
+        {
+          id: "position",
+          label: t("dashboard.cards.avg_position"),
+          kind: "number",
+        },
       ]}
     />
   );

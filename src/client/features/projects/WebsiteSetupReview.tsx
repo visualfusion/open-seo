@@ -20,6 +20,7 @@ import type {
   SaveProjectWebsiteSetup,
   WebsiteResearch,
 } from "@/types/schemas/projectWebsite";
+import { useLocale } from "@/client/lib/i18n";
 
 export function WebsiteSetupReview({
   projectId,
@@ -37,6 +38,7 @@ export function WebsiteSetupReview({
   /** Omit when there is no earlier step to return to. */
   onBack?: () => void;
 }) {
+  const { t } = useLocale();
   const [competitors, setCompetitors] = useState<WebsiteCompetitor[]>(
     research.competitors.map(({ name, domain, notes }) => ({
       id: crypto.randomUUID(),
@@ -70,35 +72,41 @@ export function WebsiteSetupReview({
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
               {research.preserveCompetitors
-                ? "Complete project setup"
-                : "Edit competitors"}
+                ? t("context.website_setup.review_title_complete")
+                : t("context.website_setup.review_title_competitors")}
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              You can edit your{" "}
+              {t("context.website_setup.review_subtitle_before")}
               <Link
                 to="/p/$projectId/context"
                 params={{ projectId }}
                 className="text-foreground underline underline-offset-4"
               >
-                project context
-              </Link>{" "}
-              at any time.
+                {t("context.website_setup.review_subtitle_link")}
+              </Link>
+              {t("context.website_setup.review_subtitle_after")}
             </p>
           </div>
           <fieldset disabled={saving} className="min-w-0 space-y-5">
             {research.preserveCompetitors ? (
               <p className="text-sm text-muted-foreground">
-                We’ll use the competitors already saved in your project context.
+                {t("context.website_setup.preserved_competitors")}
               </p>
             ) : (
               <div className="overflow-hidden rounded-lg border border-border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Website</TableHead>
                       <TableHead>
-                        <span className="sr-only">Actions</span>
+                        {t("context.website_setup.col_name")}
+                      </TableHead>
+                      <TableHead>
+                        {t("context.website_setup.col_website")}
+                      </TableHead>
+                      <TableHead>
+                        <span className="sr-only">
+                          {t("context.website_setup.col_actions")}
+                        </span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -146,7 +154,8 @@ export function WebsiteSetupReview({
                             setEditing(id);
                           }}
                         >
-                          <Plus className="size-4" /> Add competitor
+                          <Plus className="size-4" />{" "}
+                          {t("context.website_setup.add_competitor")}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -157,15 +166,14 @@ export function WebsiteSetupReview({
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>
-                  We couldn’t save your project. Check the competitor names and
-                  websites, then try again.
+                  {t("context.website_setup.save_error")}
                 </AlertDescription>
               </Alert>
             )}
             <div className="flex items-center justify-between gap-3">
               {onBack ? (
                 <Button type="button" variant="outline" onClick={onBack}>
-                  Back
+                  {t("context.website_setup.back")}
                 </Button>
               ) : (
                 <span />
@@ -177,7 +185,7 @@ export function WebsiteSetupReview({
                 )}
               >
                 {saving && <LoaderCircle className="size-4 animate-spin" />}{" "}
-                Continue
+                {t("context.website_setup.continue")}
               </Button>
             </div>
           </fieldset>

@@ -3,11 +3,9 @@ import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAgentSetupPrompt } from "@/client/features/ai-mcp/agentSetupPrompt";
-import {
-  AgentSetupPanel,
-  AGENT_SETUP_DESCRIPTION,
-} from "@/client/features/ai-mcp/AgentSetupPanel";
+import { AgentSetupPanel } from "@/client/features/ai-mcp/AgentSetupPanel";
 import { CopyButton } from "@/client/components/CopyButton";
+import { useLocale } from "@/client/lib/i18n";
 import { CreateProjectModal } from "@/client/features/projects/CreateProjectModal";
 import { InviteTeammateModal } from "@/client/features/team/InviteTeammateModal";
 import { PermissionHint } from "@/client/components/PermissionHint";
@@ -41,6 +39,7 @@ export function DashboardSetupAction({
   domain: string | null;
   onComplete: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -50,9 +49,9 @@ export function DashboardSetupAction({
   if (step === "competitor")
     return (
       <StepInputForm
-        description="Explore a competitor’s domain to discover the topics they rank for and the websites linking to them."
-        label="Competitor website"
-        placeholder="competitor.com"
+        description={t("dashboard.details.explore_a_competitor_s_topics_they")}
+        label={t("dashboard.details.competitor_website")}
+        placeholder={t("context.competitors.domain_placeholder")}
         submitLabel="Explore competitor"
         validate={validateDomain}
         onSubmit={(value) => {
@@ -68,12 +67,14 @@ export function DashboardSetupAction({
   if (step === "keywords")
     return (
       <StepInputForm
-        description="Start from one keyword that describes what you offer. You’ll get related searches with volume and difficulty."
-        label="Seed keyword"
-        placeholder="e.g. running shoes"
+        description={t("dashboard.details.start_from_one_keyword_offer_you")}
+        label={t("dashboard.details.seed_keyword")}
+        placeholder={t("dashboard.details.e_g_running_shoes")}
         submitLabel="Get keyword ideas"
         validate={(value) =>
-          value.trim() ? undefined : "Enter a keyword to start from"
+          value.trim()
+            ? undefined
+            : t("dashboard.details.enter_a_keyword_to_start_from")
         }
         onSubmit={(value) => {
           onComplete();
@@ -88,8 +89,8 @@ export function DashboardSetupAction({
   if (step === "audit")
     return (
       <StepInputForm
-        description="Crawl your site to find broken links, missing tags, and pages search engines can’t index. You can adjust the crawl size before it starts."
-        label="Site URL"
+        description={t("dashboard.details.crawl_your_site_to_tags_and")}
+        label={t("audit.site_url_aria")}
         placeholder="https://example.com"
         defaultValue={domain ? `https://${domain}` : ""}
         submitLabel="Set up audit"
@@ -108,7 +109,7 @@ export function DashboardSetupAction({
     return (
       <div className="max-w-2xl space-y-4">
         <p className="text-sm leading-relaxed text-muted-foreground">
-          {AGENT_SETUP_DESCRIPTION}
+          {t("ai.panel.description")}
         </p>
         <AgentSetupPanel
           prompt={getAgentSetupPrompt(
@@ -134,29 +135,27 @@ export function DashboardSetupAction({
   if (!canManage)
     return org.isPending ? (
       <p className="text-sm text-muted-foreground">
-        Checking workspace permissions…
+        {t("dashboard.details.checking_workspace_permissions")}
       </p>
     ) : org.isError ? (
       <p className="text-sm text-muted-foreground">
         {getStandardErrorMessage(org.error)}
       </p>
     ) : (
-      <PermissionHint action="help with this step" />
+      <PermissionHint action={t("ui.details.help_with_step")} />
     );
   if (step === "project")
     return (
       <div className="space-y-4">
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Keep each website’s research, rankings, and connections in its own
-          project. Use the project switcher in the sidebar → New project
-          anytime.
+          {t("dashboard.details.keep_each_website_s_in_its")}
         </p>
         <Button onClick={() => setShowModal(true)}>
-          Create another project
+          {t("dashboard.details.create_another_project")}
         </Button>
         <Collapsible className="rounded-lg border border-border p-4">
           <CollapsibleTrigger className="cursor-pointer text-sm font-medium">
-            Have a list of websites? Let your agent set them up.
+            {t("dashboard.details.have_a_list_of_set_them")}
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3 space-y-3">
             <p className="text-sm text-muted-foreground">
@@ -164,16 +163,16 @@ export function DashboardSetupAction({
                 to="/ai"
                 className="text-primary underline-offset-4 hover:underline"
               >
-                Connect your agent
+                {t("dashboard.details.connect_your_agent")}
               </Link>
-              , then paste this prompt with your list of websites.
+              {t("dashboard.details.then_paste_this_prompt_of_websites")}
             </p>
             <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-muted-foreground">
               {projectPrompt}
             </pre>
             <CopyButton
               value={projectPrompt}
-              label="Copy project prompt"
+              label={t("dashboard.details.copy_project_prompt")}
               successMessage="Project prompt copied"
             />
           </CollapsibleContent>
@@ -186,10 +185,11 @@ export function DashboardSetupAction({
   return (
     <div className="space-y-4">
       <p className="text-sm leading-relaxed text-muted-foreground">
-        Bring a teammate into your workspace to share projects, research, and
-        results.
+        {t("dashboard.details.bring_a_teammate_into_projects_research")}
       </p>
-      <Button onClick={() => setShowModal(true)}>Invite a teammate</Button>
+      <Button onClick={() => setShowModal(true)}>
+        {t("dashboard.onboarding.team_title")}
+      </Button>
       {showModal && (
         <InviteTeammateModal
           onClose={() => setShowModal(false)}

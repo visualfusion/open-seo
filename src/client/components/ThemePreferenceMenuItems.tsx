@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ReactNode } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { SegmentedToggle } from "@/client/components/SegmentedToggle";
@@ -14,18 +15,19 @@ const THEME_OPTIONS: {
   label: string;
   icon: ReactNode;
 }[] = [
-  { value: "system", label: "System", icon: <Monitor /> },
-  { value: "light", label: "Light", icon: <Sun /> },
-  { value: "dark", label: "Dark", icon: <Moon /> },
+  { value: "system", label: "common.system", icon: <Monitor /> },
+  { value: "light", label: "common.light", icon: <Sun /> },
+  { value: "dark", label: "common.dark", icon: <Moon /> },
 ];
 
 /** System / Light / Dark segmented radio, shared by Settings and account menus. */
 export function ThemePreferenceRadio() {
+  const { t } = useLocale();
   const { themePreference, setThemePreference } = useThemePreference();
 
   return (
     <SegmentedToggle
-      items={THEME_OPTIONS}
+      items={THEME_OPTIONS.map((item) => ({ ...item, label: t(item.label) }))}
       value={themePreference}
       onChange={setThemePreference}
     />
@@ -33,11 +35,12 @@ export function ThemePreferenceRadio() {
 }
 
 export function ThemePreferenceDropdownItems() {
+  const { t } = useLocale();
   const { themePreference, setThemePreference } = useThemePreference();
 
   return (
     <DropdownMenuGroup>
-      <DropdownMenuLabel>Theme</DropdownMenuLabel>
+      <DropdownMenuLabel>{t("common.theme")}</DropdownMenuLabel>
       <DropdownMenuRadioGroup
         value={themePreference}
         onValueChange={(value) => {
@@ -47,7 +50,7 @@ export function ThemePreferenceDropdownItems() {
       >
         {THEME_OPTIONS.map(({ value, label, icon }) => (
           <DropdownMenuRadioItem key={value} value={value}>
-            {icon} {label}
+            {icon} {t(label)}
           </DropdownMenuRadioItem>
         ))}
       </DropdownMenuRadioGroup>

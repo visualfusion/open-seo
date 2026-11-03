@@ -10,7 +10,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { GoogleConnectionCard } from "@/client/features/integrations/GoogleConnectionCard";
 import { SeverityBadge } from "@/client/features/audit/shared";
-import { AUDIT_ISSUE_TYPES } from "@/shared/audit-issues";
+import { AUDIT_ISSUE_TYPES, getIssueDescriptor } from "@/shared/audit-issues";
+import { useLocale } from "@/client/lib/i18n";
 
 import {
   formatCount,
@@ -49,6 +50,7 @@ export function GscCard({
   connected: boolean;
   siteUrl: string | null;
 }) {
+  const { t } = useLocale();
   const reportQuery = useQuery({
     queryKey: ["dashboardGscReport", projectId, siteUrl],
     queryFn: () =>
@@ -72,7 +74,7 @@ export function GscCard({
 
   return (
     <CardShell
-      title="Google Search Console Performance"
+      title={t("dashboard.cards.gsc_title")}
       icon={<GoogleSearchConsoleLogo className="size-5" />}
       action={
         <Link
@@ -80,16 +82,16 @@ export function GscCard({
           params={{ projectId }}
           className={moreDetailsClass}
         >
-          View GSC insights →
+          {t("dashboard.cards.gsc_view_insights")}
         </Link>
       }
     >
       <p className="mb-4 text-sm font-medium text-muted-foreground">
-        Last 28 days
+        {t("dashboard.cards.last_28_days")}
       </p>
       {reportQuery.isError ? (
         <p className="text-sm text-muted-foreground">
-          Couldn&rsquo;t load Search Console data. Try again shortly.
+          {t("dashboard.cards.gsc_error")}
         </p>
       ) : !report ? (
         <MetricsTableSkeleton />
@@ -97,15 +99,19 @@ export function GscCard({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Metric</TableHead>
-              <TableHead className="text-right">Value</TableHead>
-              <TableHead className="text-right">Change</TableHead>
+              <TableHead>{t("dashboard.cards.metric")}</TableHead>
+              <TableHead className="text-right">
+                {t("dashboard.cards.value")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("dashboard.cards.change")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {[
               {
-                label: "Clicks",
+                label: t("dashboard.cards.clicks"),
                 value: formatCount(report.totals.clicks),
                 change: percentChange(
                   report.totals.clicks,
@@ -113,7 +119,7 @@ export function GscCard({
                 ),
               },
               {
-                label: "Impressions",
+                label: t("dashboard.cards.impressions"),
                 value: formatCount(report.totals.impressions),
                 change: percentChange(
                   report.totals.impressions,
@@ -121,12 +127,12 @@ export function GscCard({
                 ),
               },
               {
-                label: "Click-through rate",
+                label: t("dashboard.cards.ctr"),
                 value: formatCtr(report.totals.ctr),
                 change: null,
               },
               {
-                label: "Average position",
+                label: t("dashboard.cards.avg_position"),
                 value: formatPosition(report.totals.position),
                 change: null,
               },
@@ -161,6 +167,7 @@ export function AuditHealthCard({
   audit: DashboardAuditSummary | null;
   domain: string | null;
 }) {
+  const { locale, t } = useLocale();
   const queryClient = useQueryClient();
   const scan = useMutation({
     mutationFn: () =>
@@ -180,17 +187,20 @@ export function AuditHealthCard({
   });
   if (!audit)
     return (
-      <CardShell title="Site health">
+      <CardShell title={t("dashboard.cards.site_health")}>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-6 text-center">
           <ScanSearch className="size-7 text-muted-foreground" />
-          <h3 className="font-medium">Find what's holding your website back</h3>
+          <h3 className="font-medium">
+            {t("dashboard.cards.find_holding_back")}
+          </h3>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Scan up to 50 pages for broken links, missing titles and pages
-            Google can't index.
+            {t("dashboard.cards.scan_desc")}
           </p>
           {domain ? (
             <Button disabled={scan.isPending} onClick={() => scan.mutate()}>
-              {scan.isPending ? "Starting scan…" : "Scan my website"}
+              {scan.isPending
+                ? t("dashboard.cards.starting_scan")
+                : t("dashboard.cards.scan_website")}
             </Button>
           ) : (
             <Button
@@ -199,13 +209,13 @@ export function AuditHealthCard({
                 <Link to="/p/$projectId/settings" params={{ projectId }} />
               }
             >
-              Add your website
+              {t("dashboard.cards.add_website")}
             </Button>
           )}
           {scan.isError && (
             <QueryError
               error={scan.error}
-              fallback="Could not start your scan"
+              fallback={t("dashboard.details.scan_start_failed")}
             />
           )}
         </div>
@@ -223,7 +233,7 @@ export function AuditHealthCard({
     // not the same as a healthy site, so show progress instead.
     return (
       <CardShell
-        title="Site health"
+        title={t("dashboard.cards.site_health")}
         action={
           <Link
             to="/p/$projectId/audit"
@@ -231,7 +241,7 @@ export function AuditHealthCard({
             search={{ auditId: audit.id }}
             className={moreDetailsClass}
           >
-            View progress
+            {t("dashboard.cards.view_progress")}
           </Link>
         }
       >
@@ -239,27 +249,46 @@ export function AuditHealthCard({
           <LoaderCircle className="size-7 animate-spin text-muted-foreground" />
           <h3 className="font-medium">
             {isLighthouse
-              ? "Running Lighthouse checks"
+              ? t("audit.running_lighthouse")
               : isFinalizing
-                ? "Preparing your results"
+                ? t("dashboard.details.preparing_your_results")
                 : audit.currentPhase === "discovery"
-                  ? "Finding pages to scan"
-                  : "Scanning your website"}
+                  ? t("dashboard.details.finding_pages_to_scan")
+                  : t("dashboard.details.scanning_your_website")}
           </h3>
           {!isFinalizing && (
             <Progress
               className="w-full max-w-xs"
               value={checked}
               max={total || 1}
-              aria-label={isLighthouse ? "Lighthouse checks" : "Pages crawled"}
+              aria-label={
+                isLighthouse
+                  ? t("dashboard.details.lighthouse_checks")
+                  : t("audit.stats.pages_crawled")
+              }
             />
           )}
           <p className="text-sm text-muted-foreground tabular-nums">
             {isLighthouse
-              ? `${checked} of ${total} checks${audit.lighthouseFailed > 0 ? ` (${audit.lighthouseFailed} failed)` : ""}`
+              ? t("dashboard.details.value_of_value_checksvalue", {
+                  v1: checked,
+                  v2: total,
+                  v3:
+                    audit.lighthouseFailed > 0
+                      ? t("dashboard.details.value_failed", {
+                          v1: audit.lighthouseFailed,
+                        })
+                      : "",
+                })
               : isFinalizing
-                ? `${audit.pagesCrawled} pages crawled. Finishing your report.`
-                : `${checked} of up to ${total} pages crawled`}
+                ? t(
+                    "dashboard.details.value_pages_crawled_finishing_your_report",
+                    { v1: audit.pagesCrawled },
+                  )
+                : t("dashboard.details.value_of_up_to_value_pages_crawled", {
+                    v1: checked,
+                    v2: total,
+                  })}
           </p>
         </div>
       </CardShell>
@@ -268,7 +297,7 @@ export function AuditHealthCard({
 
   return (
     <CardShell
-      title="Site health"
+      title={t("dashboard.cards.site_health")}
       action={
         <Link
           to="/p/$projectId/audit"
@@ -276,53 +305,58 @@ export function AuditHealthCard({
           search={{ auditId: audit.id, tab: "issues" }}
           className={moreDetailsClass}
         >
-          Review issues
+          {t("dashboard.cards.review_issues")}
         </Link>
       }
     >
       {audit.status === "failed" && (
         <p className="mb-4 text-sm text-destructive">
-          The latest scan didn’t finish. Review the results or try again.
+          {t("dashboard.cards.scan_not_finished")}
         </p>
       )}
       {audit.status === "completed" && (
         <p className="mb-4 text-sm text-muted-foreground">
-          {audit.pagesCrawled} pages checked · {formatDay(audit.startedAt)}
+          {audit.pagesCrawled} {t("dashboard.cards.pages_checked")} ·{" "}
+          {formatDay(audit.startedAt)}
         </p>
       )}
       {audit.topIssues.length === 0 ? (
         audit.status === "completed" ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Check className="size-4 text-success" />
-            No issues found — your site looks healthy.
+            {t("dashboard.cards.no_issues_found")}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Run the audit again to see issues.
+            {t("dashboard.cards.run_again")}
           </p>
         )
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Issue</TableHead>
-              <TableHead>Severity</TableHead>
-              <TableHead className="text-right">Pages affected</TableHead>
+              <TableHead>{t("audit.issues")}</TableHead>
+              <TableHead>{t("common.status")}</TableHead>
+              <TableHead className="text-right">
+                {t("audit.affected_pages")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {audit.topIssues.map((issue) => (
               <TableRow key={issue.issueType}>
                 <TableCell>
-                  {issueTitles[issue.issueType] ?? issue.issueType}
+                  {getIssueDescriptor(issue.issueType, locale)?.title ??
+                    issueTitles[issue.issueType] ??
+                    issue.issueType}
                 </TableCell>
                 <TableCell>
                   <SeverityBadge severity={issue.severity}>
                     {issue.severity === "critical"
-                      ? "Critical"
+                      ? t("audit.critical")
                       : issue.severity === "warning"
-                        ? "Warning"
-                        : "Info"}
+                        ? t("audit.warning")
+                        : t("audit.info")}
                   </SeverityBadge>
                 </TableCell>
                 <TableCell className="text-right tabular-nums">

@@ -1,5 +1,5 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { FREE_MAX_AUDIT_PAGES } from "@/shared/audit-limits";
-import { GATEWAY_RENDERING_NOT_SET_UP_MESSAGE } from "@/shared/audit-rendering";
 import { isErrorCode, type ErrorCode } from "@/shared/error-codes";
 import {
   isEveryAppClientAuthMode,
@@ -10,59 +10,63 @@ import {
  * Copy for an error we did not expect. Hosted users cannot read our logs, so
  * they get support; a self-hoster runs the server and can.
  */
-export const UNEXPECTED_ERROR_MESSAGE = isHostedClientAuthMode()
-  ? "Something went wrong on our end. Please try again, and contact support if it keeps happening."
-  : "Something went wrong. Please try again, or check the server logs for details.";
+export function getUnexpectedErrorMessage(): string {
+  return getTranslation(
+    isHostedClientAuthMode()
+      ? "ui.details.error_unexpected_hosted"
+      : "ui.details.error_unexpected_selfhost",
+  );
+}
 
-const STANDARD_MESSAGES: Record<ErrorCode, string> = {
-  UNAUTHENTICATED: "Please sign in and try again.",
-  AUTH_CONFIG_MISSING: isEveryAppClientAuthMode()
-    ? "OpenSEO can't reach your Every App gateway for this right now. An owner or admin can check its setup with pnpm everyapp status."
-    : "OpenSEO auth is not configured. Follow the README setup steps for Cloudflare Access.",
-  PAYMENT_REQUIRED:
-    "An active hosted subscription is required before you can use OpenSEO.",
-  INSUFFICIENT_CREDITS:
-    "You don't have enough credits for this. Upgrade your plan or buy more credits to keep going.",
-  PAYMENT_METHOD_REQUIRED:
-    "We couldn't charge a card on file. Add or update your card in the billing portal, then try again.",
-  PAYMENT_ACTION_REQUIRED:
-    "Your bank needs more time or a confirmation for this charge. Check your balance in a minute; if nothing arrived, buy your first top-up with the Buy credits button, then turn on auto-reload.",
-  AUDIT_RENDERING_UNAVAILABLE: isEveryAppClientAuthMode()
-    ? GATEWAY_RENDERING_NOT_SET_UP_MESSAGE
-    : "JavaScript rendering is not configured on this deployment. Ask your administrator to enable a renderer.",
-  FORBIDDEN: "You do not have access to this resource.",
-  NOT_FOUND: "The requested resource was not found.",
-  AUDIT_CAPACITY_REACHED:
-    "You've reached audit capacity for your account. Delete old audits from your projects to start a new one.",
-  AUDIT_PAGE_LIMIT_EXCEEDED: `Free plan audits are limited to ${FREE_MAX_AUDIT_PAGES} pages. Upgrade to run larger audits.`,
-  AUDIT_ALREADY_RUNNING:
-    "You've reached the limit of audits running at once. Wait for one to finish or delete it before starting another.",
-  VALIDATION_ERROR: "Please check your input and try again.",
-  UNKNOWN_LOCATION:
-    "We couldn't find that city, county, or region. Pick a location from the list, or clear the field to search the whole country.",
-  CRAWL_TARGET_BLOCKED: "This crawl target is blocked by security policy.",
-  BACKLINKS_BILLING_ISSUE:
-    "The connected DataForSEO account has a billing or balance issue.",
-  AI_SEARCH_BILLING_ISSUE:
-    "The connected DataForSEO account has a billing or balance issue.",
-  AI_VISIBILITY_ERROR:
-    "The AI visibility request could not be completed. Review the tracking settings and try again.",
-  DATAFORSEO_AUTH_FAILED: isEveryAppClientAuthMode()
-    ? "DataForSEO isn't set up on your Every App gateway yet, or rejected the key it holds. An owner or admin sets it with pnpm everyapp secret set DATAFORSEO_API_KEY."
-    : "DataForSEO rejected the credentials. Check that DATAFORSEO_API_KEY is the base64 of your DataForSEO login:password, and that the DataForSEO account is verified and has API access.",
-  RATE_LIMITED: "Too many requests. Please wait and try again.",
-  UPSTREAM_UNAVAILABLE:
-    "The data provider is temporarily unavailable. Please retry in a moment.",
-  CONFLICT: "This request conflicts with existing data.",
-  INTERNAL_ERROR: UNEXPECTED_ERROR_MESSAGE,
+const STANDARD_MESSAGE_KEYS: Record<
+  Exclude<ErrorCode, "INTERNAL_ERROR">,
+  string
+> = {
+  UNAUTHENTICATED: "ui.details.error_unauthenticated",
+  AUTH_CONFIG_MISSING: "ui.details.error_auth_config_missing",
+  PAYMENT_REQUIRED: "ui.details.error_payment_required",
+  INSUFFICIENT_CREDITS: "ui.details.error_insufficient_credits",
+  PAYMENT_METHOD_REQUIRED: "ui.details.error_payment_method_required",
+  PAYMENT_ACTION_REQUIRED: "ui.details.error_payment_action_required",
+  AUDIT_RENDERING_UNAVAILABLE: "ui.details.error_audit_rendering_unavailable",
+  FORBIDDEN: "ui.details.error_forbidden",
+  NOT_FOUND: "ui.details.error_not_found",
+  AUDIT_CAPACITY_REACHED: "ui.details.error_audit_capacity_reached",
+  AUDIT_PAGE_LIMIT_EXCEEDED: "ui.details.error_audit_page_limit_exceeded",
+  AUDIT_ALREADY_RUNNING: "ui.details.error_audit_already_running",
+  VALIDATION_ERROR: "ui.details.error_validation_error",
+  UNKNOWN_LOCATION: "ui.details.error_unknown_location",
+  CRAWL_TARGET_BLOCKED: "ui.details.error_crawl_target_blocked",
+  BACKLINKS_BILLING_ISSUE: "ui.details.error_backlinks_billing_issue",
+  AI_SEARCH_BILLING_ISSUE: "ui.details.error_ai_search_billing_issue",
+  AI_VISIBILITY_ERROR: "ui.details.error_ai_visibility_error",
+  DATAFORSEO_AUTH_FAILED: "ui.details.error_dataforseo_auth_failed",
+  RATE_LIMITED: "ui.details.error_rate_limited",
+  UPSTREAM_UNAVAILABLE: "ui.details.error_upstream_unavailable",
+  CONFLICT: "ui.details.error_conflict",
 };
+
+function standardMessage(code: ErrorCode): string {
+  if (code === "INTERNAL_ERROR") return getUnexpectedErrorMessage();
+  if (isEveryAppClientAuthMode()) {
+    if (code === "AUTH_CONFIG_MISSING")
+      return getTranslation("ui.details.error_gateway_auth");
+    if (code === "DATAFORSEO_AUTH_FAILED")
+      return getTranslation("ui.details.error_gateway_dataforseo");
+    if (code === "AUDIT_RENDERING_UNAVAILABLE")
+      return getTranslation("ui.details.error_gateway_rendering");
+  }
+  return getTranslation(STANDARD_MESSAGE_KEYS[code], undefined, {
+    count: FREE_MAX_AUDIT_PAGES,
+  });
+}
 
 export function getStandardErrorMessage(
   error: unknown,
-  fallback: string = STANDARD_MESSAGES.INTERNAL_ERROR,
+  fallback: string = getUnexpectedErrorMessage(),
 ): string {
   if (!(error instanceof Error)) return fallback;
-  if (isErrorCode(error.message)) return STANDARD_MESSAGES[error.message];
+  if (isErrorCode(error.message)) return standardMessage(error.message);
   if (error.message) return error.message;
   return fallback;
 }

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ReactNode } from "react";
 import { GoogleGlyph } from "@/client/features/gsc/GoogleGlyph";
 import { Button } from "@/client/components/ui/button";
@@ -21,12 +22,15 @@ export function GoogleProjectEmptyState({
   onLink: () => void;
   children?: ReactNode;
 }) {
+  const { t } = useLocale();
   return (
     <div className="flex flex-1 flex-col gap-4">
       <p className="text-sm text-muted-foreground">
         {hasGrant
-          ? `Choose a ${name} property to finish connecting this project.`
-          : `Connect ${name} to see this project’s data.`}
+          ? t("integrations.details.choose_a_value_property_this_project", {
+              v1: name,
+            })
+          : t("integrations.details.connect_value_to_see_s_data", { v1: name })}
       </p>
       {/* Actions sit bottom-right, with Dismiss (children) just left of the
           connect action. */}
@@ -49,12 +53,12 @@ export function GoogleProjectEmptyState({
               <GoogleGlyph className="size-[18px]" />
             )}
             {disabled
-              ? "Opening Google…"
+              ? t("auth.onboarding.gsc.opening_google")
               : canManage
                 ? hasGrant
-                  ? "Choose property"
-                  : "Connect"
-                : "Manage Google accounts"}
+                  ? t("integrations.details.choose_property")
+                  : t("settings.crawler_access.connect")
+                : t("integrations.details.manage_google_accounts")}
           </Button>
         ) : null}
       </div>

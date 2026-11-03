@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 /**
  * Plain-language copy for Google OAuth failures, shared by the connect-surface
  * inline alert (GoogleLinkErrorAlert) and the /auth-error fallback page.
@@ -12,37 +13,65 @@ export function googleAuthErrorCopy(
   code: string,
   providerLabel?: string,
 ): { title: string; description: string } {
-  const what = providerLabel ? `${providerLabel} connection` : "Google sign-in";
+  const what = providerLabel
+    ? getTranslation("integrations.details.value_connection", undefined, {
+        v1: providerLabel,
+      })
+    : getTranslation("auth.details.google_sign_in");
 
   switch (code) {
     case "state_mismatch":
       return {
-        title: `${what} didn't finish`,
-        description:
-          "The attempt expired or was interrupted. Try again in a single browser tab and finish the Google steps within 10 minutes. If it keeps happening, make sure your browser allows cookies for this site.",
+        title: getTranslation(
+          "integrations.details.value_didn_t_finish",
+          undefined,
+          { v1: what },
+        ),
+        description: getTranslation("auth.details.the_attempt_expired_or_in_a"),
       };
     case "access_denied":
       return {
-        title: `${what} was canceled`,
-        description:
-          "Google's permission screen was closed or declined. Try again whenever you're ready.",
+        title: getTranslation(
+          "integrations.details.value_was_canceled",
+          undefined,
+          { v1: what },
+        ),
+        description: getTranslation(
+          "auth.details.google_s_permission_screen_try_again",
+        ),
       };
     case "scope_not_granted":
       return {
-        title: `${what} is missing a permission`,
-        description: `OpenSEO didn't get access to your ${providerLabel ?? "Google"} data because a box on Google's permission screen wasn't checked. Try again and check every box before you continue.`,
+        title: getTranslation(
+          "integrations.details.value_is_missing_a_permission",
+          undefined,
+          { v1: what },
+        ),
+        description: getTranslation(
+          "integrations.details.openseo_didn_t_get_data_because",
+          undefined,
+          { v1: providerLabel ?? "Google" },
+        ),
       };
     case "connection_save_failed":
       return {
-        title: `${what} didn't finish`,
-        description:
-          "We couldn't save the connection. Please try again — if it keeps failing, contact support.",
+        title: getTranslation(
+          "integrations.details.value_didn_t_finish",
+          undefined,
+          { v1: what },
+        ),
+        description: getTranslation("auth.details.we_couldn_t_save_again_if"),
       };
     default:
       return {
-        title: `${what} didn't finish`,
-        description:
-          "Something went wrong while talking to Google. Please try again — if it keeps failing, contact support.",
+        title: getTranslation(
+          "integrations.details.value_didn_t_finish",
+          undefined,
+          { v1: what },
+        ),
+        description: getTranslation(
+          "auth.details.something_went_wrong_while_try_again",
+        ),
       };
   }
 }

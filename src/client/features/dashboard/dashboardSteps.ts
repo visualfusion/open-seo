@@ -82,3 +82,58 @@ export function getStepStatus(
 
 // Skipping these marks them complete, so they never wait in "saved for later".
 const completeWhenSkipped = new Set<DashboardSetupStep>(["team", "project"]);
+
+export function getTranslatedSetupStep(
+  step: {
+    id: DashboardSetupStep;
+    label: string;
+    detail: string;
+    skipLabel?: string;
+  },
+  t: (key: string) => string,
+): { label: string; detail: string; skipLabel: string } {
+  switch (step.id) {
+    case "competitor":
+      return {
+        label: t("dashboard.onboarding.competitor_title"),
+        detail: t("dashboard.onboarding.competitor_desc"),
+        skipLabel: t("dashboard.onboarding.skip"),
+      };
+    case "keywords":
+      return {
+        label: t("dashboard.onboarding.keywords_title"),
+        detail: t("dashboard.onboarding.keywords_desc"),
+        skipLabel: t("dashboard.onboarding.skip"),
+      };
+    case "audit":
+      return {
+        label: t("dashboard.onboarding.audit_title"),
+        detail: t("dashboard.onboarding.audit_desc"),
+        skipLabel: t("dashboard.onboarding.skip"),
+      };
+    case "mcp":
+      return {
+        label: t("dashboard.onboarding.mcp_title"),
+        detail: t("dashboard.onboarding.mcp_desc"),
+        skipLabel: t("dashboard.onboarding.skip"),
+      };
+    case "team":
+      return {
+        label: t("dashboard.onboarding.team_title"),
+        detail: t("dashboard.onboarding.team_desc"),
+        skipLabel: t("dashboard.onboarding.skip"),
+      };
+    case "project":
+      return {
+        label: t("dashboard.onboarding.project_title"),
+        detail: t("dashboard.onboarding.project_desc"),
+        skipLabel: t("dashboard.onboarding.only_one_project"),
+      };
+    default:
+      return {
+        label: step.label,
+        detail: step.detail,
+        skipLabel: step.skipLabel ?? t("dashboard.onboarding.skip"),
+      };
+  }
+}

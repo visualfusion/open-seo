@@ -4,6 +4,7 @@ import { projectsQueryOptions } from "@/client/features/projects/projectQueries"
 import { ProjectWebsiteSetup } from "@/client/features/projects/ProjectWebsiteSetup";
 import { QueryError } from "@/client/components/QueryState";
 import { SkeletonPageContent } from "@/client/components/SkeletonPresets";
+import { useLocale } from "@/client/lib/i18n";
 
 export function ProjectWebsiteGate({
   projectId,
@@ -12,12 +13,13 @@ export function ProjectWebsiteGate({
   projectId: string;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   const query = useQuery(projectsQueryOptions());
   if (query.isPending) return <SkeletonPageContent />;
   if (query.isError)
     return (
       <QueryError
-        fallback="Couldn't load your project."
+        fallback={t("context.website_gate.load_failed")}
         error={query.error}
         onRetry={() => void query.refetch()}
         isRetrying={query.isFetching}

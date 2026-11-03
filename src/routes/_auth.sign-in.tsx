@@ -15,6 +15,7 @@ import {
 import { signUpStatusQueryOptions } from "@/client/features/auth/signUpStatus";
 import { useGoogleAuth } from "@/client/features/auth/useGoogleAuth";
 import { getFormError } from "@/client/lib/forms";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -25,8 +26,13 @@ import {
 import { z } from "zod";
 
 const signInSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address."),
-  password: z.string().min(1, "Enter your password."),
+  email: z
+    .string()
+    .trim()
+    .email({ error: () => getTranslation("auth.common.email_invalid") }),
+  password: z
+    .string()
+    .min(1, { error: () => getTranslation("auth.sign_in.password_required") }),
 });
 
 export const Route = createFileRoute("/_auth/sign-in")({
@@ -35,6 +41,7 @@ export const Route = createFileRoute("/_auth/sign-in")({
 });
 
 function SignInPage() {
+  const { t } = useLocale();
   const search = Route.useSearch();
   const navigate = useNavigate();
   const { redirectTo, oauthQuery, isHostedMode, isBetterAuthMode } =
@@ -106,14 +113,14 @@ function SignInPage() {
 
         formApi.setErrorMap({
           onSubmit: {
-            form: result.error.message || "We couldn't sign you in.",
+            form: result.error.message || t("auth.sign_in.failed"),
             fields: {},
           },
         });
       } catch {
         formApi.setErrorMap({
           onSubmit: {
-            form: "Unable to sign in right now. Please try again.",
+            form: t("auth.sign_in.failed_retry"),
             fields: {},
           },
         });
@@ -123,12 +130,11 @@ function SignInPage() {
 
   return (
     <AuthPageCard
-      title="Sign in"
+      title={t("auth.sign_in.title")}
       footer={
         emailOnly ? (
           <p className="text-sm text-foreground/50">
-            Need an account? Ask an administrator for an invitation. Forgot your
-            password? Ask your server administrator to reset it.
+            {t("auth.sign_in.standalone_footer")}
           </p>
         ) : isHostedMode ? (
           <div
@@ -144,7 +150,7 @@ function SignInPage() {
                 search={getSignInSearch(redirectTo)}
                 className="text-foreground underline underline-offset-2 hover:text-foreground/80 transition-colors"
               >
-                Forgot password?
+                {t("auth.sign_in.forgot_password")}
               </Link>
             ) : null}
             <Link
@@ -152,7 +158,7 @@ function SignInPage() {
               search={getSignInSearch(redirectTo)}
               className="text-foreground underline underline-offset-2 hover:text-foreground/80 transition-colors"
             >
-              Create account
+              {t("auth.sign_in.create_account")}
             </Link>
           </div>
         ) : null
@@ -161,7 +167,7 @@ function SignInPage() {
       {!emailFormVisible ? (
         <>
           <AuthMethodChooser
-            googleLabel="Continue with Google"
+            googleLabel={t("auth.common.continue_google")}
             disabled={!isHostedMode}
             isBusy={google.isStarting}
             onContinueWithGoogle={() => {
@@ -173,7 +179,9 @@ function SignInPage() {
             }}
           />
           {isHostedMode ? (
-            <TermsAgreementNotice action="By continuing with Google" />
+            <TermsAgreementNotice
+              action={t("auth.common.by_continuing_google")}
+            />
           ) : null}
           {google.error ? (
             <p className="text-sm text-destructive">{google.error}</p>
@@ -185,11 +193,11 @@ function SignInPage() {
             <form.AppField name="email">
               {(field) => (
                 <field.TextField
-                  label="Email address"
+                  label={t("auth.common.email_label")}
                   hideLabel
                   className={authInputClassName}
                   type="email"
-                  placeholder="Email address..."
+                  placeholder={t("auth.common.email_placeholder")}
                   autoComplete="email"
                   required
                 />
@@ -198,11 +206,11 @@ function SignInPage() {
             <form.AppField name="password">
               {(field) => (
                 <field.TextField
-                  label="Password"
+                  label={t("auth.common.password_label")}
                   hideLabel
                   className={authInputClassName}
                   type="password"
-                  placeholder="Password..."
+                  placeholder={t("auth.common.password_placeholder")}
                   autoComplete="current-password"
                   required
                 />
@@ -228,7 +236,9 @@ function SignInPage() {
                       className={authSubmitClassName}
                       pending={isSubmitting}
                     >
-                      {isSubmitting ? "Signing in..." : "Sign in"}
+                      {isSubmitting
+                        ? t("auth.sign_in.submitting")
+                        : t("auth.sign_in.submit")}
                     </Button>
                   </>
                 );

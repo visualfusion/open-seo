@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
 import { toast } from "sonner";
@@ -95,7 +96,10 @@ export async function updatePrivacyChoices(
   const result = await authClient.updateUser({
     analyticsOptedOut: !next.analytics,
   });
-  if (result.error) toast.error("We couldn't save your analytics setting.");
+  if (result.error)
+    toast.error(
+      getTranslation("ui.details.we_couldn_t_save_your_analytics_setting"),
+    );
 }
 
 /** Starts and stops PostHog to match the current choices. */

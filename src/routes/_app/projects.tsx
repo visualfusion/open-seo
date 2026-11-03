@@ -14,12 +14,14 @@ import { Badge } from "@/client/components/ui/badge";
 import { Button } from "@/client/components/ui/button";
 import { getLastProjectId } from "@/client/lib/active-project";
 import { CreateProjectModal } from "@/client/features/projects/CreateProjectModal";
+import { useLocale } from "@/client/lib/i18n";
 
 export const Route = createFileRoute("/_app/projects")({
   component: ProjectsPage,
 });
 
 function ProjectsPage() {
+  const { t } = useLocale();
   const [creating, setCreating] = React.useState(false);
   // Read after mount to keep SSR/first render stable.
   const [currentProjectId, setCurrentProjectId] = React.useState<string | null>(
@@ -34,19 +36,19 @@ function ProjectsPage() {
     <div className="h-full overflow-auto px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <PageHeader
-          title="Projects"
-          description="Each project has its own Search Console, rank tracking, and audits."
+          title={t("projects.manage.title")}
+          description={t("projects.manage.description")}
           actions={
             <Button onClick={() => setCreating(true)}>
               <Plus data-icon="inline-start" />
-              New project
+              {t("projects.manage.new_project")}
             </Button>
           }
         />
 
         <QueryState
           query={projectsQuery}
-          errorFallback="Failed to load projects"
+          errorFallback={t("projects.manage.error_loading")}
         >
           {(data) => (
             <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
@@ -64,12 +66,12 @@ function ProjectsPage() {
                         </span>
                         {project.id === currentProjectId ? (
                           <Badge variant="secondary" size="sm">
-                            Current
+                            {t("projects.manage.current_badge")}
                           </Badge>
                         ) : null}
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        {project.domain ?? "No domain set"}
+                        {project.domain ?? t("projects.manage.no_domain")}
                       </span>
                     </span>
                     <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
@@ -91,6 +93,7 @@ function ProjectsPage() {
 }
 
 function ArchivedProjects() {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const archivedQuery = useQuery({
     queryKey: ["projects", "archived"],
@@ -106,7 +109,7 @@ function ArchivedProjects() {
       await queryClient.invalidateQueries({
         queryKey: projectsQueryOptions().queryKey,
       });
-      toast.success("Project restored");
+      toast.success(t("projects.manage.restored"));
     },
   });
 
@@ -114,7 +117,7 @@ function ArchivedProjects() {
 
   return (
     <section className="space-y-3">
-      <SectionHeader title="Archived" />
+      <SectionHeader title={t("projects.manage.archived_section")} />
       <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
         {archived.map((project) => (
           <li
@@ -126,7 +129,7 @@ function ArchivedProjects() {
                 {project.name}
               </span>
               <span className="truncate text-xs text-muted-foreground">
-                {project.domain ?? "No domain set"}
+                {project.domain ?? t("projects.manage.no_domain")}
               </span>
             </span>
             <Button
@@ -135,7 +138,7 @@ function ArchivedProjects() {
               onClick={() => restoreMutation.mutate(project.id)}
               disabled={restoreMutation.isPending}
             >
-              Restore
+              {t("projects.manage.restore")}
             </Button>
           </li>
         ))}

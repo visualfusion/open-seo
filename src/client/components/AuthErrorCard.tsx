@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useEffect, type ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
 import {
@@ -45,7 +46,7 @@ export function AuthErrorCard({
 
   const message = getStandardErrorMessage(
     error,
-    "Something went wrong. Please try again.",
+    getTranslation("ui.details.something_wrong"),
   );
   return (
     <div className="flex h-full min-w-0 flex-1 items-center justify-center p-4">
@@ -59,6 +60,7 @@ export function AuthErrorCard({
 }
 
 function AuthConfigErrorCard({ message, onRetry }: CardProps) {
+  const { t } = useLocale();
   // The hint names the settings of the mode the server actually runs; the
   // alert above already carries the server's exact message.
   const clientAuthMode = getClientAuthMode();
@@ -68,7 +70,7 @@ function AuthConfigErrorCard({ message, onRetry }: CardProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShieldAlert className="size-5 text-destructive" />
-          Authentication setup required
+          {t("auth.details.authentication_setup_required")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -78,32 +80,33 @@ function AuthConfigErrorCard({ message, onRetry }: CardProps) {
 
         {clientAuthMode === "hosted" ? (
           <p className="text-muted-foreground">
-            Hosted mode requires{" "}
+            {t("auth.details.hosted_mode_requires")}{" "}
             <code className="mx-1">BETTER_AUTH_SECRET</code>
-            (32+ characters), <code className="mx-1">BETTER_AUTH_URL</code>, and
-            Google OAuth credentials on the deployment.
+            {t("auth.details.32_characters")}{" "}
+            <code className="mx-1">BETTER_AUTH_URL</code>
+            {t("auth.details.and_google_oauth_credentials_on_the_deployment")}
           </p>
         ) : null}
         {clientAuthMode === "everyapp" ? (
           <p className="text-muted-foreground">
-            OpenSEO runs behind an Every App gateway, which signs people in.
-            Install it with <code className="mx-1">pnpm everyapp install</code>{" "}
-            so it gets the gateway&apos;s identity keys, and open it through the
-            gateway.
+            {t("auth.details.openseo_runs_behind_an_signs_people")}{" "}
+            <code className="mx-1">pnpm everyapp install</code>{" "}
+            {t("auth.details.so_it_gets_the_and_open")}
           </p>
         ) : null}
         {clientAuthMode === "cloudflare_access" ? (
           <p className="text-muted-foreground">
-            Cloudflare Access mode requires
-            <code className="mx-1">TEAM_DOMAIN</code> (a full https URL) and
-            <code className="mx-1">POLICY_AUD</code> set on the deployment, with
-            an Access application protecting this hostname.
+            {t("auth.details.cloudflare_access_mode_requires")}
+            <code className="mx-1">TEAM_DOMAIN</code>{" "}
+            {t("auth.details.a_full_https_url_and")}
+            <code className="mx-1">POLICY_AUD</code>{" "}
+            {t("auth.details.set_on_the_deployment_protecting_this")}
           </p>
         ) : null}
       </CardContent>
       <CardFooter className="justify-end gap-2">
         <Button variant="ghost" onClick={onRetry}>
-          Try Again
+          {t("auth.details.try_again")}
         </Button>
         <Button
           nativeButton={false}
@@ -115,7 +118,7 @@ function AuthConfigErrorCard({ message, onRetry }: CardProps) {
             />
           }
         >
-          Open Setup Guide
+          {t("auth.details.open_setup_guide")}
         </Button>
       </CardFooter>
     </Card>
@@ -123,6 +126,7 @@ function AuthConfigErrorCard({ message, onRetry }: CardProps) {
 }
 
 function UnauthenticatedErrorCard({ message, onRetry }: CardProps) {
+  const { t } = useLocale();
   // A sign-in page exists wherever Better Auth accounts do.
   const hasSignIn = usesBetterAuthClient();
   const signInHref =
@@ -145,17 +149,14 @@ function UnauthenticatedErrorCard({ message, onRetry }: CardProps) {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Authentication required</CardTitle>
+        <CardTitle>{t("auth.details.authentication_required")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 text-muted-foreground">
         <p>{message}</p>
-        <p>
-          This deployment uses external authentication. Refresh your access
-          session, then try again.
-        </p>
+        <p>{t("auth.details.this_deployment_uses_external_session_then")}</p>
       </CardContent>
       <CardFooter className="justify-end">
-        <Button onClick={onRetry}>Try Again</Button>
+        <Button onClick={onRetry}>{t("auth.details.try_again")}</Button>
       </CardFooter>
     </Card>
   );

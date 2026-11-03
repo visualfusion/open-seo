@@ -12,6 +12,7 @@ import {
 } from "@/serverFunctions/crawlerAccess";
 import { isCrawlerAccessExpired } from "@/shared/crawler-access";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 import {
   Table,
   TableBody,
@@ -37,6 +38,7 @@ const formatDate = (value: string) => new Date(value).toLocaleDateString();
  * the same host pick them up too.
  */
 export function CrawlerAccessSettings({ projectId }: { projectId: string }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
 
@@ -52,7 +54,7 @@ export function CrawlerAccessSettings({ projectId }: { projectId: string }) {
       await queryClient.invalidateQueries({
         queryKey: crawlerCredentialsQueryKey,
       });
-      toast.success("Crawler access removed");
+      toast.success(t("settings.crawler_access.table.remove_success"));
     },
   });
 
@@ -62,7 +64,9 @@ export function CrawlerAccessSettings({ projectId }: { projectId: string }) {
     <Card size="lg">
       <CardHeader className={isAdding ? "border-b" : undefined}>
         <CardTitle>
-          <h2 className="leading-tight">Shopify</h2>
+          <h2 className="leading-tight">
+            {t("settings.crawler_access.title")}
+          </h2>
         </CardTitle>
         <CardAction className="self-center">
           <Button
@@ -70,17 +74,16 @@ export function CrawlerAccessSettings({ projectId }: { projectId: string }) {
             size="sm"
             onClick={() => setIsAdding((value) => !value)}
           >
-            {isAdding ? "Cancel" : "Connect"}
+            {isAdding
+              ? t("settings.crawler_access.cancel")
+              : t("settings.crawler_access.connect")}
           </Button>
         </CardAction>
       </CardHeader>
       {isAdding ? (
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            Let the audit crawler through Shopify. Paste the signature you
-            created in Shopify admin under Online Store &rarr; Preferences
-            &rarr; Crawler access. Every audit of that domain in your
-            organization sends it with each request.
+            {t("settings.crawler_access.desc")}
           </p>
           <CrawlerAccessForm
             projectId={projectId}
@@ -93,17 +96,25 @@ export function CrawlerAccessSettings({ projectId }: { projectId: string }) {
         <CardContent>
           {credentialsQuery.isError ? (
             <p className="text-sm text-destructive">
-              We couldn't load your crawler access.
+              {t("settings.crawler_access.error_loading")}
             </p>
           ) : credentials.length > 0 ? (
             <TableCard>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Domain</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Added</TableHead>
-                    <TableHead>Expires</TableHead>
+                    <TableHead>
+                      {t("settings.crawler_access.table.domain")}
+                    </TableHead>
+                    <TableHead>
+                      {t("settings.crawler_access.table.type")}
+                    </TableHead>
+                    <TableHead>
+                      {t("settings.crawler_access.table.added")}
+                    </TableHead>
+                    <TableHead>
+                      {t("settings.crawler_access.table.expires")}
+                    </TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
@@ -114,7 +125,7 @@ export function CrawlerAccessSettings({ projectId }: { projectId: string }) {
                         {credential.host}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        Shopify signature
+                        {t("settings.crawler_access.table.type_shopify")}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {formatDate(credential.createdAt)}
@@ -122,16 +133,23 @@ export function CrawlerAccessSettings({ projectId }: { projectId: string }) {
                       <TableCell className="text-muted-foreground">
                         {credential.expiresAt
                           ? formatDate(credential.expiresAt)
-                          : "Unknown"}
+                          : t("settings.crawler_access.table.unknown")}
                         {isCrawlerAccessExpired(credential.expiresAt) && (
-                          <span className="ml-2 text-destructive">Expired</span>
+                          <span className="ml-2 text-destructive">
+                            {t("settings.crawler_access.table.expired")}
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
                           size="icon-xs"
-                          aria-label={`Remove crawler access for ${credential.host}`}
+                          aria-label={t(
+                            "settings.crawler_access.table.remove_label",
+                            {
+                              host: credential.host,
+                            },
+                          )}
                           disabled={deleteMutation.isPending}
                           onClick={() => deleteMutation.mutate(credential.id)}
                         >

@@ -11,6 +11,7 @@ import {
 import { cn } from "cn";
 import { Badge } from "@/client/components/ui/badge";
 import { Spinner } from "@/client/components/ui/spinner";
+import { useLocale } from "@/client/lib/i18n";
 import { getAuditCapabilities } from "@/serverFunctions/audit";
 import type { IssueSeverity } from "@/shared/audit-issues";
 
@@ -40,28 +41,35 @@ function parseTimestamp(dateStr: string): Date {
   );
 }
 
-export function formatDate(dateStr: string): string {
-  return parseTimestamp(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+export function formatDate(dateStr: string, locale = "en"): string {
+  return parseTimestamp(dateStr).toLocaleDateString(
+    locale === "de" ? "de-DE" : "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  );
 }
 
-export function formatStartedAt(dateStr: string): string {
-  return parseTimestamp(dateStr).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+export function formatStartedAt(dateStr: string, locale = "en"): string {
+  return parseTimestamp(dateStr).toLocaleString(
+    locale === "de" ? "de-DE" : "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    },
+  );
 }
 
 export function StatusBadge({ status }: { status: string }) {
+  const { t } = useLocale();
   if (status === "running") {
     return (
       <Badge variant="info">
-        <Spinner /> Running
+        <Spinner /> {t("audit.running")}
       </Badge>
     );
   }
@@ -69,14 +77,14 @@ export function StatusBadge({ status }: { status: string }) {
   if (status === "completed") {
     return (
       <Badge variant="success">
-        <CheckCircle /> Done
+        <CheckCircle /> {t("audit.done")}
       </Badge>
     );
   }
 
   return (
     <Badge variant="destructive">
-      <AlertCircle /> Failed
+      <AlertCircle /> {t("audit.failed")}
     </Badge>
   );
 }
@@ -165,6 +173,7 @@ export function BotProtectionAdvice({
   /** Whether this audit already rendered JavaScript. */
   rendered: boolean;
 }) {
+  const { t, locale } = useLocale();
   const canRender =
     useAuditCapabilities(projectId).data?.canRenderJavaScript === true;
   const desktopCrawlers = (
@@ -176,7 +185,7 @@ export function BotProtectionAdvice({
       >
         LibreCrawl
       </a>{" "}
-      or{" "}
+      {locale === "de" ? "oder" : t("billing.details.or")}{" "}
       <a
         href="https://www.screamingfrog.co.uk/seo-spider/"
         target="_blank"
@@ -188,17 +197,27 @@ export function BotProtectionAdvice({
   );
 
   if (!rendered && canRender) {
+    const parts = t("audit.bot_advice_render", {
+      crawlers: "___CRAWLERS___",
+    }).split("___CRAWLERS___");
     return (
       <>
-        Turn on Render JavaScript and run the audit again. To avoid the extra
-        cost, use a free desktop crawler like {desktopCrawlers}.
+        {parts[0]}
+        {desktopCrawlers}
+        {parts[1] || null}
       </>
     );
   }
+
+  const template = rendered
+    ? t("audit.bot_advice_rendered", { crawlers: "___CRAWLERS___" })
+    : t("audit.bot_advice_desktop", { crawlers: "___CRAWLERS___" });
+  const parts = template.split("___CRAWLERS___");
   return (
     <>
-      {rendered ? "Rendering couldn't get past it. " : null}
-      Try a free desktop crawler like {desktopCrawlers}.
+      {parts[0]}
+      {desktopCrawlers}
+      {parts[1] || null}
     </>
   );
 }

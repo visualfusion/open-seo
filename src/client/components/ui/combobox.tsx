@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import * as React from "react";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 import { cn } from "cn";
@@ -245,6 +246,7 @@ function ComboboxChip({
 }: ComboboxPrimitive.Chip.Props & {
   showRemove?: boolean;
 }) {
+  const { t } = useLocale();
   return (
     <ComboboxPrimitive.Chip
       data-slot="combobox-chip"
@@ -260,7 +262,7 @@ function ComboboxChip({
           render={<Button variant="ghost" size="icon-xs" />}
           className="-ml-1 opacity-50 hover:opacity-100"
           data-slot="combobox-chip-remove"
-          aria-label="Remove"
+          aria-label={t("ranks.table_ext.remove_action")}
         >
           <XIcon className="pointer-events-none" />
         </ComboboxPrimitive.ChipRemove>

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { SkeletonTableRows } from "@/client/components/SkeletonPresets";
 import { CardShell } from "@/client/components/CardShell";
 import { Link } from "@tanstack/react-router";
@@ -16,12 +17,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 } from "@/client/components/ui/chart";
-
-const sessionsChartConfig = {
-  sessions: { label: "Sessions", color: "var(--color-primary)" },
-} satisfies ChartConfig;
 
 function formatTrendDay(date: string): string {
   // Construct in local time: Date.parse("2026-08-01") is UTC midnight, which
@@ -47,6 +43,7 @@ export function Ga4Card({
   projectId: string;
   connected: boolean;
 }) {
+  const { t } = useLocale();
   const reportQuery = useQuery({
     queryKey: ["dashboardGa4Report", projectId],
     queryFn: () => getGa4DashboardReport({ data: { projectId } }),
@@ -64,7 +61,7 @@ export function Ga4Card({
   // period would otherwise render an all-zero flatline chart in an empty box.
   return (
     <CardShell
-      title="Organic traffic"
+      title={t("dashboard.details.organic_traffic")}
       action={
         <Link
           to="/p/$projectId/settings"
@@ -72,16 +69,16 @@ export function Ga4Card({
           hash="google-analytics"
           className={moreDetailsClass}
         >
-          Manage
+          {t("dashboard.details.manage")}
         </Link>
       }
     >
       <p className="mb-4 text-sm text-muted-foreground">
-        Google Analytics · Last 28 days
+        {t("dashboard.details.google_analytics_last_28_days")}
       </p>
       {reportQuery.isError ? (
         <p className="text-sm text-muted-foreground">
-          Couldn&rsquo;t load Google Analytics data. Try again shortly.
+          {t("dashboard.details.couldn_t_load_google_again_shortly")}
         </p>
       ) : !report ? (
         <div className="space-y-3" aria-busy>
@@ -90,7 +87,7 @@ export function Ga4Card({
         </div>
       ) : !report.totals.sessions ? (
         <p className="text-sm text-muted-foreground">
-          No organic search traffic recorded in the last 28 days yet.
+          {t("dashboard.details.no_organic_search_traffic_28_days")}
         </p>
       ) : (
         <div className="space-y-4">
@@ -98,7 +95,7 @@ export function Ga4Card({
             showChange
             rows={[
               {
-                label: "Sessions",
+                label: t("dashboard.details.sessions"),
                 value: statValue(report.totals.sessions, formatCount),
                 change: percentChange(
                   report.totals.sessions,
@@ -106,7 +103,7 @@ export function Ga4Card({
                 ),
               },
               {
-                label: "Active users",
+                label: t("dashboard.details.active_users"),
                 value: statValue(report.totals.activeUsers, formatCount),
                 change: percentChange(
                   report.totals.activeUsers,
@@ -114,12 +111,12 @@ export function Ga4Card({
                 ),
               },
               {
-                label: "Engagement rate",
+                label: t("integrations.dashboard_ext.ga4_card.engagement_rate"),
                 value: statValue(report.totals.engagementRate, formatCtr),
                 change: null,
               },
               {
-                label: "Key events",
+                label: t("integrations.dashboard_ext.ga4_card.key_events"),
                 value: statValue(report.totals.keyEvents, formatCount),
                 change: percentChange(
                   report.totals.keyEvents,
@@ -146,7 +143,15 @@ export function Ga4Card({
                 ),
             }))}
           />
-          <ChartContainer config={sessionsChartConfig} className="h-24">
+          <ChartContainer
+            config={{
+              sessions: {
+                label: t("dashboard.details.sessions"),
+                color: "var(--color-primary)",
+              },
+            }}
+            className="h-24"
+          >
             <AreaChart
               data={report.trend}
               margin={{ top: 4, right: 0, bottom: 0, left: 0 }}

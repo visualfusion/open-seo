@@ -6,7 +6,6 @@ import { QueryState } from "@/client/components/QueryState";
 import { getProjectContext } from "@/serverFunctions/projectContext";
 import {
   PROJECT_CONTEXT_SECTION_KEYS,
-  PROJECT_CONTEXT_SECTION_LABELS,
   PROSE_MAX_CHARS,
   type ProjectContextSectionKey,
 } from "@/types/schemas/projectContext";
@@ -26,26 +25,31 @@ import { SectionHeader } from "@/client/components/PageHeader";
 import { Button } from "@/client/components/ui/button";
 import { Input } from "@/client/components/ui/input";
 import { Textarea } from "@/client/components/ui/textarea";
+import { useLocale } from "@/client/lib/i18n";
 
-const SECTION_HINTS: Record<ProjectContextSectionKey, string> = {
-  business_overview: "What you sell, who buys it, and where.",
-  current_goal: "What you're pushing for right now, and by when.",
-  positioning: "Why someone picks you over the alternatives.",
-  writing_preferences: "Voice, words to avoid, topics that are off-limits.",
+const SECTION_LABEL_KEYS: Record<ProjectContextSectionKey, string> = {
+  business_overview: "context.sections.business_overview",
+  current_goal: "context.sections.current_goal",
+  positioning: "context.sections.positioning",
+  writing_preferences: "context.sections.writing_preferences",
 };
 
-const SECTION_PLACEHOLDERS: Record<ProjectContextSectionKey, string> = {
-  business_overview:
-    "e.g. Booking software for independent restaurants in the US and Canada. Buyers are owner-operators, not marketers.",
-  current_goal:
-    "e.g. Double organic signups by Q4. Comparison pages are the current bet.",
-  positioning:
-    "e.g. The only booking tool that sets up in an afternoon. Cheaper than the incumbents, simpler than the DIY stack.",
-  writing_preferences:
-    "e.g. Plain and direct, no hype. Never say 'seamless' or 'game-changing'. Don't write about competitor pricing.",
+const SECTION_HINT_KEYS: Record<ProjectContextSectionKey, string> = {
+  business_overview: "context.sections.business_overview_hint",
+  current_goal: "context.sections.current_goal_hint",
+  positioning: "context.sections.positioning_hint",
+  writing_preferences: "context.sections.writing_preferences_hint",
+};
+
+const SECTION_PLACEHOLDER_KEYS: Record<ProjectContextSectionKey, string> = {
+  business_overview: "context.sections.business_overview_placeholder",
+  current_goal: "context.sections.current_goal_placeholder",
+  positioning: "context.sections.positioning_placeholder",
+  writing_preferences: "context.sections.writing_preferences_placeholder",
 };
 
 export function ProjectContextPage({ projectId }: { projectId: string }) {
+  const { t } = useLocale();
   const contextQuery = useQuery({
     queryKey: projectContextQueryKey(projectId),
     queryFn: () => getProjectContext({ data: { projectId } }),
@@ -55,18 +59,13 @@ export function ProjectContextPage({ projectId }: { projectId: string }) {
   });
 
   return (
-    <QueryState
-      query={contextQuery}
-      errorFallback="Failed to load project context"
-    >
+    <QueryState query={contextQuery} errorFallback={t("context.load_failed")}>
       {(context) => (
         // key remounts the whole page when the project switches under it, so no
         // draft, open form, or edit state can carry over to another project.
         <div key={projectId} className="space-y-8">
           <p className="text-sm text-muted-foreground">
-            What Claude Code and any other connected MCP client know about this
-            project. They read it before they work and write back what they
-            learn, so correct anything that looks wrong.
+            {t("context.description")}
           </p>
 
           <ProseSections
@@ -106,6 +105,7 @@ function ProseSections({
   sections: ProjectContextData["sections"];
   missingSections: ProjectContextData["missingSections"];
 }) {
+  const { t } = useLocale();
   const update = useContextUpdate(projectId);
   const stored = new Map(sections.map((section) => [section.key, section]));
   // Only the fields the user actually touched are pinned locally; the rest
@@ -154,8 +154,8 @@ function ProseSections({
         <EmptyState
           size="sm"
           icon={null}
-          title="Nothing written down yet"
-          description="Fill in what you can — or ask your agent to draft it from your site and confirm what it got right."
+          title={t("context.empty_state_title")}
+          description={t("context.empty_state_desc")}
         />
       ) : null}
 
@@ -168,16 +168,18 @@ function ProseSections({
                 htmlFor={`context-${key}`}
                 className="text-sm font-medium text-foreground"
               >
-                {PROJECT_CONTEXT_SECTION_LABELS[key]}
+                {t(SECTION_LABEL_KEYS[key])}
               </label>
               {section ? (
                 <Provenance by={section.updatedBy} at={section.updatedAt} />
               ) : (
-                <span className="text-xs text-muted-foreground">Empty</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("context.empty_badge")}
+                </span>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              {SECTION_HINTS[key]}
+              {t(SECTION_HINT_KEYS[key])}
             </p>
             <Textarea
               id={`context-${key}`}
@@ -197,7 +199,7 @@ function ProseSections({
               }}
               rows={4}
               maxLength={PROSE_MAX_CHARS}
-              placeholder={SECTION_PLACEHOLDERS[key]}
+              placeholder={t(SECTION_PLACEHOLDER_KEYS[key])}
             />
           </div>
         );
@@ -209,7 +211,7 @@ function ProseSections({
           size="sm"
           disabled={update.isPending || changed.length === 0}
         >
-          Save changes
+          {t("context.save_changes")}
         </Button>
       </div>
     </form>
@@ -223,22 +225,23 @@ function CustomSections({
   projectId: string;
   customSections: ProjectContextData["customSections"];
 }) {
+  const { t } = useLocale();
   const update = useContextUpdate(projectId);
   const [editingSlug, setEditingSlug] = React.useState<string | null>(null);
 
   return (
     <section className="space-y-3">
       <SectionHeader
-        title="Custom sections"
-        hint="Anything an agent wrote down that didn't fit the sections above."
+        title={t("context.custom_sections.title")}
+        hint={t("context.custom_sections.hint")}
       />
 
       {customSections.length === 0 ? (
         <EmptyState
           size="sm"
           icon={null}
-          title="Nothing here yet"
-          description="Agents add a section when they learn something important that has nowhere else to live."
+          title={t("context.custom_sections.empty_title")}
+          description={t("context.custom_sections.empty_desc")}
         />
       ) : (
         <div className="space-y-3">
@@ -272,13 +275,17 @@ function CustomSections({
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      aria-label={`Edit ${custom.title ?? custom.slug}`}
+                      aria-label={t("context.custom_sections.edit_aria", {
+                        title: custom.title ?? custom.slug,
+                      })}
                       onClick={() => setEditingSlug(custom.slug)}
                     >
                       <Pencil className="size-3.5" />
                     </Button>
                     <InlineConfirm
-                      label={`Delete ${custom.title ?? custom.slug}`}
+                      label={t("context.custom_sections.delete_label", {
+                        title: custom.title ?? custom.slug,
+                      })}
                       pending={update.isPending}
                       onConfirm={() =>
                         update.mutate([{ deleteCustomSection: custom.slug }])
@@ -309,6 +316,7 @@ function CustomSectionForm({
   onCancel: () => void;
   onSave: (title: string, content: string) => void;
 }) {
+  const { t } = useLocale();
   const [title, setTitle] = React.useState(custom.title ?? "");
   const [content, setContent] = React.useState(custom.content);
 
@@ -326,14 +334,14 @@ function CustomSectionForm({
         onChange={(event) => setTitle(event.target.value)}
         placeholder={custom.slug}
         maxLength={120}
-        aria-label="Section title"
+        aria-label={t("context.custom_sections.title_aria")}
       />
       <Textarea
         value={content}
         onChange={(event) => setContent(event.target.value)}
         rows={5}
         maxLength={PROSE_MAX_CHARS}
-        aria-label="Section content"
+        aria-label={t("context.custom_sections.content_aria")}
       />
       <FormActions
         pending={pending}
@@ -352,21 +360,22 @@ function ResearchLog({
   projectId: string;
   researchLog: ProjectContextData["researchLog"];
 }) {
+  const { t } = useLocale();
   const update = useContextUpdate(projectId);
 
   return (
     <section className="space-y-3">
       <SectionHeader
-        title="Research log"
-        hint="What's already been looked up, so nobody buys the same data twice."
+        title={t("context.research_log.title")}
+        hint={t("context.research_log.hint")}
       />
 
       {researchLog.length === 0 ? (
         <EmptyState
           size="sm"
           icon={null}
-          title="Nothing logged yet"
-          description="Agents record paid research here as they run it."
+          title={t("context.research_log.empty_title")}
+          description={t("context.research_log.empty_desc")}
         />
       ) : (
         <ul className={listClass}>
@@ -384,7 +393,9 @@ function ResearchLog({
               </div>
               <RowActions>
                 <InlineConfirm
-                  label={`Delete log entry from ${entry.entryDate}`}
+                  label={t("context.research_log.delete_label", {
+                    date: entry.entryDate,
+                  })}
                   pending={update.isPending}
                   onConfirm={() =>
                     update.mutate([{ removeResearchLog: [entry.id] }])

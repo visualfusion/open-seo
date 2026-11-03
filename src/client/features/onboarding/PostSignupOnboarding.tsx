@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useLocale } from "@/client/lib/i18n";
 import { OnboardingCard } from "./OnboardingCard";
 import { ONBOARDING_STEPS } from "./onboardingModel";
 import { WebsiteOnboardingStep } from "./WebsiteOnboardingStep";
@@ -30,16 +31,17 @@ export function PostSignupOnboarding({
   accountMenu,
   suggestedDomain,
 }: PostSignupOnboardingProps) {
+  const { t } = useLocale();
   return (
     <>
       {accountMenu}
       <OnboardingCard
         step={step + 1}
         steps={[
-          "Website",
-          "Google Search Console",
-          "Preferences",
-          "Agent setup",
+          t("auth.onboarding.step_website"),
+          t("auth.onboarding.step_gsc"),
+          t("auth.onboarding.step_preferences"),
+          t("auth.onboarding.step_agent"),
         ]}
         onStepChange={onStepChange}
         disabled={isSaving}

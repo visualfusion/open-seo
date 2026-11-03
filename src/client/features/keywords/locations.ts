@@ -9,3 +9,22 @@ export {
   isLabsLocationCode,
   isSupportedLocationCode,
 } from "@/shared/keyword-locations";
+
+import { getCurrentLocale, type Locale } from "@/client/lib/i18n";
+import { getIsoCountryCode } from "@/shared/keyword-locations";
+
+export function countryLabel(locationCode: number, locale: Locale) {
+  return new Intl.DisplayNames(locale, { type: "region" }).of(
+    getIsoCountryCode(locationCode).toUpperCase(),
+  );
+}
+
+export function languageLabel(
+  languageCode: string,
+  locale: Locale = getCurrentLocale(),
+) {
+  return (
+    new Intl.DisplayNames(locale, { type: "language" }).of(languageCode) ??
+    languageCode
+  );
+}

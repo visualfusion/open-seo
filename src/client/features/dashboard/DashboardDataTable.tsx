@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import {
   getFilteredRowModel,
   type SortingState,
@@ -37,7 +38,7 @@ export function DashboardDataTable<T>({
   resetKey,
   isLoading,
   error,
-  empty = { title: "No results yet" },
+  empty,
 }: {
   rows: T[];
   columns: ColumnDef<T>[];
@@ -51,6 +52,7 @@ export function DashboardDataTable<T>({
   error?: ReactNode;
   empty?: ComponentProps<typeof DataTable>["empty"];
 }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const table = useDataTable({
     data: rows,
@@ -80,7 +82,7 @@ export function DashboardDataTable<T>({
       onClearFilters={clear}
       isLoading={isLoading}
       error={error}
-      empty={empty}
+      empty={empty ?? { title: t("dashboard.details.no_results_yet") }}
       toolbar={
         <>
           {tabs}
@@ -130,9 +132,18 @@ export function DashboardDataTable<T>({
                       {filter.kind === "follow" ? (
                         <Select
                           items={[
-                            { value: "all", label: "All links" },
-                            { value: "Follow", label: "Follow" },
-                            { value: "Nofollow", label: "Nofollow" },
+                            {
+                              value: "all",
+                              label: t("backlinks.toolbar.view_all_links"),
+                            },
+                            {
+                              value: "Follow",
+                              label: t("dashboard.details.follow"),
+                            },
+                            {
+                              value: "Nofollow",
+                              label: t("backlinks.filters.link_type_nofollow"),
+                            },
                           ]}
                           value={typeof value === "string" ? value : "all"}
                           onValueChange={(v) =>
@@ -143,15 +154,21 @@ export function DashboardDataTable<T>({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">All links</SelectItem>
-                            <SelectItem value="Follow">Follow</SelectItem>
-                            <SelectItem value="Nofollow">Nofollow</SelectItem>
+                            <SelectItem value="all">
+                              {t("backlinks.toolbar.view_all_links")}
+                            </SelectItem>
+                            <SelectItem value="Follow">
+                              {t("dashboard.details.follow")}
+                            </SelectItem>
+                            <SelectItem value="Nofollow">
+                              {t("backlinks.filters.link_type_nofollow")}
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
                         <Input
                           aria-label={filter.label}
-                          placeholder="Contains…"
+                          placeholder={t("dashboard.details.contains")}
                           value={typeof value === "string" ? value : ""}
                           onChange={(e) =>
                             column.setFilterValue(e.target.value)

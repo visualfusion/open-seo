@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { RotateCcw, SlidersHorizontal } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { Badge } from "@/client/components/ui/badge";
@@ -73,12 +74,18 @@ export function DataTableFilterToggle({
   activeCount: number;
   onToggle: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <Button variant="outline" size="sm" aria-expanded={open} onClick={onToggle}>
       <SlidersHorizontal data-icon="inline-start" />
-      Filters
+      {t("ranks.toolbar.filters")}
       {activeCount > 0 ? (
-        <Badge size="sm" aria-label={`${activeCount} active`}>
+        <Badge
+          size="sm"
+          aria-label={t("ui.details.value_active", {
+            v1: activeCount,
+          })}
+        >
           {activeCount}
         </Badge>
       ) : null}
@@ -95,13 +102,18 @@ export function DataTableFilterPanel({
   onReset: () => void;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   return (
     <div className="space-y-3 border-b border-border bg-foreground/[0.02] px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold">Refine results</p>
+          <p className="text-sm font-semibold">
+            {t("ui.details.refine_results")}
+          </p>
           {activeCount > 0 ? (
-            <Badge size="sm">{activeCount} active</Badge>
+            <Badge size="sm">
+              {activeCount} {t("ui.details.active")}
+            </Badge>
           ) : null}
         </div>
         <Button
@@ -111,7 +123,7 @@ export function DataTableFilterPanel({
           disabled={activeCount === 0}
         >
           <RotateCcw data-icon="inline-start" />
-          Clear all
+          {t("ui.details.clear_all")}
         </Button>
       </div>
       {children}

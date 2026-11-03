@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { CardShell } from "@/client/components/CardShell";
 import { QueryState } from "@/client/components/QueryState";
-import { GoogleConnectionCard } from "@/client/features/integrations/GoogleConnectionCard";
 import {
   Table,
   TableHeader,
@@ -15,6 +14,7 @@ import {
 import { getDashboardEmergingQueries } from "@/serverFunctions/dashboard";
 import { Freshness, DashboardInfo } from "./siteTabParts";
 import { moreDetailsClass } from "./cardParts";
+import { useLocale } from "@/client/lib/i18n";
 
 export function DashboardNewQueries({
   projectId,
@@ -25,6 +25,7 @@ export function DashboardNewQueries({
   connected: boolean;
   siteUrl: string | null;
 }) {
+  const { t } = useLocale();
   const query = useQuery({
     queryKey: ["dashboardEmergingQueries", projectId, siteUrl],
     queryFn: () => getDashboardEmergingQueries({ data: { projectId } }),
@@ -34,23 +35,19 @@ export function DashboardNewQueries({
   });
   if (!connected) return null;
   return (
-    <QueryState query={query} errorFallback="Could not load new keywords">
+    <QueryState
+      query={query}
+      errorFallback={t("dashboard.cards.new_keywords_title")}
+    >
       {(data) =>
-        !data.value.connected ? (
-          <GoogleConnectionCard
-            provider="gsc"
-            projectId={projectId}
-            prominent
-          />
-        ) : (
+        !data.value.connected ? null : (
           <CardShell
-            title="New keywords"
+            title={t("dashboard.cards.new_keywords_title")}
             titleInfo={
-              <DashboardInfo label="About new keywords">
-                <p>Searches where your website recently appeared on Google.</p>
+              <DashboardInfo label={t("dashboard.cards.new_keywords_about")}>
+                <p>{t("dashboard.cards.new_keywords_desc")}</p>
                 <p className="mt-2">
-                  We saw these in the latest week of Search Console data, but
-                  not in the previous four weeks.
+                  {t("dashboard.cards.new_keywords_detail")}
                 </p>
               </DashboardInfo>
             }
@@ -61,7 +58,7 @@ export function DashboardNewQueries({
                 search={{ tab: "keywords" }}
                 className={moreDetailsClass}
               >
-                View all →
+                {t("dashboard.cards.view_all")}
               </Link>
             }
           >
@@ -70,9 +67,9 @@ export function DashboardNewQueries({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Keyword</TableHead>
-                    <TableHead>Impressions</TableHead>
-                    <TableHead>Clicks</TableHead>
+                    <TableHead>{t("dashboard.cards.keyword")}</TableHead>
+                    <TableHead>{t("dashboard.cards.impressions")}</TableHead>
+                    <TableHead>{t("dashboard.cards.clicks")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -90,20 +87,20 @@ export function DashboardNewQueries({
                 <Search className="size-7 text-muted-foreground" />
                 <h3 className="font-medium">
                   {data.value.hasSearchData
-                    ? "No new keywords this week"
-                    : "No search data yet"}
+                    ? t("dashboard.cards.no_new_keywords")
+                    : t("dashboard.cards.no_search_data")}
                 </h3>
                 <p className="max-w-sm text-sm text-muted-foreground">
                   {data.value.hasSearchData
-                    ? "Your existing queries can still be gaining clicks. See how they're performing."
-                    : "Google hasn't reported searches for your website yet. Check your connected property in Search Console."}
+                    ? t("dashboard.cards.existing_queries_note")
+                    : t("dashboard.cards.no_search_reported")}
                 </p>
                 <Link
                   to="/p/$projectId/search-performance"
                   params={{ projectId }}
                   className="text-sm text-primary hover:underline"
                 >
-                  View full GSC insights →
+                  {t("dashboard.cards.view_full_gsc")}
                 </Link>
               </div>
             )}

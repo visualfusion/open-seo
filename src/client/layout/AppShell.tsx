@@ -13,6 +13,7 @@ import { BILLING_ROUTE } from "@/shared/billing";
 import { getSeoApiKeyStatus } from "@/serverFunctions/config";
 import { getLastProjectId } from "@/client/lib/active-project";
 import { dataforseoHelpLinkOptions } from "@/client/navigation/items";
+import { useLocale } from "@/client/lib/i18n";
 import {
   SidebarInset,
   SidebarProvider,
@@ -140,12 +141,15 @@ export function AuthenticatedAppLayout({
 }
 
 function MobileTopBar() {
+  const { t } = useLocale();
   return (
-    <div className="flex shrink-0 items-center gap-1 border-b border-border bg-card px-2 py-1.5 md:hidden">
-      <SidebarTrigger aria-label="Toggle sidebar" />
-      <Link to="/" className="ml-1 font-semibold text-foreground">
-        OpenSEO
-      </Link>
+    <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-2 py-1.5 md:hidden">
+      <div className="flex items-center gap-1">
+        <SidebarTrigger aria-label={t("shell.toggle_sidebar")} />
+        <Link to="/" className="ml-1 font-semibold text-foreground">
+          OpenSEO
+        </Link>
+      </div>
     </div>
   );
 }

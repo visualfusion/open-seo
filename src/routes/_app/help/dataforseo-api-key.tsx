@@ -4,6 +4,7 @@ import {
   helpLinkClassName,
   SecretHelpPage,
 } from "@/client/features/help/SecretHelpPage";
+import { useLocale } from "@/client/lib/i18n";
 
 const DATAFORSEO_API_ACCESS_URL = "https://app.dataforseo.com/api-access";
 
@@ -12,44 +13,47 @@ export const Route = createFileRoute("/_app/help/dataforseo-api-key")({
 });
 
 function DataforseoApiKeyHelpPage() {
+  const { t } = useLocale();
   const requestStep = (
     <li>
-      Go to{" "}
+      {t("sam.help.dataforseo.request_prefix")}
       <a
         className={helpLinkClassName}
         href={DATAFORSEO_API_ACCESS_URL}
         target="_blank"
         rel="noreferrer"
       >
-        DataForSEO API Access
-      </a>{" "}
-      and request API credentials by email.
+        {t("sam.help.dataforseo.request_link")}
+      </a>
+      {t("sam.help.dataforseo.request_suffix")}
     </li>
   );
   const encodeStep = (
     <li>
-      Base64 encode your DataForSEO login and API password in this format:
+      {t("sam.help.dataforseo.encode_desc")}
       <CommandBlock command="printf '%s' 'YOUR_LOGIN:YOUR_PASSWORD' | base64" />
     </li>
   );
   return (
     <SecretHelpPage
-      title="Set up your DataForSEO API key"
+      title={t("sam.help.dataforseo.title")}
       intro={
         <>
-          OpenSEO needs the <code>DATAFORSEO_API_KEY</code> secret before
-          keyword, domain, and SEO data workflows can run.
+          {t("sam.help.dataforseo.intro_prefix")}
+          <code>DATAFORSEO_API_KEY</code>
+          {t("sam.help.dataforseo.intro_suffix")}
         </>
       }
-      everyAppIntro="OpenSEO's keyword, domain, backlink and rank data comes from DataForSEO. On Every App the gateway holds the key once, for every app."
+      everyAppIntro={t("sam.help.dataforseo.everyapp_intro")}
       secretName="DATAFORSEO_API_KEY"
       steps={
         <>
           {requestStep}
           {encodeStep}
           <li>
-            Save the output as the <code>DATAFORSEO_API_KEY</code> secret in
-            your environment.
+            {t("sam.help.dataforseo.save_env_prefix")}
+            <code>DATAFORSEO_API_KEY</code>
+            {t("sam.help.dataforseo.save_env_suffix")}
           </li>
         </>
       }
@@ -58,17 +62,18 @@ function DataforseoApiKeyHelpPage() {
           {requestStep}
           {encodeStep}
           <li>
-            An owner or admin runs this from the Every App checkout and pastes
-            the value:
+            {t("sam.help.dataforseo.everyapp_run")}
             <CommandBlock command="pnpm everyapp secret set DATAFORSEO_API_KEY" />
           </li>
-          <li>Reload OpenSEO: it uses the key on its next request.</li>
+          <li>{t("sam.help.dataforseo.everyapp_reload")}</li>
         </>
       }
-      dashboardPasteStep="Paste the base64 value from the terminal command above and save."
+      dashboardPasteStep={t("sam.help.dataforseo.dashboard_paste")}
       terminalPromptHint={
         <>
-          Use the base64 value of <code>login:password</code> when prompted.
+          {t("sam.help.dataforseo.terminal_hint_prefix")}
+          <code>login:password</code>
+          {t("sam.help.dataforseo.terminal_hint_suffix")}
         </>
       }
     />

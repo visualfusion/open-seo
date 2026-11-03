@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useEffect } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { Check, ExternalLink } from "lucide-react";
@@ -17,6 +18,7 @@ import {
 } from "@/client/lib/exportToSheets";
 
 export function ExportToSheetsModal() {
+  const { t } = useLocale();
   const state = useExportToSheetsModalState();
   // Close any stale modal when the user navigates away mid-flow. Deps must
   // be `[pathname]` only — adding `isOpen` would close the modal the instant
@@ -48,15 +50,20 @@ export function ExportToSheetsModal() {
             <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
               <Check className="size-4" />
             </span>
-            Copied {rowCount} row{rowCount === 1 ? "" : "s"} to your clipboard
+            {t(
+              rowCount === 1
+                ? "ui.sheets_modal.copied_badge_one"
+                : "ui.sheets_modal.copied_badge",
+              { rows: rowCount },
+            )}
           </DialogTitle>
           <DialogDescription>
-            Open a new Google Sheet and paste to fill it.
+            {t("ui.details.open_a_new_google_fill_it")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button onClick={handleOpenSheet}>
-            Open new Google Sheet
+            {t("ui.sheets_modal.open_sheets")}
             <ExternalLink data-icon="inline-end" />
           </Button>
         </DialogFooter>

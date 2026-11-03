@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ReactNode } from "react";
 import { CircleAlert } from "lucide-react";
 import { EmptyState } from "@/client/components/EmptyState";
@@ -32,6 +33,7 @@ export function ErrorState({
   action?: ReactNode;
   variant?: "inline" | "card" | "page";
 }) {
+  const { t } = useLocale();
   const button =
     action ??
     (onRetry ? (
@@ -41,7 +43,7 @@ export function ErrorState({
         pending={isRetrying}
         onClick={onRetry}
       >
-        Try again
+        {t("ui.error_boundary.try_again")}
       </Button>
     ) : null);
 
@@ -51,7 +53,7 @@ export function ErrorState({
         kind="error"
         variant="plain"
         size="lg"
-        title={title ?? "Something went wrong"}
+        title={title ?? t("ui.error_boundary.title")}
         description={message}
         action={button}
       />

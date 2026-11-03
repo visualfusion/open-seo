@@ -23,8 +23,10 @@ import type {
   WebsiteResearch,
   SaveProjectWebsiteSetup,
 } from "@/types/schemas/projectWebsite";
+import { useLocale } from "@/client/lib/i18n";
 
 export function ProjectWebsiteSetup({ projectId }: { projectId: string }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [website, setWebsite] = useState("");
   const [research, setResearch] = useState<WebsiteResearch | null>(null);
@@ -55,7 +57,7 @@ export function ProjectWebsiteSetup({ projectId }: { projectId: string }) {
           queryKey: ["aiVisibility", projectId],
         }),
       ]);
-      toast.success("Project context saved");
+      toast.success(t("context.saved"));
     },
   });
   if (research)
@@ -98,33 +100,35 @@ export function ProjectWebsiteSetup({ projectId }: { projectId: string }) {
               <Sparkles className="size-5" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Set up AI visibility
+              {t("context.website_setup.title")}
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              We’ll research your brand and find the most relevant topics to
-              monitor.
+              {t("context.website_setup.subtitle")}
             </p>
           </div>
           <Field>
-            <FieldLabel htmlFor="project-website">Website URL</FieldLabel>
+            <FieldLabel htmlFor="project-website">
+              {t("context.website_setup.url_label")}
+            </FieldLabel>
             <Input
               id="project-website"
               inputMode="url"
               autoComplete="url"
-              placeholder="Enter your website URL"
+              placeholder={t("context.website_setup.url_placeholder")}
               value={website}
               onChange={(event) => setWebsite(event.target.value)}
               required
             />
           </Field>
           {getErrorCode(researchMutation.error) === "INSUFFICIENT_CREDITS" ? (
-            <InsufficientCreditsError title="We couldn’t research this website" />
+            <InsufficientCreditsError
+              title={t("context.website_setup.error_credits_title")}
+            />
           ) : (
             researchMutation.isError && (
               <Alert variant="destructive">
                 <AlertDescription>
-                  We couldn’t research this website. Check the URL and provider
-                  settings, then try again.
+                  {t("context.website_setup.error_generic")}
                 </AlertDescription>
               </Alert>
             )
@@ -136,12 +140,12 @@ export function ProjectWebsiteSetup({ projectId }: { projectId: string }) {
               disabled={!website.trim()}
               className="w-full"
             >
-              Start research
+              {t("context.website_setup.submit")}
             </Button>
             <p className="text-xs leading-relaxed text-muted-foreground">
               {isEveryAppClientAuthMode()
-                ? "Research and a first run of your prompts use the DataForSEO and OpenRouter keys on your Every App gateway."
-                : "Research and a first run of your prompts use a small amount of usage credits."}
+                ? t("context.website_setup.footnote_gateway")
+                : t("context.website_setup.footnote_credits")}
             </p>
           </div>
         </form>

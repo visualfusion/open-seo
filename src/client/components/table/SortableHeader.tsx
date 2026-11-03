@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { HelpLabel } from "@/client/components/HelpLabel";
 
@@ -29,7 +30,9 @@ export function SortableHeader({
       className={`inline-flex items-center gap-1 font-medium transition-colors hover:text-foreground ${className ?? ""}`}
       onClick={column.getToggleSortingHandler()}
       title={title}
-      aria-label={`Sort by ${label}`}
+      aria-label={getTranslation("ui.details.sort_by_value", undefined, {
+        v1: label,
+      })}
       aria-pressed={!!sorted}
     >
       {helpText ? <HelpLabel label={label} helpText={helpText} /> : label}

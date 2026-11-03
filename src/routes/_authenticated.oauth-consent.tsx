@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { clearLastProjectId } from "@/client/lib/active-project";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Button } from "@/client/components/ui/button";
@@ -28,20 +29,20 @@ export const Route = createFileRoute("/_authenticated/oauth-consent")({
   component: OAuthConsentPage,
 });
 
-const SCOPES = [
-  {
-    icon: Database,
-    label: "Read your OpenSEO data",
-    description: "Projects, keyword reports, and audit results.",
-  },
-  {
-    icon: KeyRound,
-    label: "Act on your behalf via MCP",
-    description: "Run tools and save results in this workspace.",
-  },
-];
-
 function OAuthConsentPage() {
+  const { t } = useLocale();
+  const scopes = [
+    {
+      icon: Database,
+      label: t("auth.oauth_consent.scope_read_label"),
+      description: t("auth.oauth_consent.scope_read_desc"),
+    },
+    {
+      icon: KeyRound,
+      label: t("auth.oauth_consent.scope_act_label"),
+      description: t("auth.oauth_consent.scope_act_desc"),
+    },
+  ];
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const { data: organizationContext } = useQuery(
@@ -97,7 +98,7 @@ function OAuthConsentPage() {
       } = await response.json();
 
       if (!response.ok) {
-        setError(data.error ?? "Unable to complete authorization.");
+        setError(data.error ?? t("auth.oauth_consent.failed"));
       } else if (data.redirectTo) {
         window.location.assign(data.redirectTo);
         // An app link like claude:// hands off to the desktop app and leaves
@@ -105,10 +106,10 @@ function OAuthConsentPage() {
         if (/^https?:/i.test(data.redirectTo)) return;
         setAppRedirectUrl(data.redirectTo);
       } else {
-        setError("Authorization response did not include a redirect URL.");
+        setError(t("auth.oauth_consent.no_redirect"));
       }
     } catch {
-      setError("We couldn't reach OpenSEO. Please try again.");
+      setError(t("auth.oauth_consent.unreachable"));
     }
     setPendingAction(null);
   }
@@ -122,33 +123,33 @@ function OAuthConsentPage() {
           className="size-10 rounded-lg"
         />
         <CardTitle className="mt-5 text-xl">
-          <h1>Authorize MCP access</h1>
+          <h1>{t("auth.oauth_consent.title")}</h1>
         </CardTitle>
         <p className="mt-2 text-sm text-muted-foreground">
-          An MCP client is requesting access to your OpenSEO workspace.
+          {t("auth.oauth_consent.subtitle")}
         </p>
       </CardHeader>
       <CardContent>
-        {/* _authenticated only renders this page with a signed-in user. */}
         <div className="mt-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm">
           <div className="flex size-7 items-center justify-center rounded-full bg-muted">
             <User className="size-4" />
           </div>
           <div className="flex-1">
-            <div className="text-xs text-muted-foreground">Signed in as</div>
+            <div className="text-xs text-muted-foreground">
+              {t("auth.oauth_consent.signed_in_as")}
+            </div>
             <div className="font-medium">{session?.user.email}</div>
           </div>
         </div>
-        {/* The grant is bound to the active workspace. Which one only
-            matters to people in more than one, the same rule as the account
-            menu switcher and the Settings organization columns. */}
         {organizations.length > 1 ? (
           <div className="mt-2 flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm">
             <div className="flex size-7 items-center justify-center rounded-full bg-muted">
               <Building2 className="size-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs text-muted-foreground">Workspace</div>
+              <div className="text-xs text-muted-foreground">
+                {t("auth.oauth_consent.workspace")}
+              </div>
               <Select
                 items={organizations.map((organization) => ({
                   value: organization.organizationId,
@@ -167,7 +168,7 @@ function OAuthConsentPage() {
               >
                 <SelectTrigger
                   size="sm"
-                  aria-label="Workspace"
+                  aria-label={t("auth.oauth_consent.workspace")}
                   className="mt-0.5 w-full font-medium"
                 >
                   <SelectValue />
@@ -189,10 +190,10 @@ function OAuthConsentPage() {
 
         <div className="mt-6">
           <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            This will allow it to
+            {t("auth.oauth_consent.allow_heading")}
           </div>
           <ul className="mt-3 space-y-3">
-            {SCOPES.map((scope) => (
+            {scopes.map((scope) => (
               <li key={scope.label} className="flex gap-3">
                 <Check className="mt-0.5 size-4 shrink-0 text-primary" />
                 <div>
@@ -215,14 +216,14 @@ function OAuthConsentPage() {
         {appRedirectUrl ? (
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
-              Opening your app... Didn't open?
+              {t("auth.oauth_consent.opening_app")}
             </p>
             <Button
               className="mt-3 w-full"
               nativeButton={false}
               render={<a href={appRedirectUrl} />}
             >
-              Open app
+              {t("auth.oauth_consent.open_app")}
             </Button>
           </div>
         ) : (
@@ -235,7 +236,9 @@ function OAuthConsentPage() {
               disabled={pendingAction !== null}
               onClick={() => void respond(false)}
             >
-              {pendingAction === "cancel" ? "Canceling..." : "Cancel"}
+              {pendingAction === "cancel"
+                ? t("auth.oauth_consent.canceling")
+                : t("auth.oauth_consent.cancel")}
             </Button>
             <Button
               type="button"
@@ -244,13 +247,15 @@ function OAuthConsentPage() {
               disabled={pendingAction !== null || switchWorkspace.isPending}
               onClick={() => void respond(true)}
             >
-              {pendingAction === "authorize" ? "Authorizing..." : "Authorize"}
+              {pendingAction === "authorize"
+                ? t("auth.oauth_consent.authorizing")
+                : t("auth.oauth_consent.authorize")}
             </Button>
           </div>
         )}
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          You can disconnect it anytime in Settings under Connected agents.
+          {t("auth.oauth_consent.disconnect_hint")}
         </p>
       </CardContent>
     </Card>

@@ -22,6 +22,7 @@ import { passwordSchema } from "@/client/features/auth/passwordSchema";
 import { signUpStatusQueryOptions } from "@/client/features/auth/signUpStatus";
 import { useGoogleAuth } from "@/client/features/auth/useGoogleAuth";
 import { getFormError } from "@/client/lib/forms";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -40,23 +41,21 @@ const UTM_PARAMS = [
 
 const signUpSchema = z
   .object({
-    email: z.string().trim().email("Enter a valid email address."),
+    email: z
+      .string()
+      .trim()
+      .email({ error: () => getTranslation("auth.common.email_invalid") }),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
   .refine((value) => value.password === value.confirmPassword, {
-    message: "Passwords do not match.",
+    error: () => getTranslation("auth.sign_up.passwords_mismatch"),
     path: ["confirmPassword"],
   });
 
 export const Route = createFileRoute("/_auth/sign-up")({
   validateSearch: authRedirectSearchSchema.extend({
-    // A site checked with the marketing site's free tool; onboarding
-    // prefills it, and the website step validates it on save.
     domain: z.string().optional().catch(undefined),
-    // An ad's campaign tags, which the marketing site's landing pages carry
-    // onto the sign-up link. Passed on through the post-signup redirect so the
-    // server can save the campaign on the new account.
     utm_source: z.string().optional().catch(undefined),
     utm_medium: z.string().optional().catch(undefined),
     utm_campaign: z.string().optional().catch(undefined),
@@ -66,6 +65,7 @@ export const Route = createFileRoute("/_auth/sign-up")({
 });
 
 function SignUpPage() {
+  const { t } = useLocale();
   const search = Route.useSearch();
   const navigate = useNavigate();
   const { redirectTo, isHostedMode, isBetterAuthMode } = useAuthPageState(
@@ -146,11 +146,10 @@ function SignUpPage() {
         });
 
         if (result.error) {
-          // Turnstile tokens are single-use; re-challenge so a retry can succeed.
           if (isTurnstileEnabled) captcha.reset();
           formApi.setErrorMap({
             onSubmit: {
-              form: result.error.message || "Unable to create account.",
+              form: result.error.message || t("auth.sign_up.failed"),
               fields: {},
             },
           });
@@ -161,9 +160,6 @@ function SignUpPage() {
           redirect_to: redirectTo,
         });
         if (standalone) {
-          // Nothing to verify here, and autoSignIn is off so the operator's
-          // create-user never mints a session: sign in explicitly, and the
-          // layout sends the new session to redirectTo.
           const signedIn = await authClient.signIn.email({
             email,
             password: value.password,
@@ -173,8 +169,7 @@ function SignUpPage() {
             formApi.setErrorMap({
               onSubmit: {
                 form:
-                  signedIn.error.message ||
-                  "Account created. Sign in to continue.",
+                  signedIn.error.message || t("auth.sign_up.created_sign_in"),
                 fields: {},
               },
             });
@@ -190,7 +185,7 @@ function SignUpPage() {
         if (isTurnstileEnabled) captcha.reset();
         formApi.setErrorMap({
           onSubmit: {
-            form: "Unable to create account right now. Please try again.",
+            form: t("auth.sign_up.failed_retry"),
             fields: {},
           },
         });
@@ -202,8 +197,8 @@ function SignUpPage() {
     if (signUpStatus.isPending) return <PageLoading />;
     return (
       <AuthPageCard
-        title="Registration is closed"
-        helperText="Ask an administrator for an invitation."
+        title={t("auth.sign_up.closed_title")}
+        helperText={t("auth.sign_up.closed_helper")}
         footer={
           <p className="text-sm">
             <Link
@@ -211,7 +206,7 @@ function SignUpPage() {
               search={getSignInSearch(redirectTo)}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              Back to sign in
+              {t("auth.common.back_to_sign_in")}
             </Link>
           </p>
         }
@@ -223,25 +218,27 @@ function SignUpPage() {
 
   return (
     <AuthPageCard
-      title={firstAccount ? "Create the admin account" : "Create your account"}
+      title={
+        firstAccount ? t("auth.sign_up.admin_title") : t("auth.sign_up.title")
+      }
       helperText={
         firstAccount
-          ? "This installation has no accounts yet. The first one becomes the administrator."
+          ? t("auth.sign_up.admin_helper")
           : invited
-            ? "Use the email address that received the invitation."
+            ? t("auth.sign_up.invited_helper")
             : undefined
       }
       footer={
         standalone ? (
           firstAccount ? null : (
             <p className="text-sm text-foreground/50">
-              Already have an account?{" "}
+              {t("auth.sign_up.has_account")}{" "}
               <Link
                 to="/sign-in"
                 search={getSignInSearch(redirectTo)}
                 className="text-foreground underline underline-offset-2 hover:text-foreground/80 transition-colors"
               >
-                Sign in
+                {t("auth.sign_up.sign_in_link")}
               </Link>
             </p>
           )
@@ -255,18 +252,18 @@ function SignUpPage() {
                 google.clearError();
               }}
             >
-              Back to signup
+              {t("auth.sign_up.back_to_signup")}
             </button>
           ) : (
             <div className="space-y-4">
               <p className="text-sm text-foreground/50">
-                Already have an account?{" "}
+                {t("auth.sign_up.has_account")}{" "}
                 <Link
                   to="/sign-in"
                   search={getSignInSearch(redirectTo)}
                   className="text-foreground underline underline-offset-2 hover:text-foreground/80 transition-colors"
                 >
-                  Sign in
+                  {t("auth.sign_up.sign_in_link")}
                 </Link>
               </p>
             </div>
@@ -277,7 +274,7 @@ function SignUpPage() {
       {!emailFormVisible ? (
         <>
           <AuthMethodChooser
-            googleLabel="Continue with Google"
+            googleLabel={t("auth.common.continue_google")}
             disabled={!isHostedMode}
             isBusy={google.isStarting}
             onContinueWithGoogle={() => {
@@ -289,7 +286,7 @@ function SignUpPage() {
             }}
           />
           {isHostedMode ? (
-            <TermsAgreementNotice action="By continuing" />
+            <TermsAgreementNotice action={t("auth.common.by_continuing")} />
           ) : null}
           {google.error ? (
             <p className="text-sm text-destructive">{google.error}</p>
@@ -301,11 +298,11 @@ function SignUpPage() {
             <form.AppField name="email">
               {(field) => (
                 <field.TextField
-                  label="Email address"
+                  label={t("auth.common.email_label")}
                   hideLabel
                   className={authInputClassName}
                   type="email"
-                  placeholder="Email address..."
+                  placeholder={t("auth.common.email_placeholder")}
                   autoComplete="email"
                   required
                 />
@@ -314,11 +311,11 @@ function SignUpPage() {
             <form.AppField name="password">
               {(field) => (
                 <field.TextField
-                  label="Password"
+                  label={t("auth.common.password_label")}
                   hideLabel
                   className={authInputClassName}
                   type="password"
-                  placeholder="Password..."
+                  placeholder={t("auth.common.password_placeholder")}
                   autoComplete="new-password"
                   required
                 />
@@ -327,11 +324,11 @@ function SignUpPage() {
             <form.AppField name="confirmPassword">
               {(field) => (
                 <field.TextField
-                  label="Confirm password"
+                  label={t("auth.sign_up.confirm_password_label")}
                   hideLabel
                   className={authInputClassName}
                   type="password"
-                  placeholder="Confirm password..."
+                  placeholder={t("auth.sign_up.confirm_password_placeholder")}
                   autoComplete="new-password"
                   required
                 />
@@ -365,10 +362,14 @@ function SignUpPage() {
                       pending={isSubmitting}
                       disabled={isTurnstileEnabled && !captcha.hasToken}
                     >
-                      {isSubmitting ? "Creating account..." : "Create account"}
+                      {isSubmitting
+                        ? t("auth.sign_up.submitting")
+                        : t("auth.sign_up.submit")}
                     </Button>
                     {isHostedMode ? (
-                      <TermsAgreementNotice action="By creating an account" />
+                      <TermsAgreementNotice
+                        action={t("auth.common.by_creating_account")}
+                      />
                     ) : null}
                   </>
                 );

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ReactNode } from "react";
 import {
   AlertDialog,
@@ -33,6 +34,7 @@ export function ConfirmDialog({
   destructive?: boolean;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   return (
     <AlertDialog
       open
@@ -46,7 +48,9 @@ export function ConfirmDialog({
           <AlertDialogDescription>{children}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>
+            {t("ui.confirm_dialog.cancel")}
+          </AlertDialogCancel>
           <Button
             variant={destructive ? "destructive" : "default"}
             pending={pending}

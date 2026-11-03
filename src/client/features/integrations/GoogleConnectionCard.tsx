@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -43,6 +44,7 @@ export function GoogleConnectionCard({
   onDismiss?: () => void;
   dismissing?: boolean;
 }) {
+  const { t } = useLocale();
   const config = googleProviders[provider];
   const { Logo } = config;
   const queryClient = useQueryClient();
@@ -108,7 +110,11 @@ export function GoogleConnectionCard({
         (current: GoogleConnection | undefined) =>
           current ? { ...current, ...saved } : current,
       );
-      toast.success(`${config.name} connected`);
+      toast.success(
+        t("integrations.details.value_connected", {
+          v1: config.name,
+        }),
+      );
       afterChange();
     },
   });
@@ -116,7 +122,11 @@ export function GoogleConnectionCard({
     meta: { errorToast: false },
     mutationFn: () => config.disconnect(projectId),
     onSuccess: () => {
-      toast.success(`${config.name} disconnected from this project`);
+      toast.success(
+        t("integrations.details.value_disconnected_from_this_project", {
+          v1: config.name,
+        }),
+      );
       queryClient.setQueryData(
         connectionKey,
         (current: GoogleConnection | undefined) =>
@@ -138,7 +148,7 @@ export function GoogleConnectionCard({
       onClick={onDismiss}
       disabled={dismissing || changingConnection}
     >
-      Dismiss
+      {t("integrations.dashboard_ext.merge_banner.dismiss")}
     </Button>
   ) : null;
   const handleConnect = () => void linkAccount(window.location.href);
@@ -166,7 +176,7 @@ export function GoogleConnectionCard({
       {connectionQuery.isPending ? (
         <div
           role="status"
-          aria-label="Loading connection"
+          aria-label={t("integrations.details.loading_connection")}
           className="space-y-3"
         >
           <Skeleton className="h-4 w-2/3" />
@@ -175,7 +185,9 @@ export function GoogleConnectionCard({
       ) : connectionUnavailable ? (
         <QueryError
           error={connectionQuery.error}
-          fallback="Couldn't check this project's connection."
+          fallback={t(
+            "integrations.details.couldn_t_check_this_project_s_connection",
+          )}
           onRetry={() => void connectionQuery.refetch()}
           isRetrying={connectionQuery.isFetching}
         />
@@ -216,7 +228,7 @@ export function GoogleConnectionCard({
             onSave={() => selection && setPropertyMutation.mutate(selection)}
             saving={setPropertyMutation.isPending}
             secondaryAction={{
-              label: "Cancel",
+              label: t("common.cancel"),
               disabled: setPropertyMutation.isPending,
               onClick: () => {
                 setPicking(false);
@@ -251,7 +263,7 @@ export function GoogleConnectionCard({
       ) : null}
       {connectionQuery.isSuccess && !needsGoogleOAuthSetup && !canManage ? (
         <PermissionHint
-          action="change this project's connection"
+          action={t("ui.details.change_project_connection")}
           className="mt-3"
         />
       ) : null}
@@ -266,16 +278,17 @@ function ConnectionStatusPill({
   connected: boolean;
   setupRequired: boolean;
 }) {
+  const { t } = useLocale();
   return (
     <Badge
       variant={connected ? "success" : setupRequired ? "warning" : "outline"}
     >
       <span className="size-1.5 rounded-full bg-current" />
       {connected
-        ? "Connected"
+        ? t("settings.connected_agents_connected")
         : setupRequired
-          ? "Setup required"
-          : "Not connected"}
+          ? t("integrations.details.setup_required")
+          : t("integrations.details.not_connected")}
     </Badge>
   );
 }

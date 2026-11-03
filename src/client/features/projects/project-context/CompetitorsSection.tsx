@@ -4,6 +4,7 @@ import { FormActions } from "@/client/components/FormActions";
 import type { ProjectContextUpdate } from "@/types/schemas/projectContext";
 import { EditableListSection } from "./EditableListSection";
 import { Provenance, useContextUpdate, type ContextCompetitor } from "./shared";
+import { useLocale } from "@/client/lib/i18n";
 
 type CompetitorDraft = { domain: string; name: string; notes: string };
 
@@ -14,6 +15,7 @@ export function CompetitorsSection({
   projectId: string;
   competitors: ContextCompetitor[];
 }) {
+  const { t } = useLocale();
   const update = useContextUpdate(projectId);
 
   const save = (
@@ -40,11 +42,11 @@ export function CompetitorsSection({
 
   return (
     <EditableListSection
-      title="Competitors"
-      hint="The sites you measure yourself against."
-      addLabel="Add competitor"
-      emptyTitle="No competitors yet"
-      emptyDescription="Add the sites you compete with, or ask your agent to find them from your rankings and save them here."
+      title={t("context.competitors.title")}
+      hint={t("context.competitors.hint")}
+      addLabel={t("context.competitors.add_button")}
+      emptyTitle={t("context.competitors.empty_title")}
+      emptyDescription={t("context.competitors.empty_desc")}
       items={competitors}
       getId={(item) => item.id}
       getLabel={(item) => item.domain}
@@ -89,6 +91,7 @@ function CompetitorForm({
   onCancel: () => void;
   onSave: (draft: CompetitorDraft) => void;
 }) {
+  const { t } = useLocale();
   const [draft, setDraft] = React.useState<CompetitorDraft>({
     domain: initial?.domain ?? "",
     name: initial?.name ?? "",
@@ -111,24 +114,24 @@ function CompetitorForm({
           onChange={(event) =>
             setDraft({ ...draft, domain: event.target.value })
           }
-          placeholder="competitor.com"
+          placeholder={t("context.competitors.domain_placeholder")}
           maxLength={255}
-          aria-label="Competitor domain"
+          aria-label={t("context.competitors.domain_aria")}
         />
         <Input
           value={draft.name}
           onChange={(event) => setDraft({ ...draft, name: event.target.value })}
-          placeholder="Name (optional)"
+          placeholder={t("context.competitors.name_placeholder")}
           maxLength={120}
-          aria-label="Competitor name"
+          aria-label={t("context.competitors.name_aria")}
         />
       </div>
       <Input
         value={draft.notes}
         onChange={(event) => setDraft({ ...draft, notes: event.target.value })}
-        placeholder="Why they matter — e.g. wins every comparison keyword (optional)"
+        placeholder={t("context.competitors.notes_placeholder")}
         maxLength={500}
-        aria-label="Competitor notes"
+        aria-label={t("context.competitors.notes_aria")}
       />
       <FormActions
         pending={pending}

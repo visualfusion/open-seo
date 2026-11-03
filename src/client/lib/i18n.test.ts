@@ -3,6 +3,7 @@ import { sort } from "remeda";
 import { getTranslation, DEFAULT_LOCALE } from "./i18n";
 import { de } from "@/locales/de";
 import { en } from "@/locales/en";
+import { getIssueDescriptor } from "@/shared/audit-issues";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -13,19 +14,21 @@ describe("i18n client infrastructure", () => {
     expect(getTranslation("nav.dashboard", "de")).toBe("Dashboard");
     expect(getTranslation("nav.keywords", "de")).toBe("Keyword-Recherche");
     expect(getTranslation("nav.audit", "de")).toBe("Site-Audit");
+    expect(getTranslation("audit.critical", "de")).toBe("Kritisch");
   });
 
   it("translates English when requested", () => {
     expect(getTranslation("nav.keywords", "en")).toBe("Keyword Research");
+    expect(getTranslation("audit.critical", "en")).toBe("Critical");
   });
 
   it("interpolates parameters", () => {
     expect(
-      getTranslation("ui.table.page_of", "de", { page: 2, total: 5 }),
-    ).toBe("Seite 2 von 5");
+      getTranslation("auth.password_rules.min_length", "de", { min: 12 }),
+    ).toBe("Das Passwort muss mindestens 12 Zeichen lang sein.");
     expect(
-      getTranslation("ui.table.page_of", "en", { page: 2, total: 5 }),
-    ).toBe("Page 2 of 5");
+      getTranslation("auth.password_rules.min_length", "en", { min: 12 }),
+    ).toBe("Password must be at least 12 characters.");
   });
 
   it.each([
@@ -50,6 +53,16 @@ describe("i18n client infrastructure", () => {
       },
     });
     expect(getTranslation("common.cancel")).toBe("Cancel");
+  });
+
+  it("provides localized audit issue descriptors", () => {
+    const enIssue = getIssueDescriptor("broken-internal-link", "en");
+    const deIssue = getIssueDescriptor("broken-internal-link", "de");
+
+    expect(enIssue?.title).toBe("Broken internal link");
+    expect(deIssue?.title).toBe("Fehlerhafter interner Link");
+    expect(deIssue?.explanation).toContain("Fehlerstatus (4xx/5xx)");
+    expect(deIssue?.howToFix).toContain("Aktualisiere den Link");
   });
 });
 

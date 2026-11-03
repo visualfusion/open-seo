@@ -9,6 +9,7 @@ import {
 } from "@/client/features/auth/AuthPage";
 import { passwordSchema } from "@/client/features/auth/passwordSchema";
 import { getFormError } from "@/client/lib/forms";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { authClient } from "@/lib/auth-client";
 import { isHostedClientAuthMode } from "@/lib/auth-mode";
 import { getSignInSearch, normalizeAuthRedirect } from "@/lib/auth-redirect";
@@ -20,7 +21,7 @@ const resetPasswordSchema = z
     confirmPassword: z.string(),
   })
   .refine((value) => value.password === value.confirmPassword, {
-    message: "Passwords do not match.",
+    error: () => getTranslation("auth.sign_up.passwords_mismatch"),
     path: ["confirmPassword"],
   });
 
@@ -37,13 +38,11 @@ export const Route = createFileRoute("/reset-password")({
 function getResetPasswordErrorMessage(error: string | undefined) {
   switch ((error ?? "").toLowerCase()) {
     case "invalid_token":
-      return "This reset link is no longer valid. Request a new one to keep going.";
+      return getTranslation("auth.reset_password.invalid_token");
     case "token_expired":
-      return "This reset link has expired. Request a new one to keep going.";
+      return getTranslation("auth.reset_password.token_expired");
     default:
-      return error
-        ? "This reset link can't be used anymore. Request a new one and try again."
-        : null;
+      return error ? getTranslation("auth.reset_password.generic_error") : null;
   }
 }
 
@@ -60,35 +59,34 @@ function getResetPasswordPageCopy({
 }) {
   if (!isHostedMode) {
     return {
-      title: "Reset password",
-      helperText: "Password reset isn't available right now.",
+      title: getTranslation("auth.reset_password.title"),
+      helperText: getTranslation("auth.reset_password.unavailable_helper"),
     };
   }
 
   if (isComplete) {
     return {
-      title: "Password updated",
-      helperText:
-        "Your password has been updated. Sign in with your new password.",
+      title: getTranslation("auth.reset_password.updated_title"),
+      helperText: getTranslation("auth.reset_password.updated_helper"),
     };
   }
 
   if (routeError || !hasToken) {
     return {
-      title: "Reset link expired",
+      title: getTranslation("auth.reset_password.expired_title"),
       helperText:
-        routeError ||
-        "This reset link is no longer valid. Request a new one to keep going.",
+        routeError || getTranslation("auth.reset_password.invalid_token"),
     };
   }
 
   return {
-    title: "Reset password",
-    helperText: "Choose a new password for your account.",
+    title: getTranslation("auth.reset_password.title"),
+    helperText: getTranslation("auth.reset_password.choose_helper"),
   };
 }
 
 function ResetPasswordPage() {
+  const { t } = useLocale();
   const search = Route.useSearch();
   const redirectTo = normalizeAuthRedirect(search.redirect);
   const isHostedMode = isHostedClientAuthMode();
@@ -115,7 +113,7 @@ function ResetPasswordPage() {
             onSubmit: {
               form:
                 result.error.code === "INVALID_TOKEN" || !result.error.message
-                  ? "This reset link is no longer valid. Request a new one and try again."
+                  ? t("auth.reset_password.invalid_token")
                   : result.error.message,
               fields: {},
             },
@@ -125,7 +123,7 @@ function ResetPasswordPage() {
       } catch {
         formApi.setErrorMap({
           onSubmit: {
-            form: "We couldn't update your password right now. Please try again.",
+            form: t("auth.reset_password.failed_retry"),
             fields: {},
           },
         });
@@ -163,7 +161,7 @@ function ResetPasswordPage() {
                       search={getSignInSearch(redirectTo)}
                       className="text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      Sign in
+                      {t("auth.sign_in.title")}
                     </Link>
                   </p>
                 )
@@ -178,7 +176,7 @@ function ResetPasswordPage() {
                     <Link to="/sign-in" search={getSignInSearch(redirectTo)} />
                   }
                 >
-                  Continue to sign in
+                  {t("auth.reset_password.continue_sign_in")}
                 </Button>
               ) : routeError || !token ? (
                 <Button
@@ -192,7 +190,7 @@ function ResetPasswordPage() {
                     />
                   }
                 >
-                  Request a new reset link
+                  {t("auth.reset_password.request_new")}
                 </Button>
               ) : (
                 <form.AppForm>
@@ -200,9 +198,11 @@ function ResetPasswordPage() {
                     <form.AppField name="password">
                       {(field) => (
                         <field.TextField
-                          label="New password"
+                          label={t("auth.reset_password.new_password_label")}
                           type="password"
-                          placeholder="New password..."
+                          placeholder={t(
+                            "auth.reset_password.new_password_placeholder",
+                          )}
                           autoComplete="new-password"
                           required
                         />
@@ -211,9 +211,13 @@ function ResetPasswordPage() {
                     <form.AppField name="confirmPassword">
                       {(field) => (
                         <field.TextField
-                          label="Confirm new password"
+                          label={t(
+                            "auth.reset_password.confirm_password_label",
+                          )}
                           type="password"
-                          placeholder="Confirm new password..."
+                          placeholder={t(
+                            "auth.reset_password.confirm_password_placeholder",
+                          )}
                           autoComplete="new-password"
                           required
                         />
@@ -232,8 +236,8 @@ function ResetPasswordPage() {
                       pending={isSubmitting}
                     >
                       {isSubmitting
-                        ? "Updating password..."
-                        : "Update password"}
+                        ? t("auth.reset_password.submitting")
+                        : t("auth.reset_password.submit")}
                     </Button>
                   </form.Form>
                 </form.AppForm>

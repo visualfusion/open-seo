@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const TURNSTILE_SCRIPT_SRC =
@@ -63,6 +64,7 @@ export function TurnstileWidget({
   onToken: (token: string | null) => void;
   resetNonce: number;
 }) {
+  const { t } = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   // Keep the latest callback in a ref so mounting the widget stays a one-time
@@ -136,8 +138,7 @@ export function TurnstileWidget({
   if (scriptFailed) {
     return (
       <p role="alert" className="text-sm text-destructive">
-        The security check couldn&rsquo;t load. Allow challenges.cloudflare.com
-        in your browser or ad blocker, then reload the page.
+        {t("auth.details.the_security_check_couldn_cloudflare_com")}
       </p>
     );
   }

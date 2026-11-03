@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { BackLink, PageHeader } from "@/client/components/PageHeader";
+import { useLocale } from "@/client/lib/i18n";
 import { projectsQueryOptions } from "./projectQueries";
 
 export function ProjectPageHeader({
@@ -11,6 +12,7 @@ export function ProjectPageHeader({
   title: string;
   showBackLink?: boolean;
 }) {
+  const { t } = useLocale();
   const projectsQuery = useQuery(projectsQueryOptions());
   const project = projectsQuery.data?.find((entry) => entry.id === projectId);
 
@@ -19,7 +21,9 @@ export function ProjectPageHeader({
       title={title}
       description={project?.name ?? " "}
       backLink={
-        showBackLink ? <BackLink to="/projects">Projects</BackLink> : undefined
+        showBackLink ? (
+          <BackLink to="/projects">{t("projects.manage.title")}</BackLink>
+        ) : undefined
       }
     />
   );

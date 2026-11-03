@@ -8,6 +8,7 @@ import type {
   ContextAuthor,
   ProjectContextUpdate,
 } from "@/types/schemas/projectContext";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 
 export type ProjectContextData = Awaited<ReturnType<typeof getProjectContext>>;
 export type ContextCompetitor = ProjectContextData["competitors"][number];
@@ -34,7 +35,7 @@ export function useContextUpdate(projectId: string) {
     onMutate: () => queryClient.cancelQueries({ queryKey }),
     onSuccess: (context) => {
       queryClient.setQueryData(queryKey, context);
-      toast.success("Project context updated");
+      toast.success(getTranslation("context.updated"));
     },
     // The page instantiates this mutation per section, so two concurrent
     // patches can settle out of order and the slower (earlier-snapshotted)
@@ -44,18 +45,23 @@ export function useContextUpdate(projectId: string) {
   });
 }
 
-const AUTHOR_LABELS: Record<ContextAuthor, string> = {
-  user: "you",
-  sam: "SAM",
-  mcp: "your AI client",
+const AUTHOR_LABEL_KEYS: Record<ContextAuthor, string> = {
+  user: "context.provenance.author_user",
+  sam: "context.provenance.author_sam",
+  mcp: "context.provenance.author_mcp",
 };
 
 export function Provenance({ by, at }: { by: ContextAuthor; at?: string }) {
+  const { t, locale } = useLocale();
+  const author = t(AUTHOR_LABEL_KEYS[by]);
   return (
     <span className="text-xs text-muted-foreground">
       {at
-        ? `Updated by ${AUTHOR_LABELS[by]} · ${formatRelativeTime(at)}`
-        : `Added by ${AUTHOR_LABELS[by]}`}
+        ? t("context.provenance.updated_by", {
+            author,
+            time: formatRelativeTime(at, locale),
+          })
+        : t("context.provenance.added_by", { author })}
     </span>
   );
 }

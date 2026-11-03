@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
 import { useEffect } from "react";
@@ -5,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getLastProjectId } from "@/client/lib/active-project";
 import {
   getErrorCode,
-  UNEXPECTED_ERROR_MESSAGE,
+  getUnexpectedErrorMessage,
 } from "@/client/lib/error-messages";
 import { AuthErrorCard } from "@/client/components/AuthErrorCard";
 import { QueryError } from "@/client/components/QueryState";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_app/")({
 });
 
 function IndexRedirect() {
+  const { t } = useLocale();
   const navigate = useNavigate();
 
   // Open the remembered project at once instead of waiting on the project
@@ -52,7 +54,7 @@ function IndexRedirect() {
       return (
         <StatusScreen
           pending
-          description="Redirecting you to billing so you can start a hosted subscription."
+          description={t("ui.details.redirecting_you_to_billing_a_hosted")}
         />
       );
     }
@@ -65,7 +67,7 @@ function IndexRedirect() {
           <StatusScreen>
             <QueryError
               error={error}
-              fallback={UNEXPECTED_ERROR_MESSAGE}
+              fallback={getUnexpectedErrorMessage()}
               onRetry={() => void refetch()}
               isRetrying={isFetching}
             />

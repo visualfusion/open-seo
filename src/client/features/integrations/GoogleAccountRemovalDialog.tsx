@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
@@ -28,6 +29,7 @@ export function GoogleAccountRemovalDialog({
   onClose: () => void;
   onRemoved: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const impact = useQuery({
     queryKey: ["googleAccountRemovalImpact", provider, accountId],
@@ -61,7 +63,7 @@ export function GoogleAccountRemovalDialog({
       await Promise.all(
         keys.map((key) => queryClient.invalidateQueries({ queryKey: [key] })),
       );
-      toast.success("Google account removed");
+      toast.success(t("integrations.details.google_account_removed"));
       onRemoved();
     },
   });
@@ -75,38 +77,44 @@ export function GoogleAccountRemovalDialog({
     >
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Remove Google account?</DialogTitle>
+          <DialogTitle>
+            {t("integrations.details.remove_google_account")}
+          </DialogTitle>
           <DialogDescription>
-            This removes the account’s {name} connection from OpenSEO. You can
-            reconnect it anytime.
+            {t("integrations.details.this_removes_the_account_s")} {name}{" "}
+            {t("integrations.details.connection_from_openseo_you_it_anytime")}
           </DialogDescription>
         </DialogHeader>
         <p className="break-all text-sm font-medium">{label}</p>
         {impact.isPending ? (
           <p role="status" className="text-sm text-muted-foreground">
-            Checking connected projects…
+            {t("integrations.details.checking_connected_projects")}
           </p>
         ) : impact.isError ? (
           <div role="alert" className="text-sm">
             <p className="text-destructive">
-              Couldn't check connected projects.
+              {t("integrations.details.couldn_t_check_connected_projects")}
             </p>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => void impact.refetch()}
             >
-              Try again
+              {t("ui.error_boundary.try_again")}
             </Button>
           </div>
         ) : impact.data.projectCount > 0 ? (
           <p className="text-sm font-medium">
-            This will also disconnect {name} from {impact.data.projectCount}{" "}
-            project{impact.data.projectCount === 1 ? "" : "s"}.
+            {t(
+              impact.data.projectCount === 1
+                ? "integrations.details.disconnect_project"
+                : "integrations.details.disconnect_projects",
+              { name, count: impact.data.projectCount },
+            )}
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            No projects will be affected.
+            {t("integrations.details.no_projects_will_be_affected")}
           </p>
         )}
         {removal.isError ? (
@@ -121,7 +129,7 @@ export function GoogleAccountRemovalDialog({
             disabled={removal.isPending}
             onClick={onClose}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -131,7 +139,9 @@ export function GoogleAccountRemovalDialog({
             }
             onClick={() => removal.mutate()}
           >
-            {removal.isPending ? "Removing…" : "Remove account"}
+            {removal.isPending
+              ? t("integrations.details.removing")
+              : t("integrations.details.remove_account")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -3,6 +3,7 @@ import { DomainFavicon } from "@/client/features/ai-visibility/DomainFavicon";
 import { Button } from "@/client/components/ui/button";
 import { Input } from "@/client/components/ui/input";
 import { TableCell, TableRow } from "@/client/components/ui/table";
+import { useLocale } from "@/client/lib/i18n";
 
 export type WebsiteCompetitor = {
   id: string;
@@ -26,6 +27,7 @@ export function WebsiteCompetitorRow({
   onEdit: () => void;
   onRemove: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <TableRow>
       <TableCell>
@@ -34,8 +36,12 @@ export function WebsiteCompetitorRow({
           {editing ? (
             <Input
               autoFocus
-              aria-label={`Competitor ${index + 1} name`}
-              placeholder="Competitor name"
+              aria-label={t("context.website_setup.competitor_name_aria", {
+                index: index + 1,
+              })}
+              placeholder={t(
+                "context.website_setup.competitor_name_placeholder",
+              )}
               required
               maxLength={120}
               value={competitor.name}
@@ -51,8 +57,10 @@ export function WebsiteCompetitorRow({
       <TableCell>
         {editing ? (
           <Input
-            aria-label={`Competitor ${index + 1} website`}
-            placeholder="example.com"
+            aria-label={t("context.website_setup.competitor_website_aria", {
+              index: index + 1,
+            })}
+            placeholder={t("context.competitors.domain_placeholder")}
             required
             maxLength={255}
             value={competitor.domain}
@@ -71,7 +79,11 @@ export function WebsiteCompetitorRow({
             variant="ghost"
             size="icon-sm"
             aria-label={
-              editing ? "Done editing competitor" : `Edit ${competitor.name}`
+              editing
+                ? t("context.website_setup.competitor_done_aria")
+                : t("context.website_setup.competitor_edit_aria", {
+                    name: competitor.name,
+                  })
             }
             disabled={
               editing && (!competitor.name.trim() || !competitor.domain.trim())
@@ -88,7 +100,13 @@ export function WebsiteCompetitorRow({
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label={`Remove ${competitor.name || `competitor ${index + 1}`}`}
+            aria-label={t("context.website_setup.competitor_remove_aria", {
+              name:
+                competitor.name ||
+                t("context.website_setup.competitor_fallback_name", {
+                  index: index + 1,
+                }),
+            })}
             onClick={onRemove}
           >
             <Trash2 className="size-4" />

@@ -31,6 +31,7 @@ import {
 import { CopyButton } from "@/client/components/CopyButton";
 import { useOrganizations } from "@/client/features/settings/useOrganizations";
 import { captureClientEvent } from "@/client/lib/posthog";
+import { useLocale } from "@/client/lib/i18n";
 import { authClient } from "@/lib/auth-client";
 
 // Better Auth rejects longer names with INVALID_NAME_LENGTH.
@@ -48,6 +49,7 @@ const apiKeyMetadataSchema = z.looseObject({
 });
 
 export function ApiKeySettings() {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createdKey, setCreatedKey] = useState<string | null>(null);
@@ -59,11 +61,6 @@ export function ApiKeySettings() {
     activeOrganizationName,
     organizationName,
   } = useOrganizations();
-
-  const mcpUrl =
-    typeof window === "undefined"
-      ? "https://app.openseo.so/mcp"
-      : `${window.location.origin}/mcp`;
 
   const apiKeysQuery = useQuery({
     queryKey: ["apiKeys"],
@@ -109,7 +106,7 @@ export function ApiKeySettings() {
     },
     onSuccess: () => {
       captureClientEvent("mcp:api_key_revoked");
-      toast.success("API key revoked");
+      toast.success(t("settings.api_keys.revoke_dialog.success"));
       setRevoking(null);
       void queryClient.invalidateQueries({ queryKey: ["apiKeys"] });
     },
@@ -132,15 +129,12 @@ export function ApiKeySettings() {
 
   return (
     <section className="space-y-3">
-      <SectionHeader title="API keys" />
+      <SectionHeader title={t("settings.api_keys.title")} />
       <div className="flex items-start justify-between gap-6">
         <div>
-          <p className="text-sm">
-            Authenticate MCP clients when OAuth doesn't work
-          </p>
+          <p className="text-sm">{t("settings.api_keys.subtitle")}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Use this for remote agents like Hermes where the normal login flow
-            doesn't work.
+            {t("settings.api_keys.helper")}
           </p>
           <p className="mt-1 text-sm">
             <a
@@ -149,34 +143,42 @@ export function ApiKeySettings() {
               target="_blank"
               rel="noreferrer"
             >
-              Setup guide
+              {t("settings.api_keys.setup_guide")}
             </a>
           </p>
         </div>
         <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-          Create API key
+          {t("settings.api_keys.create_button")}
         </Button>
       </div>
 
       <QueryState
         query={apiKeysQuery}
-        errorFallback="We couldn't load your API keys."
+        errorFallback={t("settings.api_keys.error_loading")}
       >
         {(apiKeys) =>
           apiKeys.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No API keys yet.</p>
+            <p className="text-sm text-muted-foreground">
+              {t("settings.api_keys.empty")}
+            </p>
           ) : (
             <TableCard>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Key</TableHead>
+                    <TableHead>{t("settings.api_keys.table.name")}</TableHead>
+                    <TableHead>{t("settings.api_keys.table.key")}</TableHead>
                     {showOrganization ? (
-                      <TableHead>Organization</TableHead>
+                      <TableHead>
+                        {t("settings.api_keys.table.organization")}
+                      </TableHead>
                     ) : null}
-                    <TableHead>Created</TableHead>
-                    <TableHead>Last used</TableHead>
+                    <TableHead>
+                      {t("settings.api_keys.table.created")}
+                    </TableHead>
+                    <TableHead>
+                      {t("settings.api_keys.table.last_used")}
+                    </TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
@@ -184,7 +186,7 @@ export function ApiKeySettings() {
                   {apiKeys.map((key) => (
                     <TableRow key={key.id}>
                       <TableCell className="max-w-[220px] truncate font-medium">
-                        {key.name || "Unnamed key"}
+                        {key.name || t("settings.api_keys.table.unnamed")}
                       </TableCell>
                       <TableCell
                         className="font-mono text-xs text-muted-foreground"
@@ -203,23 +205,28 @@ export function ApiKeySettings() {
                       <TableCell className="text-xs text-muted-foreground">
                         {key.lastRequest
                           ? key.lastRequest.toLocaleDateString()
-                          : "Never"}
+                          : t("settings.api_keys.table.never")}
                       </TableCell>
                       <TableCell>
                         <RowActionsMenu
-                          label={`Actions for ${key.name || "API key"}`}
+                          label={t("settings.api_keys.table.actions_label", {
+                            name:
+                              key.name || t("settings.api_keys.table.unnamed"),
+                          })}
                         >
                           <DropdownMenuItem
                             variant="destructive"
                             onClick={() =>
                               setRevoking({
                                 id: key.id,
-                                name: key.name || "Unnamed key",
+                                name:
+                                  key.name ||
+                                  t("settings.api_keys.table.unnamed"),
                               })
                             }
                           >
                             <Trash2 />
-                            Revoke key
+                            {t("settings.api_keys.table.revoke")}
                           </DropdownMenuItem>
                         </RowActionsMenu>
                       </TableCell>
@@ -234,14 +241,14 @@ export function ApiKeySettings() {
 
       {revoking ? (
         <ConfirmDialog
-          title={`Revoke \u201c${revoking.name}\u201d?`}
-          confirmLabel="Revoke key"
+          title={t("settings.api_keys.revoke_dialog.title")}
+          confirmLabel={t("settings.api_keys.revoke_dialog.confirm")}
           destructive
           pending={revokeMutation.isPending}
           onClose={() => setRevoking(null)}
           onConfirm={() => revokeMutation.mutate(revoking.id)}
         >
-          Clients using it will stop working.
+          {t("settings.api_keys.revoke_dialog.desc", { name: revoking.name })}
         </ConfirmDialog>
       ) : null}
 
@@ -262,14 +269,11 @@ export function ApiKeySettings() {
           {createdKey ? (
             <>
               <DialogHeader>
-                <DialogTitle>Copy your new API key</DialogTitle>
+                <DialogTitle>
+                  {t("settings.api_keys.create_dialog.save_title")}
+                </DialogTitle>
                 <DialogDescription>
-                  It won't be shown again. Send it as{" "}
-                  <span className="font-mono text-xs">
-                    Authorization: Bearer
-                  </span>{" "}
-                  to{" "}
-                  <span className="font-mono text-xs break-all">{mcpUrl}</span>.
+                  {t("settings.api_keys.create_dialog.save_desc")}
                 </DialogDescription>
               </DialogHeader>
               <div className="flex items-center gap-2">
@@ -281,27 +285,33 @@ export function ApiKeySettings() {
                 </code>
                 <CopyButton
                   value={createdKey}
-                  successMessage="API key copied"
-                  label="Copy API key"
+                  successMessage={t("settings.api_keys.table.copied")}
+                  label={t("settings.api_keys.create_dialog.copy")}
                   variant="ghost"
                   size="icon-sm"
                 />
               </div>
               <DialogFooter>
-                <Button onClick={closeCreateModal}>Done</Button>
+                <Button onClick={closeCreateModal}>
+                  {t("settings.api_keys.create_dialog.done")}
+                </Button>
               </DialogFooter>
             </>
           ) : (
             <form.AppForm>
               <form.Form className="grid gap-4">
                 <DialogHeader>
-                  <DialogTitle>Create API key</DialogTitle>
+                  <DialogTitle>
+                    {t("settings.api_keys.create_dialog.title")}
+                  </DialogTitle>
                 </DialogHeader>
                 <form.AppField name="name">
                   {(field) => (
                     <field.TextField
-                      label="Name"
-                      placeholder="Claude Code on laptop"
+                      label={t("settings.api_keys.create_dialog.name_label")}
+                      placeholder={t(
+                        "settings.api_keys.create_dialog.name_placeholder",
+                      )}
                       maxLength={MAX_KEY_NAME_LENGTH}
                       required
                       autoFocus
@@ -310,14 +320,17 @@ export function ApiKeySettings() {
                 </form.AppField>
                 {showOrganization ? (
                   <p className="text-sm text-muted-foreground">
-                    This key works in {activeOrganizationName}.
+                    {t("settings.details.this_key_works_in")}{" "}
+                    {activeOrganizationName}.
                   </p>
                 ) : null}
                 <DialogFooter>
                   <Button variant="ghost" onClick={closeCreateModal}>
-                    Cancel
+                    {t("settings.api_keys.create_dialog.cancel")}
                   </Button>
-                  <form.SubmitButton>Create</form.SubmitButton>
+                  <form.SubmitButton>
+                    {t("settings.api_keys.create_dialog.submit")}
+                  </form.SubmitButton>
                 </DialogFooter>
               </form.Form>
             </form.AppForm>

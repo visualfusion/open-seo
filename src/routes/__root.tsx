@@ -21,6 +21,7 @@ import { TooltipProvider } from "@/client/components/ui/tooltip";
 import appCss from "@/client/styles/app.css?url";
 import { Toaster } from "sonner";
 import { queryClient } from "@/client/tanstack-db";
+import { useLocale } from "@/client/lib/i18n";
 
 // Capture Google link error params before the router starts — a route loader
 // redirect would otherwise replace the URL and lose them. See googleLinkError.ts.
@@ -92,11 +93,12 @@ function AppLayout() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { locale } = useLocale();
   const showDevtools =
     import.meta.env.DEV && import.meta.env.VITE_SHOW_DEVTOOLS !== "false";
 
   return (
-    <html suppressHydrationWarning translate="no">
+    <html lang={locale} suppressHydrationWarning translate="no">
       <head>
         <script
           dangerouslySetInnerHTML={{ __html: themePreferenceInitScript }}

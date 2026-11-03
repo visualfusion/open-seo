@@ -16,20 +16,24 @@ import { getErrorCode } from "@/client/lib/error-messages";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { isHostedClientAuthMode, usesBetterAuthClient } from "@/lib/auth-mode";
 import { sendTeamInvitation } from "@/serverFunctions/organization";
+import { useLocale, getTranslation } from "@/client/lib/i18n";
 
 const inviteSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address."),
+  email: z
+    .string()
+    .trim()
+    .email(getTranslation("team.invite_modal.email_invalid")),
 });
 
 export function inviteErrorMessage(error: Error) {
   const code = getErrorCode(error);
   if (code === "RATE_LIMITED") {
-    return "Invitation limit reached for today. Try again tomorrow.";
+    return getTranslation("team.invite_modal.rate_limited");
   }
   if (code === "UPSTREAM_UNAVAILABLE") {
-    return "The invitation was saved but the email couldn't be sent. Use Resend in a moment to retry.";
+    return getTranslation("team.invite_modal.upstream_error");
   }
-  return "We couldn't send that invitation.";
+  return getTranslation("team.invite_modal.send_error");
 }
 
 // Without an email transport (the standalone Docker edition) the server hands
@@ -46,9 +50,9 @@ export function announceInvitation(
   void (
     navigator.clipboard?.writeText(inviteUrl) ?? Promise.reject(new Error())
   ).then(
-    () => toast.success("Invitation link copied"),
+    () => toast.success(getTranslation("team.invite_modal.link_copied")),
     () =>
-      toast.success("Invitation link", {
+      toast.success(getTranslation("team.invite_modal.link_title"), {
         description: inviteUrl,
         duration: 20000,
       }),
@@ -62,6 +66,7 @@ export function InviteTeammateModal({
   onClose: () => void;
   onInvited: () => void;
 }) {
+  const { t } = useLocale();
   // Server function (not authClient.inviteMember): it enforces the daily send
   // limits and fails visibly when the invite email doesn't send.
   const inviteMutation = useMutation({
@@ -69,14 +74,16 @@ export function InviteTeammateModal({
       sendTeamInvitation({ data: { email: inviteeEmail } }),
     onSuccess: (result) => {
       captureClientEvent("team:invitation_send");
-      announceInvitation(result, "Invitation sent");
+      announceInvitation(result, t("team.invite_modal.invitation_sent"));
       onInvited();
       onClose();
     },
     onError: (error: Error) => {
       if (getErrorCode(error) === "CONFLICT") {
         form.setErrorMap({
-          onSubmit: { fields: { email: "This person is already a member." } },
+          onSubmit: {
+            fields: { email: t("team.invite_modal.already_member") },
+          },
         });
       } else {
         toast.error(inviteErrorMessage(error));
@@ -106,19 +113,23 @@ export function InviteTeammateModal({
         <form.AppForm>
           <form.Form className="flex flex-col gap-4">
             <DialogHeader>
-              <DialogTitle>Invite a teammate</DialogTitle>
+              <DialogTitle>
+                {sharesLink
+                  ? t("team.invite_modal.title_link")
+                  : t("team.invite_modal.title")}
+              </DialogTitle>
               <DialogDescription>
                 {sharesLink
-                  ? "They'll join as an Admin with full access to each project. Share the invitation link with them; they create their account from it. It expires in 7 days."
-                  : "They'll join as an Admin with full access to each project except for billing. The invitation link expires in 7 days."}
+                  ? t("team.invite_modal.description_link")
+                  : t("team.invite_modal.description")}
               </DialogDescription>
             </DialogHeader>
             <form.AppField name="email">
               {(field) => (
                 <field.TextField
-                  label="Email"
+                  label={t("team.invite_modal.email_label")}
                   type="email"
-                  placeholder="teammate@company.com"
+                  placeholder={t("team.invite_modal.email_placeholder")}
                   required
                   autoFocus
                 />
@@ -130,9 +141,13 @@ export function InviteTeammateModal({
                 onClick={onClose}
                 disabled={inviteMutation.isPending}
               >
-                Cancel
+                {t("team.invite_modal.cancel")}
               </Button>
-              <form.SubmitButton>Send invite</form.SubmitButton>
+              <form.SubmitButton>
+                {sharesLink
+                  ? t("team.invite_modal.submit_link")
+                  : t("team.invite_modal.submit")}
+              </form.SubmitButton>
             </DialogFooter>
           </form.Form>
         </form.AppForm>

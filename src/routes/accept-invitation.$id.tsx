@@ -6,6 +6,7 @@ import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthPageCard, AuthPageShell } from "@/client/features/auth/AuthPage";
 import { clearLastProjectId } from "@/client/lib/active-project";
+import { useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { authClient, signOutAndRedirect, useSession } from "@/lib/auth-client";
 import { usesBetterAuthClient } from "@/lib/auth-mode";
@@ -40,14 +41,13 @@ function AcceptInvitationPage() {
 // logged-out visitor gets a generic shell — no invitation details are
 // exposed pre-auth by design.
 function SignedOutInvitationCard({ invitationId }: { invitationId: string }) {
+  const { t } = useLocale();
   const redirect = `/accept-invitation/${invitationId}`;
 
   return (
-    <AuthPageCard title="You&rsquo;re invited">
+    <AuthPageCard title={t("auth.accept_invitation.youre_invited_title")}>
       <p className="text-sm text-muted-foreground">
-        You&rsquo;ve been invited to join an organization on OpenSEO. Sign in
-        with the email address that received the invitation, or create an
-        account with it, to accept.
+        {t("auth.accept_invitation.signed_out_desc")}
       </p>
       <div className="space-y-2">
         <Button
@@ -56,7 +56,7 @@ function SignedOutInvitationCard({ invitationId }: { invitationId: string }) {
           variant="secondary"
           className="w-full"
         >
-          Create account
+          {t("auth.sign_in.create_account")}
         </Button>
         <Button
           nativeButton={false}
@@ -64,7 +64,7 @@ function SignedOutInvitationCard({ invitationId }: { invitationId: string }) {
           variant="ghost"
           className="w-full"
         >
-          Sign in
+          {t("auth.sign_in.title")}
         </Button>
       </div>
     </AuthPageCard>
@@ -78,6 +78,7 @@ function InvitationCard({
   invitationId: string;
   userEmail: string;
 }) {
+  const { t } = useLocale();
   const [pendingAction, setPendingAction] = useState<
     "accept" | "decline" | null
   >(null);
@@ -91,7 +92,9 @@ function InvitationCard({
         query: { id: invitationId },
       });
       if (result.error) {
-        throw new Error(result.error.message || "Invitation not found");
+        throw new Error(
+          result.error.message || t("auth.accept_invitation.not_found"),
+        );
       }
       return result.data;
     },
@@ -107,25 +110,20 @@ function InvitationCard({
       });
       if (accepted.error) {
         setActionError(
-          accepted.error.message || "We couldn't accept the invitation.",
+          accepted.error.message || t("auth.accept_invitation.accept_failed"),
         );
         setPendingAction(null);
         return;
       }
 
-      // Accepting updates the session row but not the session cookie cache;
-      // setActive refreshes the cookie so the app opens in the joined org
-      // immediately instead of after the cache expires.
       await authClient.organization.setActive({
         organizationId: accepted.data.invitation.organizationId,
       });
       captureClientEvent("team:invitation_accept");
-      // Full navigation: every cached query in this tab, and the remembered
-      // project, belong to the old workspace.
       clearLastProjectId();
       window.location.assign("/");
     } catch {
-      setActionError("We couldn't accept the invitation. Please try again.");
+      setActionError(t("auth.accept_invitation.accept_failed_retry"));
       setPendingAction(null);
     }
   }
@@ -139,7 +137,7 @@ function InvitationCard({
       });
       if (result.error) {
         setActionError(
-          result.error.message || "We couldn't decline the invitation.",
+          result.error.message || t("auth.accept_invitation.decline_failed"),
         );
         setPendingAction(null);
         return;
@@ -147,14 +145,14 @@ function InvitationCard({
       captureClientEvent("team:invitation_decline");
       setDeclined(true);
     } catch {
-      setActionError("We couldn't decline the invitation. Please try again.");
+      setActionError(t("auth.accept_invitation.decline_failed_retry"));
       setPendingAction(null);
     }
   }
 
   if (invitationQuery.isPending) {
     return (
-      <AuthPageCard title="Checking invitation...">
+      <AuthPageCard title={t("auth.accept_invitation.checking_title")}>
         <div className="flex justify-center py-4">
           <Spinner />
         </div>
@@ -164,18 +162,16 @@ function InvitationCard({
 
   if (invitationQuery.isError) {
     return (
-      <AuthPageCard title="Invitation unavailable">
+      <AuthPageCard title={t("auth.accept_invitation.unavailable_title")}>
         <p className="text-sm text-muted-foreground">
-          This invitation may have expired, been canceled, or belong to a
-          different email address. You&rsquo;re signed in as{" "}
+          {t("auth.accept_invitation.unavailable_desc_prefix")}
           <span className="font-medium" data-ph-mask>
             {userEmail}
           </span>
           .
         </p>
         <p className="text-sm text-muted-foreground">
-          If the invitation was sent to another address, sign out and sign back
-          in with that email. Otherwise ask your teammate to send a new invite.
+          {t("auth.accept_invitation.unavailable_desc_2")}
         </p>
         <div className="space-y-2">
           <Button
@@ -183,12 +179,10 @@ function InvitationCard({
             variant="secondary"
             className="w-full"
             onClick={() => {
-              // Signs out, then lands on sign-in with a redirect back to this
-              // invitation (staying signed in would bounce straight back here).
               signOutAndRedirect();
             }}
           >
-            Use a different account
+            {t("auth.accept_invitation.use_different_account")}
           </Button>
           <Button
             nativeButton={false}
@@ -196,7 +190,7 @@ function InvitationCard({
             variant="ghost"
             className="w-full"
           >
-            Go to dashboard
+            {t("auth.accept_invitation.go_to_dashboard")}
           </Button>
         </div>
       </AuthPageCard>
@@ -205,13 +199,13 @@ function InvitationCard({
 
   if (declined) {
     return (
-      <AuthPageCard title="Invitation declined">
+      <AuthPageCard title={t("auth.accept_invitation.declined_title")}>
         <p className="text-sm text-muted-foreground">
-          You declined the invitation to join{" "}
+          {t("auth.accept_invitation.declined_desc_prefix")}
           <span className="font-medium">
             {invitationQuery.data.organizationName}
           </span>
-          .
+          {t("auth.accept_invitation.declined_desc_suffix")}
         </p>
         <Button
           nativeButton={false}
@@ -219,23 +213,23 @@ function InvitationCard({
           variant="ghost"
           className="w-full"
         >
-          Go to dashboard
+          {t("auth.accept_invitation.go_to_dashboard")}
         </Button>
       </AuthPageCard>
     );
   }
 
   return (
-    <AuthPageCard title="Join organization">
+    <AuthPageCard title={t("auth.accept_invitation.join_title")}>
       <p className="text-sm text-muted-foreground">
         <span className="font-medium" data-ph-mask>
           {invitationQuery.data.inviterEmail}
-        </span>{" "}
-        invited you to join{" "}
+        </span>
+        {t("auth.accept_invitation.invited_desc_middle")}
         <span className="font-medium">
           {invitationQuery.data.organizationName}
-        </span>{" "}
-        on OpenSEO.
+        </span>
+        {t("auth.accept_invitation.invited_desc_suffix")}
       </p>
       {actionError ? (
         <Alert variant="destructive">
@@ -251,7 +245,9 @@ function InvitationCard({
           disabled={pendingAction !== null}
           onClick={() => void handleAccept()}
         >
-          {pendingAction === "accept" ? "Joining..." : "Accept invitation"}
+          {pendingAction === "accept"
+            ? t("auth.accept_invitation.joining")
+            : t("auth.accept_invitation.accept")}
         </Button>
         <Button
           type="button"
@@ -261,7 +257,9 @@ function InvitationCard({
           disabled={pendingAction !== null}
           onClick={() => void handleDecline()}
         >
-          {pendingAction === "decline" ? "Declining..." : "Decline"}
+          {pendingAction === "decline"
+            ? t("auth.accept_invitation.declining")
+            : t("auth.accept_invitation.decline")}
         </Button>
       </div>
     </AuthPageCard>

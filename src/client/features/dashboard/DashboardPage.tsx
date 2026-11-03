@@ -34,6 +34,7 @@ import {
   getDashboardOverview,
 } from "@/serverFunctions/dashboard";
 import { Skeleton } from "@/client/components/ui/skeleton";
+import { useLocale } from "@/client/lib/i18n";
 import { usesBetterAuthClient } from "@/lib/auth-mode";
 
 export function DashboardPage({
@@ -45,6 +46,7 @@ export function DashboardPage({
   tab?: z.infer<typeof dashboardSiteTabSchema>;
   onTabChange: (tab: z.infer<typeof dashboardSiteTabSchema>) => void;
 }) {
+  const { t } = useLocale();
   const activationQuery = useQuery({
     queryKey: ["dashboardActivation", projectId],
     queryFn: () => getDashboardActivation({ data: { projectId } }),
@@ -68,7 +70,7 @@ export function DashboardPage({
       <div className="px-4 py-4 md:px-6 md:py-6">
         <QueryError
           error={activationQuery.error}
-          fallback="Failed to load dashboard"
+          fallback={t("dashboard.details.failed_to_load_dashboard")}
           onRetry={() => void activationQuery.refetch()}
           isRetrying={activationQuery.isFetching}
         />
@@ -178,13 +180,13 @@ export function DashboardPage({
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Your website
+              {t("dashboard.your_website")}
             </p>
             <h1 className="text-2xl font-semibold">
-              {activation.domain || "Dashboard"}
+              {activation.domain || t("dashboard.title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Search visibility, links and site health in one place.
+              {t("dashboard.tagline")}
             </p>
           </div>
           <Button
@@ -193,7 +195,7 @@ export function DashboardPage({
             render={<Link to="/p/$projectId/settings" params={{ projectId }} />}
           >
             <Settings />
-            Project settings
+            {t("dashboard.project_settings")}
           </Button>
         </div>
 
@@ -216,7 +218,7 @@ export function DashboardPage({
         {activationQuery.isError ? (
           <QueryError
             error={activationQuery.error}
-            fallback="Failed to refresh dashboard"
+            fallback={t("dashboard.details.refresh_failed")}
             onRetry={() => void activationQuery.refetch()}
             isRetrying={activationQuery.isFetching}
           />
@@ -225,7 +227,7 @@ export function DashboardPage({
         {overviewQuery.isError ? (
           <QueryError
             error={overviewQuery.error}
-            fallback="Failed to load site health"
+            fallback={t("dashboard.details.health_failed")}
             onRetry={() => void overviewQuery.refetch()}
             isRetrying={overviewQuery.isFetching}
           />
@@ -245,12 +247,15 @@ export function DashboardPage({
           }}
           className="gap-4"
         >
-          <TabsList aria-label="Your website dashboard" className="h-9">
+          <TabsList
+            aria-label={t("dashboard.details.dashboard_aria")}
+            className="h-9"
+          >
             {(
               [
-                ["overview", "Overview"],
-                ["keywords", "Keywords"],
-                ["backlinks", "Backlinks"],
+                ["overview", t("dashboard.tabs.overview")],
+                ["keywords", t("dashboard.tabs.keywords")],
+                ["backlinks", t("dashboard.tabs.backlinks")],
               ] as const
             ).map(([value, label]) => (
               <TabsTrigger key={value} value={value} className="px-3">
@@ -291,8 +296,8 @@ export function DashboardPage({
               <EmptyState
                 variant="card"
                 icon={Link2}
-                title="See who links to your website"
-                description="Add your website to track new and lost backlinks and the sites sending them."
+                title={t("dashboard.cards.see_who_links")}
+                description={t("dashboard.cards.add_website_backlinks_desc")}
                 action={
                   <Button
                     nativeButton={false}
@@ -303,7 +308,7 @@ export function DashboardPage({
                       />
                     }
                   >
-                    Add your website
+                    {t("dashboard.cards.add_website")}
                   </Button>
                 }
               />

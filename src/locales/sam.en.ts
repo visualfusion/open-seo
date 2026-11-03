@@ -1,0 +1,81 @@
+export const samEn = {
+  help: {
+    command_copied: "Command copied",
+    copy_command: "Copy command",
+    steps_title: "Steps",
+    not_admin_hint: "Not an owner or admin? Send this page to one.",
+    cf_title: "Cloudflare Workers (Dashboard UI)",
+    cf_step1_prefix: "In Cloudflare, go to ",
+    cf_step1_mid: " -> ",
+    cf_step1_suffix: " and open your OpenSEO Worker.",
+    cf_step2_prefix: "Open ",
+    cf_step2_suffix: ".",
+    cf_step3_prefix: "Go to ",
+    cf_step3_mid: " and add a new secret named ",
+    cf_step3_suffix: ".",
+    cf_terminal_or: "Or set the same secret from your terminal with:",
+    dataforseo: {
+      request_prefix: "Go to ",
+      request_link: "DataForSEO API Access",
+      request_suffix: " and request API credentials by email.",
+      encode_desc:
+        "Base64 encode your DataForSEO login and API password in this format:",
+      title: "Set up your DataForSEO API key",
+      intro_prefix: "OpenSEO needs the ",
+      intro_suffix:
+        " secret before keyword, domain, and SEO data workflows can run.",
+      everyapp_intro:
+        "OpenSEO's keyword, domain, backlink and rank data comes from DataForSEO. On Every App the gateway holds the key once, for every app.",
+      save_env_prefix: "Save the output as the ",
+      save_env_suffix: " secret in your environment.",
+      everyapp_run:
+        "An owner or admin runs this from the Every App checkout and pastes the value:",
+      everyapp_reload: "Reload OpenSEO: it uses the key on its next request.",
+      dashboard_paste:
+        "Paste the base64 value from the terminal command above and save.",
+      terminal_hint_prefix: "Use the base64 value of ",
+      terminal_hint_suffix: " when prompted.",
+    },
+    openrouter: {
+      account_prefix: "Create an account at ",
+      account_suffix: " and add credits (pay-as-you-go, like DataForSEO).",
+      key_prefix: "Go to ",
+      key_link: "OpenRouter API Keys",
+      key_suffix: ' and click "Create API Key".',
+      title: "Set up your OpenRouter API key",
+      intro_prefix: "OpenSEO needs the ",
+      intro_suffix:
+        " secret before AI features like SAM, the in-app SEO agent, can run. It is optional — everything else in OpenSEO works without it.",
+      everyapp_intro:
+        "SAM, prompt suggestions and website research run on OpenRouter. On Every App the gateway holds the key once, for every app.",
+      save_env_prefix: "Save the key as the ",
+      save_env_suffix: " secret in your environment:",
+      env_docker: "Docker self-hosting: ",
+      env_cf: "Cloudflare: set it in the Workers UI (see below)",
+      env_local: "Local development: ",
+      restart: "Restart OpenSEO.",
+      everyapp_run:
+        "An owner or admin runs this from the Every App checkout and pastes the key:",
+      everyapp_reload: "Reload OpenSEO.",
+      dashboard_paste: "Paste your OpenRouter API key and save.",
+      terminal_hint: "Paste your OpenRouter API key when prompted.",
+    },
+  },
+  reconnect: "Reconnect",
+  reconnecting: "Reconnecting…",
+  support: {
+    eyebrow: "Help & Community",
+    title: "We want to hear from you",
+    description:
+      "We want to talk to you! We're super open to feedback and want to learn how you work so we can make OpenSEO better.",
+    email_title: "Email",
+    email_desc: "Send ideas, problems, questions, or feedback directly.",
+    email_copied: "Email copied to clipboard",
+    discord_title: "Discord",
+    discord_desc: "Ask for help, share ideas and learn from the community.",
+    discord_cta: "Join the Discord",
+    github_title: "GitHub Issues",
+    github_desc: "Report bugs or request features on GitHub.",
+    github_cta: "Open an issue",
+  },
+};

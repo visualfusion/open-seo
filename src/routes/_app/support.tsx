@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/client/components/ui/card";
+import { useLocale } from "@/client/lib/i18n";
 import { SUPPORT_EMAIL } from "@/client/lib/support";
 
 const DISCORD_URL = "https://discord.gg/c9uGs3cFXr";
@@ -18,16 +19,17 @@ export const Route = createFileRoute("/_app/support")({
 });
 
 function SupportPage() {
+  const { t } = useLocale();
   return (
     <div className="h-full overflow-auto px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">
-            Help & Community
+            {t("sam.support.eyebrow")}
           </p>
           <PageHeader
-            title="We want to hear from you"
-            description="We want to talk to you! We're super open to feedback and want to learn how you work so we can make OpenSEO better."
+            title={t("sam.support.title")}
+            description={t("sam.support.description")}
           />
         </div>
 
@@ -35,17 +37,15 @@ function SupportPage() {
           <Card>
             <CardHeader>
               <CardTitle>
-                <h2>Email</h2>
+                <h2>{t("sam.support.email_title")}</h2>
               </CardTitle>
-              <CardDescription>
-                Send ideas, problems, questions, or feedback directly.
-              </CardDescription>
+              <CardDescription>{t("sam.support.email_desc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <CopyButton
                 value={SUPPORT_EMAIL}
                 label={SUPPORT_EMAIL}
-                successMessage="Email copied to clipboard"
+                successMessage={t("sam.support.email_copied")}
                 size="sm"
               />
             </CardContent>
@@ -53,16 +53,16 @@ function SupportPage() {
 
           <SupportLinkCard
             href={DISCORD_URL}
-            title="Discord"
-            description="Ask for help, share ideas and learn from the community."
-            cta="Join the Discord"
+            title={t("sam.support.discord_title")}
+            description={t("sam.support.discord_desc")}
+            cta={t("sam.support.discord_cta")}
           />
 
           <SupportLinkCard
             href={`${GITHUB_URL}/issues`}
-            title="GitHub Issues"
-            description="Report bugs or request features on GitHub."
-            cta="Open an issue"
+            title={t("sam.support.github_title")}
+            description={t("sam.support.github_desc")}
+            cta={t("sam.support.github_cta")}
           />
         </div>
       </div>

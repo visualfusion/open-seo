@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import {
   Link,
   Outlet,
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedShellLayout() {
+  const { t } = useLocale();
   const authGate = useHostedAuthRouteGuard();
   const isOAuthConsent = Boolean(
     useMatch({ from: "/_authenticated/oauth-consent", shouldThrow: false }),
@@ -29,7 +31,7 @@ function AuthenticatedShellLayout() {
     return (
       <AuthPageShell>
         <AuthPageCard
-          title="Not available"
+          title={t("ui.details.not_available")}
           helperText="This page isn't available right now."
         >
           <Button
@@ -38,7 +40,7 @@ function AuthenticatedShellLayout() {
             variant="secondary"
             className="w-full"
           >
-            Back to OpenSEO
+            {t("auth.auth_error.back_to_openseo")}
           </Button>
         </AuthPageCard>
       </AuthPageShell>

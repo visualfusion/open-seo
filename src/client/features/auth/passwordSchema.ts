@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getTranslation } from "@/client/lib/i18n";
 import {
   HOSTED_PASSWORD_MAX_LENGTH,
   HOSTED_PASSWORD_MIN_LENGTH,
@@ -6,11 +7,15 @@ import {
 
 export const passwordSchema = z
   .string()
-  .min(
-    HOSTED_PASSWORD_MIN_LENGTH,
-    `Password must be at least ${HOSTED_PASSWORD_MIN_LENGTH} characters.`,
-  )
-  .max(
-    HOSTED_PASSWORD_MAX_LENGTH,
-    `Password must be at most ${HOSTED_PASSWORD_MAX_LENGTH} characters.`,
-  );
+  .min(HOSTED_PASSWORD_MIN_LENGTH, {
+    error: () =>
+      getTranslation("auth.password_rules.min_length", undefined, {
+        min: HOSTED_PASSWORD_MIN_LENGTH,
+      }),
+  })
+  .max(HOSTED_PASSWORD_MAX_LENGTH, {
+    error: () =>
+      getTranslation("auth.password_rules.max_length", undefined, {
+        max: HOSTED_PASSWORD_MAX_LENGTH,
+      }),
+  });

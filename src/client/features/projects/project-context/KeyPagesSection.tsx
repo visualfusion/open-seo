@@ -16,17 +16,14 @@ import {
 } from "@/types/schemas/projectContext";
 import { EditableListSection } from "./EditableListSection";
 import { Provenance, useContextUpdate, type ContextKeyPage } from "./shared";
+import { useLocale } from "@/client/lib/i18n";
 
-const ROLE_LABELS: Record<KeyPageRole, string> = {
-  hub: "Hub page",
-  spoke: "Supporting page",
-  money: "Money page",
-  other: "Other",
+const ROLE_LABEL_KEYS: Record<KeyPageRole, string> = {
+  hub: "context.key_pages.role_hub",
+  spoke: "context.key_pages.role_spoke",
+  money: "context.key_pages.role_money",
+  other: "context.key_pages.role_other",
 };
-const roleItems = KEY_PAGE_ROLES.map((role) => ({
-  value: role,
-  label: ROLE_LABELS[role],
-}));
 
 type KeyPageDraft = {
   url: string;
@@ -42,6 +39,7 @@ export function KeyPagesSection({
   projectId: string;
   keyPages: ContextKeyPage[];
 }) {
+  const { t } = useLocale();
   const update = useContextUpdate(projectId);
 
   const save = (
@@ -69,11 +67,11 @@ export function KeyPagesSection({
 
   return (
     <EditableListSection
-      title="Key pages"
-      hint="A shortlist of the pages that carry the site — not an inventory."
-      addLabel="Add page"
-      emptyTitle="No key pages yet"
-      emptyDescription="Add the handful that has to rank, or let an agent propose them from your last site audit."
+      title={t("context.key_pages.title")}
+      hint={t("context.key_pages.hint")}
+      addLabel={t("context.key_pages.add_button")}
+      emptyTitle={t("context.key_pages.empty_title")}
+      emptyDescription={t("context.key_pages.empty_desc")}
       items={keyPages}
       getId={(item) => item.id}
       getLabel={(item) => item.url}
@@ -84,12 +82,12 @@ export function KeyPagesSection({
           <div className="flex flex-wrap items-baseline gap-x-2">
             <span className="truncate text-sm font-medium">{item.url}</span>
             <Badge variant="secondary" size="sm">
-              {ROLE_LABELS[item.role]}
+              {t(ROLE_LABEL_KEYS[item.role])}
             </Badge>
           </div>
           {item.topic ? (
             <p className="text-sm text-muted-foreground">
-              Target: {item.topic}
+              {t("context.key_pages.target_prefix", { topic: item.topic })}
             </p>
           ) : null}
           {item.notes ? (
@@ -121,6 +119,11 @@ function KeyPageForm({
   onCancel: () => void;
   onSave: (draft: KeyPageDraft) => void;
 }) {
+  const { t } = useLocale();
+  const roleItems = KEY_PAGE_ROLES.map((role) => ({
+    value: role,
+    label: t(ROLE_LABEL_KEYS[role]),
+  }));
   const [draft, setDraft] = React.useState<KeyPageDraft>({
     url: initial?.url ?? "",
     role: initial?.role ?? "other",
@@ -141,9 +144,9 @@ function KeyPageForm({
         autoFocus
         value={draft.url}
         onChange={(event) => setDraft({ ...draft, url: event.target.value })}
-        placeholder="example.com/pricing"
+        placeholder={t("context.key_pages.url_placeholder")}
         maxLength={2048}
-        aria-label="Page URL"
+        aria-label={t("context.key_pages.url_aria")}
       />
       <div className="grid gap-2 sm:grid-cols-2">
         <Select
@@ -153,13 +156,16 @@ function KeyPageForm({
             if (role !== null) setDraft({ ...draft, role });
           }}
         >
-          <SelectTrigger className="w-full" aria-label="Page role">
+          <SelectTrigger
+            className="w-full"
+            aria-label={t("context.key_pages.role_aria")}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {KEY_PAGE_ROLES.map((role) => (
               <SelectItem key={role} value={role}>
-                {ROLE_LABELS[role]}
+                {t(ROLE_LABEL_KEYS[role])}
               </SelectItem>
             ))}
           </SelectContent>
@@ -169,17 +175,17 @@ function KeyPageForm({
           onChange={(event) =>
             setDraft({ ...draft, topic: event.target.value })
           }
-          placeholder="Target topic (optional)"
+          placeholder={t("context.key_pages.topic_placeholder")}
           maxLength={200}
-          aria-label="Target topic"
+          aria-label={t("context.key_pages.topic_aria")}
         />
       </div>
       <Input
         value={draft.notes}
         onChange={(event) => setDraft({ ...draft, notes: event.target.value })}
-        placeholder="Notes (optional)"
+        placeholder={t("context.key_pages.notes_placeholder")}
         maxLength={500}
-        aria-label="Page notes"
+        aria-label={t("context.key_pages.notes_aria")}
       />
       <FormActions
         pending={pending}

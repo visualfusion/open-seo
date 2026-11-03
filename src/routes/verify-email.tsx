@@ -8,6 +8,7 @@ import {
   AuthPageShell,
   authRedirectSearchSchema,
 } from "@/client/features/auth/AuthPage";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { authClient, useSession } from "@/lib/auth-client";
 import {
@@ -34,15 +35,13 @@ export const Route = createFileRoute("/verify-email")({
 function getVerificationErrorMessage(error: string | undefined) {
   switch ((error ?? "").toLowerCase()) {
     case "invalid_token":
-      return "This link is no longer valid. Request a new email to keep going.";
+      return getTranslation("auth.verify_email.invalid_token");
     case "token_expired":
-      return "This link has expired. Request a new email to keep going.";
+      return getTranslation("auth.verify_email.token_expired");
     case "user_not_found":
-      return "We couldn't find this account anymore. Try creating it again.";
+      return getTranslation("auth.verify_email.user_not_found");
     default:
-      return error
-        ? "We couldn't confirm this email. Request a new email and try again."
-        : null;
+      return error ? getTranslation("auth.verify_email.unknown_error") : null;
   }
 }
 
@@ -61,45 +60,42 @@ function getVerifyEmailPageCopy({
 }) {
   if (!isHostedMode) {
     return {
-      title: "Verify email",
-      helperText: "Email confirmation isn't available right now.",
+      title: getTranslation("auth.verify_email.title"),
+      helperText: getTranslation("auth.verify_email.unavailable_helper"),
     };
   }
 
   if (errorMessage) {
     return {
-      title: "We couldn't confirm your email",
+      title: getTranslation("auth.verify_email.failed_title"),
       helperText: undefined,
     };
   }
 
   if (isRedirecting) {
     return {
-      title: "Email confirmed",
-      helperText: "You're all set. Taking you to your account now.",
+      title: getTranslation("auth.verify_email.confirmed_title"),
+      helperText: getTranslation("auth.verify_email.confirmed_helper"),
     };
   }
 
   if (isPending) {
     return {
-      title: "Verify email",
-      helperText: "Checking your email confirmation.",
+      title: getTranslation("auth.verify_email.title"),
+      helperText: getTranslation("auth.verify_email.checking_helper"),
     };
   }
 
-  // Default: the user just signed up (or reloaded this page) and still needs to
-  // click the verification link. There is never a sign-in CTA here — an
-  // unverified hosted user would be bounced straight back by the verification
-  // gate.
   return {
-    title: "Verify your email",
+    title: getTranslation("auth.verify_email.verify_your_email"),
     helperText: email
-      ? `Click the link we sent to ${email} to verify your email.`
-      : "Check your inbox for the link to verify your email.",
+      ? getTranslation("auth.verify_email.sent_to_email", undefined, { email })
+      : getTranslation("auth.verify_email.check_inbox"),
   };
 }
 
 function VerifyEmailPage() {
+  const { t } = useLocale();
   const search = Route.useSearch();
   const redirectTo = normalizeAuthRedirect(search.redirect);
   const isHostedMode = isHostedClientAuthMode();
@@ -174,15 +170,15 @@ function VerifyEmailPage() {
         callbackURL: callbackURL.toString(),
       });
       if (result.error) {
-        toast.error(result.error.message || "We couldn't send another email.");
+        toast.error(
+          result.error.message || t("auth.verify_email.resend_failed"),
+        );
         return;
       }
       captureClientEvent("auth:verification_resend");
-      toast.success("A new email is on the way.");
+      toast.success(t("auth.verify_email.resent_toast"));
     } catch {
-      toast.error(
-        "We couldn't send another email right now. Please try again.",
-      );
+      toast.error(t("auth.verify_email.resend_failed_retry"));
     } finally {
       setIsResending(false);
     }
@@ -200,7 +196,7 @@ function VerifyEmailPage() {
               search={getSignInSearch(redirectTo)}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              Back to sign in
+              {t("auth.common.back_to_sign_in")}
             </Link>
           </p>
         }
@@ -219,7 +215,9 @@ function VerifyEmailPage() {
             pending={isResending}
             onClick={() => void handleResend()}
           >
-            {isResending ? "Sending email..." : "Resend email"}
+            {isResending
+              ? t("auth.verify_email.resending")
+              : t("auth.verify_email.resend")}
           </Button>
         ) : null}
       </AuthPageCard>

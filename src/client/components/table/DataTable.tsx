@@ -1,3 +1,4 @@
+import { useLocale, getTranslation } from "@/client/lib/i18n";
 import {
   flexRender,
   getCoreRowModel,
@@ -92,7 +93,7 @@ export function makeSelectionColumn<TData>(
         }
         disabled={!table.getRowModel().rows.some((row) => row.getCanSelect())}
         onCheckedChange={(checked) => table.toggleAllRowsSelected(checked)}
-        aria-label="Select all rows"
+        aria-label={getTranslation("ui.details.select_all_rows")}
       />
     ),
     cell: ({ row, table }) => (
@@ -194,6 +195,7 @@ export function DataTable<TData>({
   /** Details shown in a full-width row under an expanded row. */
   renderExpandedRow?: (row: Row<TData>) => ReactNode;
 }) {
+  const { t } = useLocale();
   const columns = table.getVisibleLeafColumns();
   const rows = table.getRowModel().rows;
 
@@ -248,8 +250,10 @@ export function DataTable<TData>({
                     <EmptyState
                       kind="filtered"
                       variant="plain"
-                      title="No rows match these filters"
-                      description="Change or clear the filters to see more rows."
+                      title={t("ui.details.no_rows_match_these_filters")}
+                      description={t(
+                        "ui.details.change_or_clear_the_more_rows",
+                      )}
                       action={
                         onClearFilters ? (
                           <Button
@@ -257,7 +261,7 @@ export function DataTable<TData>({
                             size="sm"
                             onClick={onClearFilters}
                           >
-                            Clear filters
+                            {t("ui.table.clear_filters")}
                           </Button>
                         ) : undefined
                       }

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import * as React from "react";
 import { X } from "lucide-react";
 import {
@@ -35,6 +36,7 @@ export function GoogleLinkErrorAlert({
   provider: GoogleLinkProvider;
   className?: string;
 }) {
+  const { t } = useLocale();
   const [error] = React.useState(() => getGoogleLinkError(provider));
   const [dismissed, setDismissed] = React.useState(false);
 
@@ -53,7 +55,7 @@ export function GoogleLinkErrorAlert({
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label="Dismiss"
+          aria-label={t("integrations.dashboard_ext.merge_banner.dismiss")}
           onClick={() => {
             setDismissed(true);
             clearGoogleLinkError();

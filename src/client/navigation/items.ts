@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import {
   Bookmark,
   Bot,
@@ -127,11 +128,11 @@ export function getProjectNavGroups(projectId: string) {
 
   return [
     {
-      label: "Overview",
+      label: getTranslation("nav.overview"),
       items: [byPath("/p/$projectId")],
     },
     {
-      label: "Research",
+      label: getTranslation("nav.research"),
       items: [
         byPath("/p/$projectId/keywords"),
         byPath("/p/$projectId/domain"),
@@ -139,7 +140,7 @@ export function getProjectNavGroups(projectId: string) {
       ],
     },
     {
-      label: "AI Visibility",
+      label: getTranslation("nav.ai_visibility"),
       items: [
         byPath("/p/$projectId/ai-visibility/research"),
         byPath("/p/$projectId/prompt-explorer"),
@@ -147,7 +148,7 @@ export function getProjectNavGroups(projectId: string) {
       ],
     },
     {
-      label: "My Site",
+      label: getTranslation("nav.my_site"),
       items: [
         byPath("/p/$projectId/search-performance"),
         byPath("/p/$projectId/rank-tracking"),
@@ -157,7 +158,7 @@ export function getProjectNavGroups(projectId: string) {
       ],
     },
     {
-      label: "AI Tools",
+      label: getTranslation("nav.ai_tools"),
       items: [
         byPath("/p/$projectId/reports"),
         byPath("/p/$projectId/context"),
@@ -170,3 +171,53 @@ export function getProjectNavGroups(projectId: string) {
 export const dataforseoHelpLinkOptions = linkOptions({
   to: "/help/dataforseo-api-key",
 });
+
+export function getTranslatedNavLabel(
+  label: string,
+  t: (key: string) => string,
+): string {
+  switch (label) {
+    case "Dashboard":
+      return t("nav.dashboard");
+    case "Keyword Research":
+      return t("nav.keywords");
+    case "Saved Keywords":
+      return t("nav.saved_keywords");
+    case "Rank Tracking":
+      return t("nav.rank_tracking");
+    case "Local SEO":
+      return t("nav.local_seo");
+    case "GSC Insights":
+      return t("nav.search_performance");
+    case "Domain Overview":
+      return t("nav.domain");
+    case "Backlinks":
+      return t("nav.backlinks");
+    case "Site Audit":
+      return t("nav.audit");
+    case "Prompt Tracking":
+      return t("nav.prompt_tracking");
+    case "Prompt Research":
+      return t("nav.prompt_research");
+    case "Prompt Explorer":
+      return t("nav.prompt_explorer");
+    case "Reports":
+      return t("nav.reports");
+    case "Context":
+      return t("nav.context");
+    case "Agent setup":
+      return t("nav.agent_setup");
+    case "Overview":
+      return t("nav.overview");
+    case "Research":
+      return t("nav.research");
+    case "AI Visibility":
+      return t("nav.ai_visibility");
+    case "My Site":
+      return t("nav.my_site");
+    case "AI Tools":
+      return t("nav.ai_tools");
+    default:
+      return label;
+  }
+}

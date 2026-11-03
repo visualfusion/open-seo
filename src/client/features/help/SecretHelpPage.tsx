@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/client/components/ui/card";
 import { Separator } from "@/client/components/ui/separator";
+import { useLocale } from "@/client/lib/i18n";
 import { isEveryAppClientAuthMode } from "@/lib/auth-mode";
 
 export const helpLinkClassName =
@@ -15,6 +16,7 @@ export const helpLinkClassName =
 
 /** A terminal command with a copy button. */
 export function CommandBlock({ command }: { command: string }) {
+  const { t } = useLocale();
   return (
     <div className="mt-2 flex items-center gap-2 rounded-lg border border-border bg-muted p-3">
       <pre className="min-w-0 flex-1 overflow-x-auto text-xs">
@@ -22,8 +24,8 @@ export function CommandBlock({ command }: { command: string }) {
       </pre>
       <CopyButton
         value={command}
-        successMessage="Command copied"
-        label="Copy command"
+        successMessage={t("sam.help.command_copied")}
+        label={t("sam.help.copy_command")}
         variant="ghost"
         size="icon-xs"
       />
@@ -57,6 +59,7 @@ export function SecretHelpPage({
   dashboardPasteStep: ReactNode;
   terminalPromptHint: ReactNode;
 }) {
+  const { t } = useLocale();
   const everyApp = isEveryAppClientAuthMode();
   return (
     <div className="h-full overflow-auto px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
@@ -69,7 +72,7 @@ export function SecretHelpPage({
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Steps</h2>
+              <h2>{t("sam.help.steps_title")}</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -81,27 +84,35 @@ export function SecretHelpPage({
 
         {everyApp ? (
           <p className="text-sm text-muted-foreground">
-            Not an owner or admin? Send this page to one.
+            {t("sam.help.not_admin_hint")}
           </p>
         ) : (
           <Card>
             <CardHeader>
               <CardTitle>
-                <h2>Cloudflare Workers (Dashboard UI)</h2>
+                <h2>{t("sam.help.cf_title")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <ol className="list-decimal space-y-2 pl-5">
                 <li>
-                  In Cloudflare, go to <code>Compute</code> -&gt;{" "}
-                  <code>Workers &amp; Pages</code> and open your OpenSEO Worker.
+                  {t("sam.help.cf_step1_prefix")}
+                  <code>Compute</code>
+                  {t("sam.help.cf_step1_mid")}
+                  <code>Workers &amp; Pages</code>
+                  {t("sam.help.cf_step1_suffix")}
                 </li>
                 <li>
-                  Open <code>Settings</code>.
+                  {t("sam.help.cf_step2_prefix")}
+                  <code>{t("nav.settings")}</code>
+                  {t("sam.help.cf_step2_suffix")}
                 </li>
                 <li>
-                  Go to <code>Variables &amp; Secrets</code> and add a new
-                  secret named <code>{secretName}</code>.
+                  {t("sam.help.cf_step3_prefix")}
+                  <code>Variables &amp; Secrets</code>
+                  {t("sam.help.cf_step3_mid")}
+                  <code>{secretName}</code>
+                  {t("sam.help.cf_step3_suffix")}
                 </li>
                 <li>{dashboardPasteStep}</li>
               </ol>
@@ -109,7 +120,7 @@ export function SecretHelpPage({
               <Separator />
 
               <div>
-                <p>Or set the same secret from your terminal with:</p>
+                <p>{t("sam.help.cf_terminal_or")}</p>
                 <CommandBlock
                   command={`npx wrangler secret put ${secretName}`}
                 />

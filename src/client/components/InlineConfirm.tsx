@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/client/components/ui/button";
@@ -10,7 +11,7 @@ import { Button } from "@/client/components/ui/button";
 export function InlineConfirm({
   label,
   triggerLabel,
-  confirmLabel = "Remove",
+  confirmLabel,
   pending,
   disabled = false,
   onConfirm,
@@ -24,6 +25,7 @@ export function InlineConfirm({
   disabled?: boolean;
   onConfirm: () => void;
 }) {
+  const { t } = useLocale();
   const [confirming, setConfirming] = useState(false);
   const size = triggerLabel ? "sm" : "xs";
 
@@ -39,14 +41,14 @@ export function InlineConfirm({
             onConfirm();
           }}
         >
-          {confirmLabel}
+          {confirmLabel ?? t("common.delete")}
         </Button>
         <Button
           variant="ghost"
           size={size}
           onClick={() => setConfirming(false)}
         >
-          Cancel
+          {t("ui.confirm_dialog.cancel")}
         </Button>
       </>
     );

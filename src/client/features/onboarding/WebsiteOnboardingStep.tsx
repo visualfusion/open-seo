@@ -22,14 +22,10 @@ import {
   getErrorCode,
   getStandardErrorMessage,
 } from "@/client/lib/error-messages";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { saveOnboardingWebsite } from "@/serverFunctions/projects";
 
-/**
- * First onboarding step: save the website and country on the user's first
- * project. Saving a new website starts its first site audit in the background,
- * so the dashboard has results by the time the user reaches it.
- */
 export function WebsiteOnboardingStep({
   onNext,
   onSkip,
@@ -39,6 +35,7 @@ export function WebsiteOnboardingStep({
   onSkip: () => void;
   suggestedDomain?: string;
 }) {
+  const { t } = useLocale();
   const projectsQuery = useQuery(projectsQueryOptions());
   const project = projectsQuery.data?.[0];
 
@@ -46,10 +43,10 @@ export function WebsiteOnboardingStep({
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">
-          What’s your website?
+          {t("auth.onboarding.website.title")}
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          We’ll start a site audit for you.
+          {t("auth.onboarding.website.subtitle")}
         </p>
       </div>
       {project ? (
@@ -63,19 +60,24 @@ export function WebsiteOnboardingStep({
       ) : projectsQuery.isError ? (
         <QueryError
           error={projectsQuery.error}
-          fallback="Couldn't load your project."
+          fallback={t("auth.onboarding.failed_load_project")}
           onRetry={() => void projectsQuery.refetch()}
           isRetrying={projectsQuery.isFetching}
         />
       ) : (
-        <Spinner size="sm" label="Checking…" />
+        <Spinner size="sm" label={t("auth.onboarding.checking")} />
       )}
     </div>
   );
 }
 
 const websiteSchema = z.object({
-  domain: z.string().trim().min(1, "Enter your website."),
+  domain: z
+    .string()
+    .trim()
+    .min(1, {
+      error: () => getTranslation("auth.onboarding.website.required"),
+    }),
   market: z.object({ locationCode: z.number(), languageCode: z.string() }),
 });
 
@@ -90,6 +92,7 @@ function WebsiteForm({
   onNext: () => void;
   onSkip: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const saveMutation = useMutation({
     mutationFn: (values: z.infer<typeof websiteSchema>) =>
@@ -134,7 +137,7 @@ function WebsiteForm({
         if (errorCode === "VALIDATION_ERROR")
           formApi.setErrorMap({
             onSubmit: {
-              fields: { domain: "Enter a valid domain, like acme.com." },
+              fields: { domain: t("auth.onboarding.website.invalid") },
             },
           });
         else toast.error(getStandardErrorMessage(error));
@@ -148,8 +151,8 @@ function WebsiteForm({
         <form.AppField name="domain">
           {(field) => (
             <field.TextField
-              label="Website"
-              placeholder="example.com"
+              label={t("auth.onboarding.website.label")}
+              placeholder={t("auth.onboarding.website.placeholder")}
               maxLength={255}
             />
           )}
@@ -157,7 +160,7 @@ function WebsiteForm({
         <Collapsible>
           <CollapsibleTrigger className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
             <ChevronDown className="size-4 transition-transform group-data-panel-open:rotate-180" />
-            Choose default country &amp; language
+            {t("auth.onboarding.website.choose_market")}
           </CollapsibleTrigger>
           <CollapsibleContent keepMounted className="pt-4">
             <form.Field name="market">
@@ -173,7 +176,7 @@ function WebsiteForm({
         <WizardFooter
           className="mt-4"
           onSkip={onSkip}
-          skipLabel="Skip for now"
+          skipLabel={t("auth.onboarding.skip_for_now")}
           continueAction={
             <form.Subscribe
               selector={(state) => ({
@@ -195,7 +198,8 @@ function WebsiteForm({
                       submitting && "invisible",
                     )}
                   >
-                    Save and continue <ArrowRight className="size-4" />
+                    {t("auth.onboarding.save_and_continue")}{" "}
+                    <ArrowRight className="size-4" />
                   </span>
                   {submitting ? (
                     <SpinnerIcon className="absolute inset-0 m-auto text-muted-foreground" />

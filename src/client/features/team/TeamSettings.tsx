@@ -33,6 +33,7 @@ import {
 import { TransferOwnershipModal } from "@/client/features/team/TransferOwnershipModal";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { authClient, useSession } from "@/lib/auth-client";
+import { useLocale } from "@/client/lib/i18n";
 import { hasOrgPermission } from "@/lib/org-permissions";
 import { getTeam, sendTeamInvitation } from "@/serverFunctions/organization";
 
@@ -51,6 +52,7 @@ function usePendingVariables(mutationKey: string[]) {
 
 // The Organization tab of account settings: who has access to the active org.
 export function TeamSettings() {
+  const { t } = useLocale();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -76,7 +78,7 @@ export function TeamSettings() {
     mutationFn: (email: string) => sendTeamInvitation({ data: { email } }),
     onSuccess: (result) => {
       captureClientEvent("team:invitation_resend");
-      announceInvitation(result, "Invitation resent");
+      announceInvitation(result, t("team.table.invitation_resent"));
       void refreshTeam();
     },
     onError: (error: Error) => {
@@ -96,7 +98,7 @@ export function TeamSettings() {
     },
     onSuccess: () => {
       captureClientEvent("team:member_remove");
-      toast.success("Member removed");
+      toast.success(t("team.table.remove_success"));
       void refreshTeam();
     },
   });
@@ -115,7 +117,7 @@ export function TeamSettings() {
     },
     onSuccess: () => {
       captureClientEvent("team:invitation_cancel");
-      toast.success("Invitation canceled");
+      toast.success(t("team.table.invitation_canceled"));
       void refreshTeam();
     },
   });
@@ -142,7 +144,7 @@ export function TeamSettings() {
   const loadError = failedQuery ? (
     <QueryError
       error={failedQuery.error}
-      fallback="We couldn't load your team right now."
+      fallback={t("team.error_loading")}
       onRetry={() => void failedQuery.refetch()}
       isRetrying={failedQuery.isFetching}
     />
@@ -152,21 +154,18 @@ export function TeamSettings() {
   return (
     <section className="space-y-3">
       <SectionHeader
-        title="Members"
+        title={t("team.title")}
         action={
           canManageTeam ? (
             <Button size="sm" onClick={() => setIsInviteOpen(true)}>
-              Invite teammate
+              {t("team.invite_button")}
             </Button>
           ) : null
         }
       />
-      <p className="text-sm text-muted-foreground">
-        Teammates join as Admins. Admins have full access to each project except
-        for billing.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("team.description")}</p>
       {orgContextQuery.isSuccess && !canManageTeam ? (
-        <PermissionHint action="invite or remove teammates" />
+        <PermissionHint action={t("team.permission_hint")} />
       ) : null}
       {loadError}
 
@@ -177,9 +176,9 @@ export function TeamSettings() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("team.table.member")}</TableHead>
+                <TableHead>{t("team.table.role")}</TableHead>
+                <TableHead>{t("team.table.status")}</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>

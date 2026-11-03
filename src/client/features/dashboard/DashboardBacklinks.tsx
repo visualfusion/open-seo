@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { QueryError } from "@/client/components/QueryState";
 import { DataTableTabs } from "@/client/components/table/DataTableToolbar";
@@ -24,6 +25,7 @@ export function DashboardBacklinks({
   projectId: string;
   domain: string;
 }) {
+  const { t } = useLocale();
   const [kind, setKind] = useState<Kind>("new");
   const query = useQuery({
     queryKey: ["dashboardBacklinks", projectId, domain, kind],
@@ -40,7 +42,7 @@ export function DashboardBacklinks({
         query.isError ? (
           <QueryError
             error={query.error}
-            fallback="Could not load backlinks"
+            fallback={t("backlinks.load_error_title")}
             onRetry={() => void query.refetch()}
             isRetrying={query.isFetching}
           />
@@ -60,9 +62,15 @@ export function DashboardBacklinks({
             </>
           }
         >
-          <TabsTrigger value="new">New this week</TabsTrigger>
-          <TabsTrigger value="lost">Lost links</TabsTrigger>
-          <TabsTrigger value="all">Active links</TabsTrigger>
+          <TabsTrigger value="new">
+            {t("dashboard.details.new_this_week")}
+          </TabsTrigger>
+          <TabsTrigger value="lost">
+            {t("dashboard.details.lost_links")}
+          </TabsTrigger>
+          <TabsTrigger value="all">
+            {t("dashboard.details.active_links")}
+          </TabsTrigger>
         </DataTableTabs>
       }
     />
@@ -83,12 +91,16 @@ function DashboardBacklinkTable({
   ComponentProps<typeof DashboardDataTable>,
   "tabs" | "isLoading" | "error"
 >) {
+  const { t } = useLocale();
   const columns: ColumnDef<Backlink>[] = [
     {
       id: "urlFrom",
       accessorFn: (row) => `${row.domainFrom ?? ""} ${row.urlFrom ?? ""}`,
       header: ({ column }) => (
-        <SortableHeader column={column} label="Referring page" />
+        <SortableHeader
+          column={column}
+          label={t("dashboard.cards.referring_page")}
+        />
       ),
       cell: ({ row }) => (
         <ExternalPage
@@ -100,7 +112,7 @@ function DashboardBacklinkTable({
     },
     {
       accessorKey: "anchor",
-      header: "Anchor",
+      header: t("dashboard.cards.anchor"),
       cell: ({ row }) => (
         <span
           className="block max-w-48 truncate"
@@ -113,20 +125,23 @@ function DashboardBacklinkTable({
     },
     {
       accessorKey: "urlTo",
-      header: "Target page",
+      header: t("integrations.dashboard_ext.backlinks_tab.target"),
       cell: ({ row }) => <ExternalPage url={row.original.urlTo} />,
       filterFn: "includesString",
     },
     {
       id: "follow",
       accessorFn: (row) => (row.isDofollow ? "Follow" : "Nofollow"),
-      header: "Link type",
+      header: t("dashboard.details.link_type"),
       filterFn: "equalsString",
     },
     {
       accessorKey: "domainFromRank",
       header: ({ column }) => (
-        <SortableHeader column={column} label="Domain rank" />
+        <SortableHeader
+          column={column}
+          label={t("dashboard.details.domain_rank")}
+        />
       ),
       filterFn: "inNumberRange",
       cell: ({ getValue }) => getValue() ?? "—",
@@ -134,7 +149,10 @@ function DashboardBacklinkTable({
     {
       accessorKey: "spamScore",
       header: ({ column }) => (
-        <SortableHeader column={column} label="Spam score" />
+        <SortableHeader
+          column={column}
+          label={t("dashboard.details.spam_score")}
+        />
       ),
       filterFn: "inNumberRange",
       cell: ({ getValue }) => getValue() ?? "—",
@@ -146,7 +164,11 @@ function DashboardBacklinkTable({
       header: ({ column }) => (
         <SortableHeader
           column={column}
-          label={kind === "lost" ? "Last checked" : "First discovered"}
+          label={
+            kind === "lost"
+              ? t("ranks.last_checked")
+              : t("dashboard.details.first_discovered")
+          }
         />
       ),
     },
@@ -159,19 +181,39 @@ function DashboardBacklinkTable({
       empty={{
         title:
           kind === "new"
-            ? "No new backlinks this week"
+            ? t("dashboard.details.no_new_backlinks_this_week")
             : kind === "lost"
-              ? "No lost backlinks found"
-              : "No active backlinks found yet",
+              ? t("dashboard.details.no_lost_backlinks_found")
+              : t("dashboard.details.no_active_backlinks_found_yet"),
       }}
       columns={columns}
       filters={[
-        { id: "urlFrom", label: "Referring page", kind: "text" },
+        {
+          id: "urlFrom",
+          label: t("dashboard.cards.referring_page"),
+          kind: "text",
+        },
         { id: "anchor", label: "Anchor text", kind: "text" },
-        { id: "urlTo", label: "Target page", kind: "text" },
-        { id: "follow", label: "Link type", kind: "follow" },
-        { id: "domainFromRank", label: "Domain rank", kind: "number" },
-        { id: "spamScore", label: "Spam score", kind: "number" },
+        {
+          id: "urlTo",
+          label: t("integrations.dashboard_ext.backlinks_tab.target"),
+          kind: "text",
+        },
+        {
+          id: "follow",
+          label: t("dashboard.details.link_type"),
+          kind: "follow",
+        },
+        {
+          id: "domainFromRank",
+          label: t("dashboard.details.domain_rank"),
+          kind: "number",
+        },
+        {
+          id: "spamScore",
+          label: t("dashboard.details.spam_score"),
+          kind: "number",
+        },
       ]}
     />
   );
