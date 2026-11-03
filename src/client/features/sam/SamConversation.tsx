@@ -15,13 +15,7 @@ import {
   messageHasVisibleContent,
 } from "@/client/components/chat/ChatMessage";
 import { useStickToBottom } from "@/client/components/chat/useStickToBottom";
-
-const SUGGESTIONS = [
-  "What keywords should I focus on next?",
-  "Who are my top SERP competitors?",
-  "How is my Search Console traffic trending?",
-  "Find quick-win keywords I already rank for",
-];
+import { useLocale } from "@/client/lib/i18n";
 
 export function SamConversation({
   projectId,
@@ -30,6 +24,13 @@ export function SamConversation({
   projectId: string;
   sessionId: string;
 }) {
+  const { t } = useLocale();
+  const suggestions = [
+    t("sam.suggestions.q1"),
+    t("sam.suggestions.q2"),
+    t("sam.suggestions.q3"),
+    t("sam.suggestions.q4"),
+  ];
   // The conversation lives in the SamChatAgent Durable Object, keyed by the
   // session id. The WebSocket is authorized in the Worker (src/server.ts) before
   // it reaches the DO; billing gates come back as normal assistant messages.
@@ -107,7 +108,7 @@ export function SamConversation({
       body: JSON.stringify({ messageId }),
     }).catch(() => null);
     if (!response?.ok) {
-      toast.error("Couldn't change the conversation. Try again.");
+      toast.error(t("sam.rewind_error"));
       return false;
     }
     const fresh = await fetch(
@@ -172,7 +173,7 @@ export function SamConversation({
           className="absolute top-2 right-3 z-10 text-muted-foreground"
           onClick={() => clearHistory()}
         >
-          Clear history (dev)
+          {t("sam.clear_history_dev")}
         </Button>
       ) : null}
       <div
@@ -183,13 +184,8 @@ export function SamConversation({
         <div className="mx-auto max-w-2xl space-y-6">
           {messages.length === 0 ? (
             <div className="space-y-2 text-sm text-foreground/80">
-              <p>
-                Hey, I’m SAM — your in-app SEO agent. I can research keywords,
-                size up competitors, read your SERPs, backlinks, rank tracking
-                and Search Console, and turn it into next steps for this
-                project.
-              </p>
-              <p>Ask me anything, or start with one of these:</p>
+              <p>{t("sam.intro_p1")}</p>
+              <p>{t("sam.intro_p2")}</p>
             </div>
           ) : null}
 
@@ -227,14 +223,14 @@ export function SamConversation({
 
           {isRecovering ? (
             <p className="text-xs text-muted-foreground">
-              Saving the reply that got cut off…
+              {t("sam.saving_cut_off")}
             </p>
           ) : null}
 
           {status === "error" ? (
             <ErrorState
               variant="inline"
-              message="SAM stopped before finishing this reply."
+              message={t("sam.stopped_error")}
               onRetry={lastUserMessage ? retryLast : undefined}
               isRetrying={isBusy}
             />
@@ -242,7 +238,7 @@ export function SamConversation({
 
           {showSuggestions ? (
             <div className="flex flex-wrap gap-2">
-              {SUGGESTIONS.map((question) => (
+              {suggestions.map((question) => (
                 <Button
                   key={question}
                   variant="outline"
@@ -264,20 +260,22 @@ export function SamConversation({
             <div className="mb-2">
               <ErrorState
                 variant="inline"
-                message="Lost the connection to SAM."
+                message={t("sam.lost_connection")}
                 action={
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => agent.reconnect()}
                   >
-                    Reconnect
+                    {t("sam.reconnect")}
                   </Button>
                 }
               />
             </div>
           ) : isReconnecting ? (
-            <p className="mb-2 text-xs text-muted-foreground">Reconnecting…</p>
+            <p className="mb-2 text-xs text-muted-foreground">
+              {t("sam.reconnecting")}
+            </p>
           ) : null}
           <ChatComposer
             busy={isBusy}

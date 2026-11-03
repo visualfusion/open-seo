@@ -3,6 +3,7 @@ import { ShieldAlert, Wrench } from "lucide-react";
 import { GateCard } from "@/client/components/GateCard";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 import { isEveryAppClientAuthMode } from "@/lib/auth-mode";
 
 export function SamSetupGate({
@@ -14,45 +15,43 @@ export function SamSetupGate({
   isRefetching: boolean;
   onRetry: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <GateCard
       icon={Wrench}
       tone="warning"
-      title="Enable AI Features"
+      title={t("sam.setup_gate.title")}
       description={
         <>
           {isEveryAppClientAuthMode() ? (
             <p>
-              SAM, OpenSEO&apos;s in-app AI agent, uses OpenRouter through your
-              Every App gateway. An admin creates a key on OpenRouter and sets
-              it on the gateway with{" "}
-              <code>pnpm everyapp secret set OPENROUTER_API_KEY</code>, then
-              confirm here.
+              {t("sam.setup_gate.everyapp_p1_prefix")}
+              <code>pnpm everyapp secret set OPENROUTER_API_KEY</code>
+              {t("sam.setup_gate.everyapp_p1_suffix")}
             </p>
           ) : (
             <p>
-              SAM, OpenSEO&apos;s in-app AI agent, needs an OpenRouter API key.
-              Create a key on OpenRouter, set it as the{" "}
-              <code>OPENROUTER_API_KEY</code> environment variable, restart
-              OpenSEO, then confirm here.
+              {t("sam.setup_gate.selfhosted_p1_prefix")}
+              <code>OPENROUTER_API_KEY</code>
+              {t("sam.setup_gate.selfhosted_p1_suffix")}
             </p>
           )}
           <p className="text-xs">
-            Step-by-step instructions for every deployment are in the{" "}
+            {t("sam.setup_gate.guide_prefix")}
             <Link
               className="underline underline-offset-2 hover:text-foreground"
               to="/help/openrouter-api-key"
             >
-              OpenRouter API key setup guide
+              {t("sam.setup_gate.guide_link")}
             </Link>
-            .
+            {t("sam.setup_gate.guide_suffix")}
           </p>
         </>
       }
       actions={
         <>
           <Button size="lg" pending={isRefetching} onClick={onRetry}>
-            Confirm API Key
+            {t("sam.setup_gate.confirm_key")}
           </Button>
           <Button
             size="lg"
@@ -66,7 +65,7 @@ export function SamSetupGate({
               />
             }
           >
-            Open OpenRouter Keys
+            {t("sam.setup_gate.open_keys")}
           </Button>
         </>
       }

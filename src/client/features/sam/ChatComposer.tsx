@@ -6,6 +6,7 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@/client/components/ui/input-group";
+import { useLocale } from "@/client/lib/i18n";
 
 export function ChatComposer({
   busy,
@@ -17,6 +18,7 @@ export function ChatComposer({
   /** Cancels the running turn; while busy the send button becomes Stop. */
   onStop: () => void;
 }) {
+  const { t } = useLocale();
   const [value, setValue] = useState("");
 
   function submit() {
@@ -48,7 +50,7 @@ export function ChatComposer({
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={handleKey}
           rows={1}
-          placeholder="Ask SAM to research, analyze, or track anything…"
+          placeholder={t("sam.placeholder")}
           className="max-h-40 min-h-0 px-3 leading-relaxed"
         />
         <InputGroupAddon align="inline-end">
@@ -57,7 +59,7 @@ export function ChatComposer({
               variant="secondary"
               size="icon-sm"
               className="rounded-full"
-              aria-label="Stop"
+              aria-label={t("sam.stop")}
               onClick={onStop}
             >
               <Square className="size-3.5 fill-current" />
@@ -68,7 +70,7 @@ export function ChatComposer({
               variant="default"
               size="icon-sm"
               className="rounded-full"
-              aria-label="Send message"
+              aria-label={t("sam.send")}
               disabled={!value.trim()}
             >
               <ArrowUp />

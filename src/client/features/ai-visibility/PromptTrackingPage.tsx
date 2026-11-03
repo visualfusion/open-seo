@@ -13,6 +13,7 @@ import {
   setAiVisibilitySchedule,
 } from "@/serverFunctions/ai-visibility";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import {
   type AiPrompt,
   type AiRun,
@@ -98,6 +99,7 @@ function PromptTrackingContent({
   state: AiTrackerState;
   defaultMarket: ProjectMarket;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [editorMode, setEditorMode] = useState<TrackerEditorMode | null>(null);
   const [managingTracking, setManagingTracking] = useState(false);
@@ -121,7 +123,9 @@ function PromptTrackingContent({
     setEditingPrompt(null);
     setChange(null);
     if (run) setSelectedRun(run);
-    toast.success(run ? "Run started" : "Prompt tracking saved");
+    toast.success(
+      run ? t("ai_visibility.run_started") : t("ai_visibility.saved"),
+    );
   };
   const pauseSchedule = useMutation({
     mutationFn: () =>
@@ -131,7 +135,7 @@ function PromptTrackingContent({
     onSuccess: (result) => {
       saved(result.state);
       setManagingTracking(false);
-      toast.success("Tracking paused");
+      toast.success(t("ai_visibility.tracking_paused"));
     },
     onError: (error) => toast.error(getStandardErrorMessage(error)),
   });
@@ -170,19 +174,19 @@ function PromptTrackingContent({
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Prompt Tracking"
-        description="Track the prompts your customers use with AI. Inspect where your business is mentioned or cited."
+        title={t("ai_visibility.title")}
+        description={t("ai_visibility.description")}
       />
       {!state.configured ? (
         <EmptyState
           variant="card"
           icon={MessageSquare}
-          title="Start with the prompts that matter to your business"
-          description="Add a topic and its prompts using your saved project settings."
+          title={t("ai_visibility.empty_title")}
+          description={t("ai_visibility.empty_desc")}
           action={
             <Button onClick={() => setEditorMode(TrackerEditorMode.Prompts)}>
               <Plus />
-              Add prompts
+              {t("ai_visibility.add_prompts")}
             </Button>
           }
         />
@@ -198,8 +202,10 @@ function PromptTrackingContent({
                     <h2 className="text-lg font-semibold">{ownBrand?.name}</h2>
                     <Badge variant={tracker?.enabled ? "success" : "secondary"}>
                       {tracker?.enabled
-                        ? `${scheduleLabel(tracker.scheduleInterval)} tracking`
-                        : "Paused"}
+                        ? t("ai_visibility.tracking_active", {
+                            interval: scheduleLabel(tracker.scheduleInterval),
+                          })
+                        : t("ai_visibility.paused")}
                     </Badge>
                   </div>
                 </div>
@@ -211,7 +217,7 @@ function PromptTrackingContent({
                     onClick={() => setEditorMode(TrackerEditorMode.Settings)}
                   >
                     <Settings2 />
-                    Tracking settings
+                    {t("ai_visibility.tracking_settings")}
                   </Button>
                   <Button
                     size="sm"
@@ -224,7 +230,7 @@ function PromptTrackingContent({
                     onClick={() => setCostMode("check")}
                   >
                     <Play />
-                    Run now
+                    {t("ai_visibility.run_now")}
                   </Button>
                 </div>
               </div>
@@ -234,7 +240,9 @@ function PromptTrackingContent({
               ) : (
                 tracker?.lastSkipReason && (
                   <p className="text-xs text-warning">
-                    Most recent scheduling notice: {tracker.lastSkipReason}
+                    {t("ai_visibility.scheduling_notice", {
+                      reason: tracker.lastSkipReason,
+                    })}
                   </p>
                 )
               )}
@@ -316,10 +324,10 @@ function PromptTrackingContent({
             });
             toast.success(
               run
-                ? "Run started"
+                ? t("ai_visibility.run_started")
                 : tracker.enabled
-                  ? "Tracking schedule saved"
-                  : "Tracking scheduled",
+                  ? t("ai_visibility.tracking_schedule_saved")
+                  : t("ai_visibility.tracking_scheduled"),
             );
           }}
         />

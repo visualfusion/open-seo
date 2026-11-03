@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { CalendarDays } from "lucide-react";
 import { Input } from "@/client/components/ui/input";
 import {
@@ -23,11 +24,20 @@ interface PromptPeriod {
 }
 
 const options = [
-  { value: PromptRange.Last7, label: "Last 7 days" },
-  { value: PromptRange.Last28, label: "Last 28 days" },
-  { value: PromptRange.Last90, label: "Last 90 days" },
-  { value: PromptRange.All, label: "All available history" },
-  { value: PromptRange.Custom, label: "Custom range" },
+  {
+    value: PromptRange.Last7,
+    label: "ui.ai_visibility_ext.date_range.last_7_days",
+  },
+  { value: PromptRange.Last28, label: "ai_visibility.details.last_28_days" },
+  {
+    value: PromptRange.Last90,
+    label: "ui.ai_visibility_ext.date_range.last_90_days",
+  },
+  {
+    value: PromptRange.All,
+    label: "ai_visibility.details.all_available_history",
+  },
+  { value: PromptRange.Custom, label: "ai_visibility.details.custom_range" },
 ];
 
 function localDate(value: Date) {
@@ -66,10 +76,15 @@ export function PromptDateRange({
   value: PromptPeriod;
   onChange: (period: PromptPeriod) => void;
 }) {
+  const { t } = useLocale();
+  const localizedOptions = options.map((option) => ({
+    ...option,
+    label: t(option.label),
+  }));
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Select
-        items={options}
+        items={localizedOptions}
         value={value.preset}
         onValueChange={(next) => {
           const option = options.find((item) => item.value === next);
@@ -81,12 +96,15 @@ export function PromptDateRange({
             );
         }}
       >
-        <SelectTrigger size="sm" aria-label="Analysis date range">
+        <SelectTrigger
+          size="sm"
+          aria-label={t("ai_visibility.details.analysis_date_range")}
+        >
           <CalendarDays className="size-3.5" />
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
+          {localizedOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>
@@ -97,7 +115,7 @@ export function PromptDateRange({
         <>
           <Input
             type="date"
-            aria-label="Period start date"
+            aria-label={t("ai_visibility.details.period_start_date")}
             className="h-7 w-36 text-xs"
             value={value.start}
             max={value.end || undefined}
@@ -105,10 +123,12 @@ export function PromptDateRange({
               onChange({ ...value, start: event.target.value })
             }
           />
-          <span className="text-xs text-muted-foreground">to</span>
+          <span className="text-xs text-muted-foreground">
+            {t("ai_visibility.details.to")}
+          </span>
           <Input
             type="date"
-            aria-label="Period end date"
+            aria-label={t("ai_visibility.details.period_end_date")}
             className="h-7 w-36 text-xs"
             value={value.end}
             min={value.start || undefined}
@@ -118,7 +138,7 @@ export function PromptDateRange({
           />
           {(!value.start || !value.end || value.start > value.end) && (
             <p role="alert" className="w-full text-xs text-destructive">
-              Choose a start date on or before the end date.
+              {t("ai_visibility.details.choose_a_start_date_end_date")}
             </p>
           )}
         </>

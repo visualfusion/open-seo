@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown, ChevronRight } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { SafeExternalLink } from "@/client/components/SafeExternalLink";
 import { SegmentedToggle } from "@/client/components/SegmentedToggle";
 import { SkeletonTableRows } from "@/client/components/SkeletonPresets";
@@ -45,6 +46,7 @@ export function CitationsTab({
   runId: string | undefined;
   collecting: boolean;
 }) {
+  const { t } = useLocale();
   const [groupBy, setGroupBy] = useState<"url" | "domain">("url");
   const [ownership, setOwnership] = useState<
     "all" | "own" | "competitor" | "other"
@@ -54,6 +56,13 @@ export function CitationsTab({
   );
   const [cursor, setCursor] = useState<string | undefined>();
   const engines = selectedEngines ?? state.engines;
+
+  const ownershipItems = [
+    { value: "all", label: t("ai_visibility.filter_all") },
+    { value: "own", label: t("ai_visibility.filter_own") },
+    { value: "competitor", label: t("ai_visibility.filter_competitor") },
+    { value: "other", label: t("ai_visibility.filter_other") },
+  ] as const;
   const query = useQuery({
     queryKey: [
       ...aiVisibilityKey(projectId),
@@ -86,8 +95,16 @@ export function CitationsTab({
           <SegmentedToggle
             showLabels
             items={[
-              { value: "url", label: "Pages", icon: null },
-              { value: "domain", label: "Domains", icon: null },
+              {
+                value: "url",
+                label: t("ai_visibility.group_by_url"),
+                icon: null,
+              },
+              {
+                value: "domain",
+                label: t("ai_visibility.group_by_domain"),
+                icon: null,
+              },
             ]}
             value={groupBy}
             onChange={(value) => {
@@ -96,21 +113,24 @@ export function CitationsTab({
             }}
           />
           <Select
-            items={OWNERSHIP_ITEMS}
+            items={ownershipItems}
             value={ownership}
             onValueChange={(value) => {
-              const item = OWNERSHIP_ITEMS.find(
+              const item = ownershipItems.find(
                 (option) => option.value === value,
               );
               if (item) setOwnership(item.value);
               reset();
             }}
           >
-            <SelectTrigger size="sm" aria-label="Filter source ownership">
+            <SelectTrigger
+              size="sm"
+              aria-label={t("ai_visibility.details.filter_source_ownership")}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {OWNERSHIP_ITEMS.map((item) => (
+              {ownershipItems.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
                 </SelectItem>
@@ -119,7 +139,7 @@ export function CitationsTab({
           </Select>
           {state.engines.length > 1 && (
             <EngineFilter
-              label="Filter sources by engine"
+              label={t("ai_visibility.details.filter_sources_by_engine")}
               engines={state.engines}
               value={engines}
               onChange={(next) => {
@@ -132,15 +152,15 @@ export function CitationsTab({
       )}
       {!runId ? (
         <p className="p-10 text-center text-sm text-muted-foreground">
-          Run{" "}
+          {t("ai_visibility.details.run")}{" "}
           <Link
             to="/p/$projectId/ai-visibility"
             params={{ projectId }}
             className="text-foreground underline underline-offset-4"
           >
-            prompt tracking
+            {t("ai_visibility.details.prompt_tracking")}
           </Link>{" "}
-          to see which pages AI answers cite.
+          {t("ai_visibility.details.to_see_which_pages_ai_answers_cite")}
         </p>
       ) : query.isPending ? (
         <SkeletonTableRows rows={6} columns={5} className="p-4" />
@@ -154,8 +174,8 @@ export function CitationsTab({
       ) : !query.data.rows.length ? (
         <p className="p-10 text-center text-sm text-muted-foreground">
           {collecting
-            ? "Collecting answers. Cited pages appear here as answers arrive."
-            : "No citations match these filters."}
+            ? t("ai_visibility.collecting_citations")
+            : t("ai_visibility.no_citations_match")}
         </p>
       ) : (
         <SourcesTable
@@ -174,7 +194,7 @@ export function CitationsTab({
             disabled={!cursor}
             onClick={() => setCursor(undefined)}
           >
-            First page
+            {t("ui.table.first_page")}
           </Button>
           <Button
             variant="ghost"
@@ -182,20 +202,13 @@ export function CitationsTab({
             disabled={!query.data?.nextCursor}
             onClick={() => setCursor(query.data?.nextCursor ?? undefined)}
           >
-            Next page <ArrowRight />
+            {t("ui.table.next_page")} <ArrowRight />
           </Button>
         </div>
       )}
     </>
   );
 }
-
-const OWNERSHIP_ITEMS = [
-  { value: "all", label: "All ownership" },
-  { value: "own", label: "Your domains" },
-  { value: "competitor", label: "Competitor domains" },
-  { value: "other", label: "Third-party domains" },
-] as const;
 
 function SourcesTable({
   projectId,
@@ -210,18 +223,21 @@ function SourcesTable({
   groupBy: "url" | "domain";
   engines: AiEngine[];
 }) {
+  const { t } = useLocale();
   const [expanded, setExpanded] = useState<string | null>(null);
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>
-            {groupBy === "domain" ? "Domain" : "Cited page"}
+            {groupBy === "domain"
+              ? t("domain.scopes.domain")
+              : t("ai_visibility.details.cited_page")}
           </TableHead>
-          <TableHead>Ownership</TableHead>
-          <TableHead>Answers</TableHead>
-          <TableHead>Prompts</TableHead>
-          <TableHead>Engines</TableHead>
+          <TableHead>{t("ai_visibility.details.ownership")}</TableHead>
+          <TableHead>{t("ai_visibility.details.answers")}</TableHead>
+          <TableHead>{t("ai_visibility.tab_prompts")}</TableHead>
+          <TableHead>{t("ai_visibility.col_engines")}</TableHead>
           <TableHead />
         </TableRow>
       </TableHeader>
@@ -259,6 +275,7 @@ function SourceRow({
   expanded: boolean;
   onExpand: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <>
       <TableRow
@@ -279,10 +296,10 @@ function SourceRow({
         </TableCell>
         <TableCell className="whitespace-nowrap text-xs">
           {row.ownership === "own"
-            ? "Your domain"
+            ? t("ai_visibility.details.your_domain")
             : row.ownership === "competitor"
-              ? "Competitor"
-              : "Third party"}
+              ? t("ai_visibility.details.competitor")
+              : t("ai_visibility.details.third_party")}
         </TableCell>
         <TableCell>{row.answerCount}</TableCell>
         <TableCell>{row.promptCount}</TableCell>
@@ -311,7 +328,10 @@ function SourceRow({
             variant="ghost"
             size="icon-sm"
             aria-expanded={expanded}
-            aria-label={`Show prompts that cited ${row.title || row.url || row.domain}`}
+            aria-label={t(
+              "ai_visibility.details.show_prompts_that_cited_value",
+              { v1: row.title || row.url || row.domain },
+            )}
           >
             {expanded ? <ChevronDown /> : <ChevronRight />}
           </Button>

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { cn } from "cn";
 import { Info, TriangleAlert } from "lucide-react";
 import { EngineLabel } from "./EngineLabel";
@@ -37,6 +38,7 @@ export function TrackerTrackingFields({
   // Base UI checkboxes aren't native inputs, so a disabled <fieldset> misses them.
   disabled: boolean;
 }) {
+  const { t } = useLocale();
   const country = aiCountryLabel(value.locationCode);
   const engineGroup = (
     title: string,
@@ -51,7 +53,9 @@ export function TrackerTrackingFields({
             render={
               <button
                 type="button"
-                aria-label={`About ${title.toLowerCase()}`}
+                aria-label={t("ai_visibility.details.about_value", {
+                  v1: title.toLowerCase(),
+                })}
                 className="text-muted-foreground"
               />
             }
@@ -105,7 +109,8 @@ export function TrackerTrackingFields({
                 )}
               </TooltipTrigger>
               <TooltipContent>
-                {capability.label} can't collect answers in {country}.
+                {capability.label}{" "}
+                {t("ai_visibility.details.can_t_collect_answers_in")} {country}.
               </TooltipContent>
             </Tooltip>
           );

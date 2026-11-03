@@ -28,6 +28,7 @@ import {
 } from "@/client/features/ai-search/brandLookupFiltering";
 import { useBrandLookupFilters } from "@/client/features/ai-search/useBrandLookupFilters";
 import type { CitationTab } from "@/client/features/ai-search/brandLookupFilterTypes";
+import { useLocale } from "@/client/lib/i18n";
 import type { BrandLookupResult } from "@/types/schemas/ai-search";
 
 const DEFAULT_PAGES_SORT: SortingState = [{ id: "capturedVolume", desc: true }];
@@ -42,6 +43,7 @@ export function CitationTabsCard({
   result: BrandLookupResult;
   projectId: string;
 }) {
+  const { t } = useLocale();
   const [activeTab, setActiveTab] = useState<CitationTab>("queries");
   const [pagesSort, setPagesSort] = useState<SortingState>(DEFAULT_PAGES_SORT);
   const [queriesSort, setQueriesSort] =
@@ -159,22 +161,27 @@ export function CitationTabsCard({
               {pagesActive ? (
                 <>
                   {isUrlScoped
-                    ? "Cited pages within "
-                    : "Pages cited alongside "}
+                    ? t("brand_lookup.citations.desc_pages_scoped_prefix")
+                    : t("brand_lookup.citations.desc_pages_unscoped_prefix")}
                   <strong className="text-foreground">
                     {result.resolvedTarget}
                   </strong>
-                  {isUrlScoped ? "." : " in AI answers."} Prompt examples come
-                  from the fetched sample.
+                  {isUrlScoped
+                    ? t("brand_lookup.citations.desc_pages_scoped_suffix")
+                    : t("brand_lookup.citations.desc_pages_unscoped_suffix")}
                 </>
               ) : (
                 <>
-                  Fetched sample of prompts whose AI answer cited{" "}
-                  {isUrlScoped ? "a page within " : null}
+                  {t("brand_lookup.citations.desc_queries_prefix")}
+                  {isUrlScoped
+                    ? t("brand_lookup.citations.desc_queries_scoped_mid")
+                    : null}
                   <strong className="text-foreground">
                     {result.resolvedTarget}
                   </strong>
-                  {isUrlScoped ? "." : " in its text or sources."}
+                  {isUrlScoped
+                    ? t("brand_lookup.citations.desc_queries_scoped_suffix")
+                    : t("brand_lookup.citations.desc_queries_unscoped_suffix")}
                 </>
               )}
             </p>
@@ -189,8 +196,12 @@ export function CitationTabsCard({
           </div>
         }
       >
-        <TabsTrigger value="queries">Queries</TabsTrigger>
-        <TabsTrigger value="pages">Cited sources</TabsTrigger>
+        <TabsTrigger value="queries">
+          {t("brand_lookup.citations.tab_queries")}
+        </TabsTrigger>
+        <TabsTrigger value="pages">
+          {t("brand_lookup.citations.tab_pages")}
+        </TabsTrigger>
       </DataTableTabs>
       <DataTableToolbar
         actions={
@@ -228,10 +239,12 @@ export function CitationTabsCard({
       table={pagesTable}
       empty={{
         title: isUrlScoped
-          ? `None of this domain's top cited pages fall under ${result.resolvedTarget}.`
-          : "No cited sources to show.",
+          ? t("brand_lookup.citations.empty_pages_scoped", {
+              target: result.resolvedTarget,
+            })
+          : t("brand_lookup.citations.empty_pages_unscoped"),
         description: isUrlScoped
-          ? "Broaden the scope to see domain-level citations."
+          ? t("brand_lookup.citations.empty_pages_scoped_desc")
           : undefined,
       }}
       {...tableProps}
@@ -241,10 +254,12 @@ export function CitationTabsCard({
       table={queriesTable}
       empty={{
         title: isUrlScoped
-          ? `No sampled prompts cited a page under ${result.resolvedTarget}.`
-          : "No matching queries found.",
+          ? t("brand_lookup.citations.empty_queries_scoped", {
+              target: result.resolvedTarget,
+            })
+          : t("brand_lookup.citations.empty_queries_unscoped"),
         description: isUrlScoped
-          ? "Broaden the scope to see domain-level prompts."
+          ? t("brand_lookup.citations.empty_queries_scoped_desc")
           : undefined,
       }}
       {...tableProps}

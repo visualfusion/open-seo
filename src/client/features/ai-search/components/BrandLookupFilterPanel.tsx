@@ -8,6 +8,7 @@ import { Input } from "@/client/components/ui/input";
 import type { CitationTab } from "@/client/features/ai-search/brandLookupFilterTypes";
 import { formatPlatformLabel } from "@/client/features/ai-search/platformLabels";
 import type { BrandLookupFiltersState } from "@/client/features/ai-search/useBrandLookupFilters";
+import { useLocale } from "@/client/lib/i18n";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyForm = { Field: React.ComponentType<any> };
@@ -79,20 +80,20 @@ function FilterRangeInputs({
   );
 }
 
-const PLATFORM_ITEMS = [
-  { value: "all", icon: null, label: "All" },
-  { value: "chat_gpt", icon: null, label: formatPlatformLabel("chat_gpt") },
-  { value: "google", icon: null, label: formatPlatformLabel("google") },
-];
-
 function PlatformToggle({ form }: { form: AnyForm }) {
+  const { t } = useLocale();
+  const platformItems = [
+    { value: "all", icon: null, label: t("brand_lookup.filters.all") },
+    { value: "chat_gpt", icon: null, label: formatPlatformLabel("chat_gpt") },
+    { value: "google", icon: null, label: formatPlatformLabel("google") },
+  ];
   return (
-    <DataTableFilterGroup label="Platform">
+    <DataTableFilterGroup label={t("brand_lookup.filters.platform")}>
       <form.Field name="platform">
         {(field: StringField) => (
           <SegmentedToggle
             showLabels
-            items={PLATFORM_ITEMS}
+            items={platformItems}
             // The stored value for "All" is the empty string.
             value={field.state.value || "all"}
             onChange={(value) =>
@@ -110,19 +111,20 @@ function TopPagesFilters({
 }: {
   form: BrandLookupFiltersState["pages"]["form"];
 }) {
+  const { t } = useLocale();
   return (
     <>
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         <FilterTextInput
           form={form}
           name="include"
-          label="Include Terms"
+          label={t("brand_lookup.filters.include_terms")}
           placeholder="reddit, forbes"
         />
         <FilterTextInput
           form={form}
           name="exclude"
-          label="Exclude Terms"
+          label={t("brand_lookup.filters.exclude_terms")}
           placeholder="pinterest, /tag"
         />
       </div>
@@ -132,7 +134,7 @@ function TopPagesFilters({
         <div className="min-w-[220px]">
           <FilterRangeInputs
             form={form}
-            title="Source mentions"
+            title={t("brand_lookup.filters.source_mentions")}
             minName="minMentions"
             maxName="maxMentions"
           />
@@ -147,20 +149,21 @@ function QueriesFilters({
 }: {
   form: BrandLookupFiltersState["queries"]["form"];
 }) {
+  const { t } = useLocale();
   return (
     <>
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         <FilterTextInput
           form={form}
           name="include"
-          label="Include Terms"
-          placeholder="pricing, reviews"
+          label={t("brand_lookup.filters.include_terms")}
+          placeholder={t("brand_lookup.details.pricing_reviews")}
         />
         <FilterTextInput
           form={form}
           name="exclude"
-          label="Exclude Terms"
-          placeholder="login, download"
+          label={t("brand_lookup.filters.exclude_terms")}
+          placeholder={t("brand_lookup.details.login_download")}
         />
       </div>
 
@@ -169,7 +172,7 @@ function QueriesFilters({
         <div className="min-w-[220px]">
           <FilterRangeInputs
             form={form}
-            title="AI search volume"
+            title={t("brand_lookup.filters.ai_search_volume")}
             minName="minVolume"
             maxName="maxVolume"
           />

@@ -46,6 +46,8 @@ export const uiDetailsDe = {
   displays_the_mobile_sidebar: "Zeigt die mobile Seitenleiste an.",
   toggle_sidebar: "Seitenleiste umschalten",
   loading: "Wird geladen",
+  vs_value: "gegenüber {v1}",
+  not_available: "Nicht verfügbar",
   spam_score_unknown: "Spam-Score unbekannt",
   last_value: "Zuletzt {v1}",
   these_filters_exceed_the_this_view:
@@ -113,5 +115,6 @@ export const uiDetailsDe = {
   copied_data: "Daten kopiert",
   redirecting_you_to_billing_a_hosted:
     "Du wirst zur Abrechnung weitergeleitet, um ein gehostetes Abo abzuschließen.",
-  not_available: "Nicht verfügbar",
+  failed_to_load_saved_keywords:
+    "Gespeicherte Keywords konnten nicht geladen werden.",
 };

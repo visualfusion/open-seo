@@ -1,19 +1,20 @@
 import { useNavigate } from "@tanstack/react-router";
+import { useLocale } from "@/client/lib/i18n";
 import { DataTableTabs } from "@/client/components/table/DataTableToolbar";
 import { TabsTrigger } from "@/client/components/ui/tabs";
 
 export const PROMPT_TRACKING_TABS = [
   {
     value: "prompts",
-    label: "Prompts",
+    labelKey: "ai_visibility.tab_prompts",
   },
   {
     value: "competitors",
-    label: "Competitors",
+    labelKey: "ai_visibility.tab_competitors",
   },
   {
     value: "citations",
-    label: "Citations",
+    labelKey: "ai_visibility.tab_citations",
   },
 ] as const;
 export type PromptTrackingTab = (typeof PROMPT_TRACKING_TABS)[number]["value"];
@@ -26,6 +27,7 @@ export function PromptTrackingTabs({
   projectId: string;
   tab: PromptTrackingTab;
 }) {
+  const { t } = useLocale();
   const navigate = useNavigate();
   return (
     <div className="border-t border-border">
@@ -49,7 +51,7 @@ export function PromptTrackingTabs({
       >
         {PROMPT_TRACKING_TABS.map((item) => (
           <TabsTrigger key={item.value} value={item.value}>
-            {item.label}
+            {t(item.labelKey)}
           </TabsTrigger>
         ))}
       </DataTableTabs>

@@ -1,3 +1,5 @@
+import { useCopy } from "@/client/hooks/useCopy";
+import { useLocale } from "@/client/lib/i18n";
 import {
   createFileRoute,
   stripSearchParams,
@@ -86,6 +88,8 @@ function sortingFromSearch(search: SavedKeywordsSearch): SortingState {
 }
 
 function SavedKeywordsPage() {
+  const { t } = useLocale();
+  const { copy } = useCopy();
   const { projectId } = Route.useParams();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
@@ -237,7 +241,7 @@ function SavedKeywordsPage() {
         count: result.deletedCount,
       });
       toast.success(
-        `${result.deletedCount} keyword${result.deletedCount !== 1 ? "s" : ""} removed`,
+        t("saved_keywords.details.removed", { count: result.deletedCount }),
       );
     },
     onError: (error) => {
@@ -264,7 +268,7 @@ function SavedKeywordsPage() {
       setShowTagModal(false);
       void invalidateSavedKeywords();
       toast.success(
-        `Updated tags for ${result.taggedCount} keyword${result.taggedCount !== 1 ? "s" : ""}`,
+        t("saved_keywords.details.tags_updated", { count: result.taggedCount }),
       );
     },
   });
@@ -274,7 +278,7 @@ function SavedKeywordsPage() {
     onSuccess: (result) => {
       void invalidateSavedKeywords();
       toast.success(
-        `Updated stats for ${result.updated} keyword${result.updated !== 1 ? "s" : ""}`,
+        t("saved_keywords.details.stats_updated", { count: result.updated }),
       );
     },
   });
@@ -326,7 +330,7 @@ function SavedKeywordsPage() {
         {savedKeywordsQuery.isError ? (
           <QueryError
             error={savedKeywordsQuery.error}
-            fallback="Failed to load saved keywords."
+            fallback={t("ui.details.failed_to_load_saved_keywords")}
             onRetry={() => void savedKeywordsQuery.refetch()}
             isRetrying={isFetching}
           />
@@ -380,17 +384,12 @@ function SavedKeywordsPage() {
         <SavedKeywordsBulkActionBar
           selectedCount={selectedCount}
           exportingSelection={exporter.exportingSelection}
-          onCopy={() => {
-            navigator.clipboard
-              .writeText(selectedRows.map((row) => row.keyword).join("\n"))
-              .then(
-                () =>
-                  toast.success(
-                    `${selectedCount} keyword${selectedCount !== 1 ? "s" : ""} copied`,
-                  ),
-                () => toast.error("Could not copy to clipboard"),
-              );
-          }}
+          onCopy={() =>
+            void copy(
+              selectedRows.map((row) => row.keyword).join("\n"),
+              t("saved_keywords.details.copied", { count: selectedCount }),
+            )
+          }
           onOpenTags={() => setShowTagModal(true)}
           onExportCsv={() => void exporter.exportSelection("csv", selectedRows)}
           onExportSheets={() =>

@@ -1,3 +1,4 @@
+import { languageLabel } from "@/client/features/keywords/locations";
 import { useId, useState } from "react";
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
 import { useQuery } from "@tanstack/react-query";
@@ -26,6 +27,7 @@ import type { ProjectMarket } from "@/client/features/projects/types";
 import { QueryError } from "@/client/components/QueryState";
 import { Spinner } from "@/client/components/Spinner";
 import { getFieldError } from "@/client/lib/forms";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { SearchTargetingField } from "./SearchTargetingField";
 import { KeywordSuggestionStep } from "./KeywordSuggestionStep";
 import {
@@ -52,45 +54,22 @@ type ConfigFormValues = Omit<SaveConfigInput, "scheduleTime"> & {
   scheduleTime: LocalScheduleTime;
 };
 
-const LANGUAGE_ITEMS = SERP_LANGUAGE_OPTIONS.map((language) => ({
-  value: language.code,
-  label: language.label,
-}));
-
-const DEVICE_ITEMS: { value: SaveConfigInput["devices"]; label: string }[] = [
-  { value: "both", label: "Desktop + Mobile" },
-  { value: "desktop", label: "Desktop only" },
-  { value: "mobile", label: "Mobile only" },
-];
-
-const DEPTH_ITEMS = Array.from({ length: 10 }, (_, i) => i + 1).map(
-  (pages) => ({
-    value: pagesToDepth(pages),
-    label: `${pages} ${pages === 1 ? "page" : "pages"} (top ${pages * 10} results)`,
-  }),
-);
-
 function validateConfig(values: ConfigFormValues) {
   const fields: Partial<Record<keyof ConfigFormValues, string>> = {};
   if (!values.domain.trim()) {
-    fields.domain = "Enter a domain";
+    fields.domain = getTranslation("ranks.modals.domain_required");
   } else if (!domainField.safeParse(values.domain).success) {
-    fields.domain = "Enter a valid domain, like example.com";
+    fields.domain = getTranslation("ranks.modals.domain_invalid");
   }
   if (values.targetingMode === "local" && !values.locationName) {
-    fields.locationName = "Select a city or region for local targeting";
+    fields.locationName = getTranslation("ranks.modals.city_required");
   }
   return Object.keys(fields).length > 0 ? { fields } : undefined;
 }
 
-export function RankTrackingConfigModal({
-  projectId,
-  existingConfig,
-  onClose,
-  onSaved,
-  onConfigCreated,
-}: Props) {
-  // A new domain starts from the project's market, so it waits for projects.
+export function RankTrackingConfigModal(props: Props) {
+  const { t } = useLocale();
+  const { projectId, existingConfig, onClose } = props;
   const projectsQuery = useQuery({
     ...projectsQueryOptions(),
     enabled: !existingConfig,
@@ -101,15 +80,12 @@ export function RankTrackingConfigModal({
 
   if (!initialMarket) {
     return (
-      <Dialog
-        open
-        onOpenChange={(open) => {
-          if (!open) onClose();
-        }}
-      >
+      <Dialog open onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="sr-only">Add Domain</DialogTitle>
+            <DialogTitle className="sr-only">
+              {t("ranks.modals.config_title_add")}
+            </DialogTitle>
           </DialogHeader>
           <div className="flex min-h-40 items-center justify-center">
             {projectsQuery.isPending ? (
@@ -117,7 +93,7 @@ export function RankTrackingConfigModal({
             ) : (
               <QueryError
                 error={projectsQuery.error}
-                fallback="Failed to load the project."
+                fallback={t("ranks.modals.failed_load_project")}
                 onRetry={() => void projectsQuery.refetch()}
                 isRetrying={projectsQuery.isFetching}
               />
@@ -129,14 +105,7 @@ export function RankTrackingConfigModal({
   }
 
   return (
-    <RankTrackingConfigModalContent
-      projectId={projectId}
-      existingConfig={existingConfig}
-      initialMarket={initialMarket}
-      onClose={onClose}
-      onSaved={onSaved}
-      onConfigCreated={onConfigCreated}
-    />
+    <RankTrackingConfigModalContent {...props} initialMarket={initialMarket} />
   );
 }
 
@@ -148,12 +117,31 @@ function RankTrackingConfigModalContent({
   onSaved,
   onConfigCreated,
 }: Props & { initialMarket: ProjectMarket }) {
+  const { t } = useLocale();
   const countryId = useId();
+  const languageItems = SERP_LANGUAGE_OPTIONS.map((language) => ({
+    value: language.code,
+    label: languageLabel(language.code),
+  }));
   const isEdit = !!existingConfig;
   const [createdConfigId, setCreatedConfigId] = useState<string>();
-  // An untouched edit leaves the stored run time alone; anything that changes
-  // the schedule sends the time on screen so it is the one that gets saved.
   const [scheduleTimeEdited, setScheduleTimeEdited] = useState(false);
+
+  const deviceItems: { value: SaveConfigInput["devices"]; label: string }[] = [
+    { value: "both", label: t("ranks.modals.devices_both") },
+    { value: "desktop", label: t("ranks.modals.devices_desktop") },
+    { value: "mobile", label: t("ranks.modals.devices_mobile") },
+  ];
+
+  const depthItems = Array.from({ length: 10 }, (_, i) => i + 1).map(
+    (pages) => ({
+      value: pagesToDepth(pages),
+      label:
+        pages === 1
+          ? t("ranks.modals.depth_page_one")
+          : t("ranks.modals.depth_pages", { pages, results: pages * 10 }),
+    }),
+  );
 
   const { createMutation, updateMutation } = useSaveConfigMutations({
     projectId,
@@ -165,8 +153,6 @@ function RankTrackingConfigModalContent({
     onUpdated: () => onSaved(),
   });
 
-  // Built once: the schedule default is random, and new default values would
-  // reset the form on every render.
   const [defaultValues] = useState<ConfigFormValues>(() => ({
     domain: existingConfig?.domain ?? "",
     locationCode: existingConfig?.locationCode ?? initialMarket.locationCode,
@@ -175,7 +161,6 @@ function RankTrackingConfigModalContent({
     locationName: existingConfig?.locationName ?? undefined,
     devices: existingConfig?.devices ?? "mobile",
     schedule: existingConfig?.scheduleInterval ?? "weekly",
-    // Shown and edited in the browser's timezone; the server converts it to UTC.
     scheduleTime: localScheduleTimeFrom(
       existingConfig?.nextCheckAt
         ? new Date(existingConfig.nextCheckAt)
@@ -210,7 +195,6 @@ function RankTrackingConfigModalContent({
   });
   const values = useStore(form.store, (state) => state.values);
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
-
   const closeKeywordStep = () => onSaved(createdConfigId);
 
   return (
@@ -240,7 +224,9 @@ function RankTrackingConfigModalContent({
             <form.Form className="flex flex-col gap-4">
               <DialogHeader>
                 <DialogTitle>
-                  {isEdit ? "Edit Domain Config" : "Add Domain"}
+                  {isEdit
+                    ? t("ranks.modals.config_title_edit")
+                    : t("ranks.modals.config_title_add")}
                 </DialogTitle>
               </DialogHeader>
 
@@ -253,21 +239,23 @@ function RankTrackingConfigModalContent({
                         dontValidate: true,
                       });
                     } catch {
-                      // Keep invalid partial input editable; submit shows the error.
+                      // Keep invalid partial input editable
                     }
                   },
                 }}
               >
                 {(field) => (
                   <field.TextField
-                    label="Target Domain"
-                    placeholder="example.com"
+                    label={t("ranks.modals.domain_label")}
+                    placeholder={t("ranks.modals.domain_placeholder")}
                   />
                 )}
               </form.AppField>
 
               <Field>
-                <FieldLabel htmlFor={countryId}>Country</FieldLabel>
+                <FieldLabel htmlFor={countryId}>
+                  {t("ranks.modals.country_label")}
+                </FieldLabel>
                 <CountryCombobox
                   id={countryId}
                   value={values.locationCode}
@@ -277,7 +265,6 @@ function RankTrackingConfigModalContent({
                       "languageCode",
                       getLanguageCode(locationCode),
                     );
-                    // A picked city belongs to the previous country.
                     form.setFieldValue("locationName", undefined);
                   }}
                 />
@@ -301,9 +288,9 @@ function RankTrackingConfigModalContent({
               <form.AppField name="languageCode">
                 {(field) => (
                   <field.SelectField
-                    label="Language"
-                    items={LANGUAGE_ITEMS}
-                    description="Defaults to the country's language. Any language can be tracked in any country — pick the one your customers search in."
+                    label={t("ranks.modals.language_label")}
+                    items={languageItems}
+                    description={t("ranks.modals.language_desc")}
                   />
                 )}
               </form.AppField>
@@ -312,16 +299,16 @@ function RankTrackingConfigModalContent({
                 <form.AppField name="devices">
                   {(field) => (
                     <field.SelectField
-                      label="Devices"
-                      items={DEVICE_ITEMS}
-                      description="Most Google searches come from mobile, but select this based on your customer."
+                      label={t("ranks.modals.devices_label")}
+                      items={deviceItems}
+                      description={t("ranks.modals.devices_desc")}
                     />
                   )}
                 </form.AppField>
                 {values.devices === "both" && (
                   <p className="flex items-start gap-1.5 text-xs text-info">
                     <Info className="mt-0.5 size-3.5 shrink-0" />
-                    Tracking both devices uses 2x credits per keyword check
+                    {t("ranks.modals.devices_both_warning")}
                   </p>
                 )}
               </div>
@@ -341,9 +328,9 @@ function RankTrackingConfigModalContent({
               <form.AppField name="serpDepth">
                 {(field) => (
                   <field.SelectField
-                    label="Search Depth"
-                    items={DEPTH_ITEMS}
-                    description="10 pages is ~8x more expensive than 1 page"
+                    label={t("ranks.modals.depth_label")}
+                    items={depthItems}
+                    description={t("ranks.modals.depth_desc")}
                   />
                 )}
               </form.AppField>
@@ -361,10 +348,12 @@ function RankTrackingConfigModalContent({
                   onClick={onClose}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <form.SubmitButton>
-                  {isEdit ? "Save Changes" : "Add Domain"}
+                  {isEdit
+                    ? t("ranks.modals.save_changes")
+                    : t("ranks.modals.config_title_add")}
                 </form.SubmitButton>
               </DialogFooter>
             </form.Form>
@@ -380,8 +369,7 @@ function CostEstimate({
   serpDepth,
   schedule,
 }: Pick<ConfigFormValues, "devices" | "serpDepth" | "schedule">) {
-  // Scheduled checks run through the cheaper task queue; manual configs only
-  // ever pay the live price.
+  const { t } = useLocale();
   const { costUsd: costPerKeyword } = estimateRankCheckCredits(
     ["plain keyword"],
     devices,
@@ -394,17 +382,19 @@ function CostEstimate({
     <div className="space-y-0.5 rounded-lg bg-muted px-3 py-2.5 text-xs text-muted-foreground">
       <div>
         <span className="font-mono font-semibold text-foreground">
-          up to ${costPerKeyword.toFixed(4)}
+          {t("ranks.modals.cost_per_keyword", {
+            cost: costPerKeyword.toFixed(4),
+          })}
         </span>{" "}
-        per keyword per check
+        {t("ranks.modals.cost_per_keyword_suffix")}
       </div>
       {schedule !== "manual" && (
         <div>
-          50 keywords would cost up to{" "}
+          {t("ranks.modals.cost_monthly_prefix")}
           <span className="font-mono font-semibold text-foreground">
             ${(costPerKeyword * 50 * checksPerMonth).toFixed(2)}
           </span>
-          /month
+          {t("ranks.modals.cost_monthly_suffix")}
         </div>
       )}
     </div>

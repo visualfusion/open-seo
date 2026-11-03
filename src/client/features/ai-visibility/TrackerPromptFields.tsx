@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useId } from "react";
 import { useMutation } from "@tanstack/react-query";
 import Papa from "papaparse";
@@ -28,6 +29,7 @@ export function TrackerPromptFields({
   onChange: (value: TrackerDraft) => void;
   onGeneratingChange: (pending: boolean) => void;
 }) {
+  const { t } = useLocale();
   const promptsId = useId();
   const group = value.topic;
   const topicPrompts = state.prompts.filter(
@@ -70,7 +72,11 @@ export function TrackerPromptFields({
     while (next.length < 3) next.push("");
     update({ prompts: next });
     if (accepted.length < prompts.length)
-      toast.info(`Added ${accepted.length} prompts`);
+      toast.info(
+        t("ai_visibility.details.added_value_prompts", {
+          v1: accepted.length,
+        }),
+      );
   };
   return (
     <section className="space-y-4">
@@ -82,13 +88,14 @@ export function TrackerPromptFields({
       {topicPrompts.length > 0 &&
         topicPrompts.every((prompt) => prompt.paused) && (
           <p className="text-xs text-muted-foreground">
-            Every prompt in this topic is paused. Prompts you add here will
-            still run.
+            {t("ai_visibility.details.every_prompt_in_this_you_add")}
           </p>
         )}
-      <Field aria-label="Prompts to track">
+      <Field aria-label={t("ai_visibility.details.prompts_to_track")}>
         <div className="flex items-center justify-between gap-3">
-          <FieldLabel htmlFor={`${promptsId}-0`}>Prompts to track</FieldLabel>
+          <FieldLabel htmlFor={`${promptsId}-0`}>
+            {t("ai_visibility.details.prompts_to_track")}
+          </FieldLabel>
           <Button
             type="button"
             variant="outline"
@@ -105,7 +112,9 @@ export function TrackerPromptFields({
             ) : (
               <Sparkles className="size-4" />
             )}
-            {generate.isPending ? "Generating…" : "Generate"}
+            {generate.isPending
+              ? t("ai_visibility.details.generating")
+              : t("ai_visibility.details.generate")}
           </Button>
         </div>
         <div className="space-y-2">
@@ -113,8 +122,12 @@ export function TrackerPromptFields({
             <Input
               key={index}
               id={`${promptsId}-${index}`}
-              aria-label={`Prompt ${index + 1}`}
-              placeholder={`Prompt ${index + 1}`}
+              aria-label={t("ai_visibility.details.prompt_value", {
+                v1: index + 1,
+              })}
+              placeholder={t("ai_visibility.details.prompt_value", {
+                v1: index + 1,
+              })}
               value={text}
               onChange={(event) =>
                 update({
@@ -150,7 +163,7 @@ export function TrackerPromptFields({
           disabled={group.prompts.length >= MAX_PROMPTS_PER_ADDITION}
           onClick={() => update({ prompts: [...group.prompts, ""] })}
         >
-          <Plus /> Add prompt
+          <Plus /> {t("ui.ai_visibility_ext.tracker_editor.add_prompt")}
         </Button>
       </Field>
       {generate.isError && <AiQueryError error={generate.error} />}

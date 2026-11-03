@@ -26,16 +26,15 @@ import {
 } from "@/client/features/ai-search/platformLabels";
 import type { BrandLookupResult } from "@/types/schemas/ai-search";
 import { RESEARCH_SCOPE_LABELS } from "@/shared/researchScope";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 
 type Props = {
   result: BrandLookupResult;
   projectId: string;
 };
 
-const DOMAIN_LEVEL_TIP =
-  "AI search providers report mentions per domain, not per page. This number covers the whole domain — the cited pages below are limited to your scope.";
-
 export function BrandLookupResults({ result, projectId }: Props) {
+  const { t } = useLocale();
   if (!result.hasData) {
     const erroredPlatforms = result.perPlatform.filter(
       (p) => p.status === "error",
@@ -49,8 +48,9 @@ export function BrandLookupResults({ result, projectId }: Props) {
         <Alert variant="warning">
           <TriangleAlert aria-hidden />
           <AlertTitle className="font-normal">
-            AI mention data is temporarily unavailable for{" "}
-            <strong>{result.resolvedTarget}</strong>. Please try again shortly.
+            {t("brand_lookup.results.temp_unavailable_prefix")}
+            <strong>{result.resolvedTarget}</strong>
+            {t("brand_lookup.results.temp_unavailable_suffix")}
           </AlertTitle>
         </Alert>
       );
@@ -60,17 +60,17 @@ export function BrandLookupResults({ result, projectId }: Props) {
         <Alert variant="info">
           <Info aria-hidden />
           <AlertTitle className="font-normal">
-            No AI mentions found for <strong>{result.resolvedTarget}</strong>.
+            {t("brand_lookup.results.no_mentions_prefix")}
+            <strong>{result.resolvedTarget}</strong>.
           </AlertTitle>
         </Alert>
         {erroredPlatforms.length > 0 ? (
           <p className="text-xs text-muted-foreground">
-            Note:{" "}
-            {erroredPlatforms
-              .map((p) => formatPlatformLabel(p.platform))
-              .join(" and ")}{" "}
-            {erroredPlatforms.length === 1 ? "was" : "were"} unavailable — some
-            mentions may be missing.
+            {t("brand_lookup.results.platform_unavailable_note", {
+              platforms: erroredPlatforms
+                .map((p) => formatPlatformLabel(p.platform))
+                .join(", "),
+            })}
           </p>
         ) : null}
       </div>
@@ -84,11 +84,6 @@ export function BrandLookupResults({ result, projectId }: Props) {
     <Card className="gap-0 py-0">
       <BrandHeader result={result} />
 
-      {/* One shared grid so the panels align by construction: stats left,
-          trend right, Share of Voice flowing into the next free half-width
-          cell — whichever of trend/SoV is absent, the rest stay
-          column-aligned. A lone stats panel keeps full width instead of half a
-          grid. */}
       <div
         className={
           hasTrendData || sov
@@ -114,6 +109,7 @@ export function BrandLookupResults({ result, projectId }: Props) {
 }
 
 function BrandHeader({ result }: { result: BrandLookupResult }) {
+  const { t } = useLocale();
   return (
     <section className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 pb-3">
       <div className="flex flex-wrap items-center gap-2">
@@ -126,41 +122,44 @@ function BrandHeader({ result }: { result: BrandLookupResult }) {
         ) : null}
       </div>
       <p className="ml-auto text-xs text-muted-foreground">
-        Updated {formatRelative(result.fetchedAt)}
+        {t("brand_lookup.results.updated_prefix")}
+        {formatRelative(result.fetchedAt)}
       </p>
     </section>
   );
 }
 
 function StatsCard({ result }: { result: BrandLookupResult }) {
+  const { t } = useLocale();
+  const domainTip = t("brand_lookup.results.domain_level_tip");
   return (
     <div className="w-full max-w-xl rounded-lg border border-border p-3">
       {result.aggregatesAreDomainLevel && (
         <div className="mb-2">
-          <DomainLevelBadge tooltip={DOMAIN_LEVEL_TIP} />
+          <DomainLevelBadge tooltip={domainTip} />
         </div>
       )}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Platform</TableHead>
+            <TableHead>{t("brand_lookup.results.platform_col")}</TableHead>
             <TableHead className="text-right">
               <span className="inline-flex items-center gap-1">
-                Mentions
-                <InfoTooltip text="AI answers that mention your brand or cite your website." />
+                {t("brand_lookup.results.mentions_col")}
+                <InfoTooltip text={t("brand_lookup.results.mentions_tip")} />
               </span>
             </TableHead>
             <TableHead className="text-right">
               <span className="inline-flex items-center gap-1">
-                AI search volume
-                <InfoTooltip text="Estimated monthly searches for prompts where your brand appears in AI answers." />
+                {t("brand_lookup.results.ai_vol_col")}
+                <InfoTooltip text={t("brand_lookup.results.ai_vol_tip")} />
               </span>
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow className="font-medium">
-            <TableCell>Total</TableCell>
+            <TableCell>{t("brand_lookup.results.total_row")}</TableCell>
             <TableCell className="text-right tabular-nums">
               {formatCount(result.totalMentions)}
             </TableCell>
@@ -177,10 +176,14 @@ function StatsCard({ result }: { result: BrandLookupResult }) {
                   />
                   {formatPlatformLabel(row.platform)}
                   {row.platform === "chat_gpt" && (
-                    <InfoTooltip text="ChatGPT data covers US English only." />
+                    <InfoTooltip
+                      text={t("brand_lookup.results.chatgpt_us_tip")}
+                    />
                   )}
                   {row.status === "error" && (
-                    <span className="text-destructive">Unavailable</span>
+                    <span className="text-destructive">
+                      {t("brand_lookup.results.unavailable")}
+                    </span>
                   )}
                 </span>
               </TableCell>
@@ -201,12 +204,17 @@ function StatsCard({ result }: { result: BrandLookupResult }) {
 }
 
 function MentionTrendCard({ result }: { result: BrandLookupResult }) {
+  const { t } = useLocale();
   return (
     <div className="rounded-lg border border-border">
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
-        <h3 className="text-sm font-medium">Mention trend (last 12 months)</h3>
+        <h3 className="text-sm font-medium">
+          {t("brand_lookup.results.trend_title")}
+        </h3>
         {result.aggregatesAreDomainLevel ? (
-          <DomainLevelBadge tooltip={DOMAIN_LEVEL_TIP} />
+          <DomainLevelBadge
+            tooltip={t("brand_lookup.results.domain_level_tip")}
+          />
         ) : null}
       </div>
       <div className="p-4">
@@ -217,11 +225,12 @@ function MentionTrendCard({ result }: { result: BrandLookupResult }) {
 }
 
 function InfoTooltip({ text }: { text: string }) {
+  const { t } = useLocale();
   return (
     <Tooltip>
       <TooltipTrigger
         delay={150}
-        aria-label="More info"
+        aria-label={t("brand_lookup.results.more_info")}
         className="inline-flex rounded-sm text-muted-foreground/70 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
       >
         <Info className="size-3" />
@@ -235,15 +244,24 @@ function InfoTooltip({ text }: { text: string }) {
 
 function formatRelative(iso: string): string {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "just now";
+  if (Number.isNaN(date.getTime()))
+    return getTranslation("brand_lookup.results.just_now");
 
   const diffMs = Date.now() - date.getTime();
   const diffMin = Math.floor(diffMs / 60_000);
 
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return getTranslation("brand_lookup.results.just_now");
+  if (diffMin < 60)
+    return getTranslation("brand_lookup.results.minutes_ago", undefined, {
+      count: diffMin,
+    });
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24)
+    return getTranslation("brand_lookup.results.hours_ago", undefined, {
+      count: diffHr,
+    });
   const diffDay = Math.floor(diffHr / 24);
-  return `${diffDay}d ago`;
+  return getTranslation("brand_lookup.results.days_ago", undefined, {
+    count: diffDay,
+  });
 }

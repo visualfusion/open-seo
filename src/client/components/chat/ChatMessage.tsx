@@ -18,6 +18,7 @@ import {
 } from "@/client/components/ui/collapsible";
 import { Spinner } from "@/client/components/ui/spinner";
 import { Textarea } from "@/client/components/ui/textarea";
+import { useLocale } from "@/client/lib/i18n";
 
 // Turn a tool part type ("tool-get_serp_results") into a readable label
 // ("Get serp results"). SAM exposes the full MCP tool surface, too many tools
@@ -79,6 +80,7 @@ function MessageActions({
   onUndo?: () => void;
   onStartEdit?: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <div
       className={`flex gap-0.5 text-muted-foreground reveal-on-hover ${
@@ -87,8 +89,8 @@ function MessageActions({
     >
       <CopyButton
         value={messageText(message)}
-        successMessage="Message copied"
-        label="Copy message"
+        successMessage={t("sam.message_copied")}
+        label={t("sam.copy_message")}
         variant="ghost"
         size="icon-xs"
       />
@@ -96,8 +98,8 @@ function MessageActions({
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label="Edit message"
-          title="Edit and resend"
+          aria-label={t("sam.edit_message")}
+          title={t("sam.edit_and_resend")}
           onClick={onStartEdit}
         >
           <Pencil />
@@ -107,8 +109,8 @@ function MessageActions({
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label="Undo from this message"
-          title="Undo — remove this message and everything after it"
+          aria-label={t("sam.undo_from_message")}
+          title={t("sam.undo_title")}
           onClick={onUndo}
         >
           <Undo2 />
@@ -128,6 +130,7 @@ function ReasoningBlock({
   part: Extract<UIMessage["parts"][number], { type: "reasoning" }>;
   live: boolean;
 }) {
+  const { t } = useLocale();
   // Persisted parts can keep a stale state:"streaming" (interrupted or
   // multi-segment turns), so only trust it while the message is actually
   // being generated — otherwise finished replies show hanging spinners.
@@ -140,7 +143,9 @@ function ReasoningBlock({
         ) : (
           <ChevronRight className="size-3 transition-transform group-data-panel-open:rotate-90" />
         )}
-        <span>{isStreaming ? "Thinking…" : "Thought process"}</span>
+        <span>
+          {isStreaming ? t("sam.thinking") : t("sam.thought_process")}
+        </span>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-1.5 whitespace-pre-wrap border-l-2 border-border pl-3 text-xs">
         {part.text}
@@ -158,10 +163,15 @@ function ToolBadge({
   part: UIMessage["parts"][number];
   live: boolean;
 }) {
+  const { t } = useLocale();
   const label = humanizeToolLabel(part.type);
   const skillName = skillNameFromPart(part);
-  const runningText = skillName ? `Activating ${skillName}` : label;
-  const doneText = skillName ? `Skill: ${skillName}` : label;
+  const runningText = skillName
+    ? t("sam.activating_skill", { skill: skillName })
+    : label;
+  const doneText = skillName
+    ? t("sam.skill_label", { skill: skillName })
+    : label;
   const state = "state" in part ? part.state : undefined;
   const isDone = state === "output-available";
   // A "running" part in a message that is no longer being generated never
@@ -179,16 +189,6 @@ function ToolBadge({
   );
 }
 
-/**
- * One chat message bubble. User turns render as a right-aligned bubble;
- * assistant turns render each part (reasoning, markdown text, tool badges) in
- * document order, flush with the column.
- *
- * Every settled message gets a hover copy button. User messages additionally
- * get undo (rewind the conversation to before this message) and edit (rewind,
- * then resend the edited text) when the chat passes the handlers — both need
- * server support, so chats opt in.
- */
 export function ChatMessage({
   message,
   streaming,
@@ -196,12 +196,11 @@ export function ChatMessage({
   onEdit,
 }: {
   message: UIMessage;
-  /** True while this message is still being generated: reasoning spinners
-   * stay live and the hover actions (copy) are held back until it settles. */
   streaming?: boolean;
   onUndo?: () => void;
   onEdit?: (newText: string) => void;
 }) {
+  const { t } = useLocale();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
@@ -216,7 +215,6 @@ export function ChatMessage({
         <div className="flex flex-col items-end gap-1.5 pl-8 sm:pl-16">
           <Textarea
             className="max-h-36 max-w-xl"
-            // Browsers without CSS field-sizing size the box from `rows`.
             rows={Math.min(6, Math.max(2, draft.split("\n").length))}
             value={draft}
             autoFocus
@@ -231,10 +229,10 @@ export function ChatMessage({
           />
           <div className="flex gap-1.5">
             <Button variant="ghost" size="xs" onClick={() => setEditing(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button size="xs" onClick={submit}>
-              Save & resend
+              {t("sam.save_and_resend")}
             </Button>
           </div>
         </div>

@@ -39,11 +39,38 @@ export const uiEn = {
     page_of: "Page {page} of {total}",
     previous_page: "Previous page",
     next_page: "Next page",
+    first_page: "First page",
+    no_results_filtered: "No items match your filters",
+    no_results_filtered_desc:
+      "Try adjusting or clearing your filters to see more results.",
   },
   sheets_modal: {
     copied_badge_one: "1 row copied to clipboard",
     copied_badge: "{rows} rows copied to clipboard",
     open_sheets: "Open new Google Sheet",
+  },
+  ai_visibility_ext: {
+    date_range: {
+      last_7_days: "Last 7 days",
+      last_90_days: "Last 90 days",
+    },
+    answer_view: {
+      mentioned: "Mentioned",
+      not_mentioned: "Not mentioned",
+      cited: "Cited",
+      not_cited: "Not cited",
+    },
+    rename_topic: {
+      label: "Topic name",
+    },
+    tracker_editor: {
+      new_topic: "New topic...",
+      topic_label: "Topic",
+      add_prompt: "Add prompt",
+    },
+    engine_filter: {
+      all: "All engines",
+    },
   },
   relative_time: {
     just_now: "just now",

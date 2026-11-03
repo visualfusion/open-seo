@@ -16,6 +16,7 @@ import { usePrewarmSerpLocations } from "@/client/components/usePrewarmSerpLocat
 import { Field, FieldError, FieldLabel } from "@/client/components/ui/field";
 import { useProjectMarket } from "@/client/features/projects/useProjectMarket";
 import { getIsoCountryCode } from "@/shared/keyword-locations";
+import { useLocale } from "@/client/lib/i18n";
 import { cleanKeywords, LocalKeywordFields } from "./LocalKeywordFields";
 import { LocalListingChoices, type Listing } from "./LocalListingChoices";
 
@@ -56,6 +57,7 @@ function ListingLookup({
   onClose: () => void;
   onSelect: (listing: Listing) => void;
 }) {
+  const { t } = useLocale();
   const market = useProjectMarket(projectId);
   const countryCode = market ? getIsoCountryCode(market.locationCode) : "us";
   usePrewarmSerpLocations(countryCode, Boolean(market));
@@ -74,8 +76,12 @@ function ListingLookup({
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: z.object({
-        query: z.string().trim().min(2, "Enter the business name.").max(200),
-        locationName: z.string().min(1, "Pick the city the business is in."),
+        query: z
+          .string()
+          .trim()
+          .min(2, t("local_seo.validation_business_name"))
+          .max(200),
+        locationName: z.string().min(1, t("local_seo.validation_city")),
       }),
     },
     onSubmit: async ({ value }) => {
@@ -85,30 +91,30 @@ function ListingLookup({
   const listings = lookup.data && lookup.data.length > 1 ? lookup.data : null;
   return (
     <FormDialog
-      title="Add business"
+      title={t("local_seo.add_business_title")}
       onClose={onClose}
       wide={Boolean(listings)}
       actions={
         listings ? (
           <>
             <Button variant="outline" onClick={() => lookup.reset()}>
-              Search again
+              {t("local_seo.search_again")}
             </Button>
             <Button onClick={() => onSelect(listings[selected])}>
-              Use this listing
+              {t("local_seo.use_this_listing")}
             </Button>
           </>
         ) : (
           <>
             <Button variant="outline" onClick={onClose}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
               form="local-business-lookup"
               pending={lookup.isPending}
             >
-              Find listing
+              {t("local_seo.find_listing")}
             </Button>
           </>
         )
@@ -138,8 +144,8 @@ function ListingLookup({
             <form.AppField name="query">
               {(field) => (
                 <field.TextField
-                  label="Business name"
-                  placeholder="e.g. Joe's Pizza"
+                  label={t("local_seo.business_name")}
+                  placeholder={t("local_seo.business_name_placeholder")}
                 />
               )}
             </form.AppField>
@@ -148,7 +154,9 @@ function ListingLookup({
                 const error = field.state.meta.errors[0]?.message;
                 return (
                   <Field data-invalid={Boolean(error) || undefined}>
-                    <FieldLabel htmlFor="local-business-city">City</FieldLabel>
+                    <FieldLabel htmlFor="local-business-city">
+                      {t("local_seo.city")}
+                    </FieldLabel>
                     <SerpLocationCombobox
                       id="local-business-city"
                       value={field.state.value || undefined}
@@ -166,20 +174,19 @@ function ListingLookup({
       )}
       {lookup.isPending && (
         <p className="text-sm text-muted-foreground">
-          Searching Google Maps. This usually takes a few seconds.
+          {t("local_seo.searching_maps")}
         </p>
       )}
       {lookup.isError && (
         <QueryError
-          title="Could not look up this business"
+          title={t("local_seo.lookup_error_title")}
           cause={lookup.error}
-          fallback="Please try again in a moment."
+          fallback={t("local_seo.lookup_error_fallback")}
         />
       )}
       {lookup.isSuccess && lookup.data.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          No Google Maps listing found. Check the name matches the listing and
-          the city is right.
+          {t("local_seo.no_listing_found")}
         </p>
       )}
     </FormDialog>
@@ -190,14 +197,14 @@ function ListingLookup({
 // (gridSize - 1) × spacing, and each point is one paid search per keyword.
 const AREAS = {
   neighborhood: {
-    label: "Neighborhood · 2 km wide · 9 points",
+    key: "area_neighborhood",
     gridSize: 3,
     spacingKm: 1,
   },
-  town: { label: "Town · 4 km wide · 9 points", gridSize: 3, spacingKm: 2 },
-  city: { label: "City · 8 km wide · 25 points", gridSize: 5, spacingKm: 2 },
+  town: { key: "area_town", gridSize: 3, spacingKm: 2 },
+  city: { key: "area_city", gridSize: 5, spacingKm: 2 },
   metro: {
-    label: "Metro area · 20 km wide · 25 points",
+    key: "area_metro",
     gridSize: 5,
     spacingKm: 5,
   },
@@ -215,6 +222,7 @@ function TrackerSettings({
   onClose: () => void;
   onCreated: (id: string) => void;
 }) {
+  const { t } = useLocale();
   const { business, suggestedKeywords } = listing;
   const queryClient = useQueryClient();
   const create = useMutation({
@@ -243,7 +251,7 @@ function TrackerSettings({
   });
   return (
     <FormDialog
-      title="Set up local tracking"
+      title={t("local_seo.setup_tracking_title")}
       onClose={onClose}
       actions={
         <>
@@ -252,14 +260,14 @@ function TrackerSettings({
             disabled={create.isPending}
             onClick={onClose}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             type="submit"
             form="local-tracker-settings"
             pending={create.isPending}
           >
-            Save business
+            {t("local_seo.save_business")}
           </Button>
         </>
       }
@@ -281,11 +289,11 @@ function TrackerSettings({
           <form.AppField name="area">
             {(field) => (
               <field.SelectField
-                label="Area to check"
-                description="We search Google Maps from points spread across this area, centered on your listing."
-                items={Object.entries(AREAS).map(([value, { label }]) => ({
+                label={t("local_seo.area_to_check")}
+                description={t("local_seo.area_to_check_desc")}
+                items={Object.entries(AREAS).map(([value, { key }]) => ({
                   value,
-                  label,
+                  label: t(`local_seo.${key}`),
                 }))}
               />
             )}
@@ -295,7 +303,7 @@ function TrackerSettings({
       {create.isError && (
         <QueryError
           error={create.error}
-          fallback="Could not save this business."
+          fallback={t("local_seo.could_not_save_business")}
         />
       )}
     </FormDialog>

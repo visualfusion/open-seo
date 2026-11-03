@@ -20,31 +20,13 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/client/components/ui/chart";
+import { useLocale } from "@/client/lib/i18n";
 import {
   formatDateLabel,
   TIME_AXIS,
   TrendEmptyState,
   TrendRangeToggle,
 } from "./RankTrackingTrendChart";
-
-const BUCKETS = [
-  { key: "top3", label: "Top 3", color: "#1e40af" },
-  { key: "top4to10", label: "4–10", color: "#56b4e9" },
-  { key: "top11to20", label: "11–20", color: "#e69f00" },
-  { key: "notRanking", label: "Not in top 20", color: "#6b7280" },
-  // Missing data, not a ranking: lighter fill so it doesn't read as lost
-  // positions.
-  {
-    key: "notChecked",
-    label: "Not checked",
-    color: "#d1d5db",
-    hint: "Check failed, no position recorded.",
-  },
-] as const;
-
-const chartConfig: ChartConfig = Object.fromEntries(
-  BUCKETS.map((b) => [b.key, { label: b.label, color: b.color }]),
-);
 
 export function RankTrackingOverview({
   device,
@@ -55,7 +37,47 @@ export function RankTrackingOverview({
   projectId: string;
   configId: string;
 }) {
+  const { t } = useLocale();
   const [sinceDays, setSinceDays] = useState(730);
+
+  const buckets = useMemo(
+    () =>
+      [
+        { key: "top3", label: t("ranks.overview.top_3"), color: "#1e40af" },
+        {
+          key: "top4to10",
+          label: t("ranks.overview.top_4_10"),
+          color: "#56b4e9",
+        },
+        {
+          key: "top11to20",
+          label: t("ranks.overview.top_11_20"),
+          color: "#e69f00",
+        },
+        {
+          key: "notRanking",
+          label: t("ranks.overview.not_in_top_20"),
+          color: "#6b7280",
+        },
+        // Missing data, not a ranking: lighter fill so it doesn't read as lost
+        // positions.
+        {
+          key: "notChecked",
+          label: t("ranks.overview.not_checked"),
+          color: "#d1d5db",
+          hint: t("ranks.overview.not_checked_hint"),
+        },
+      ] as const,
+    [t],
+  );
+
+  const chartConfig: ChartConfig = useMemo(
+    () =>
+      Object.fromEntries(
+        buckets.map((b) => [b.key, { label: b.label, color: b.color }]),
+      ),
+    [buckets],
+  );
 
   const trendQuery = useQuery({
     queryKey: ["rankConfigTrend", projectId, configId, device, sinceDays],
@@ -83,12 +105,14 @@ export function RankTrackingOverview({
     <div className="px-4 pt-4 pb-4">
       <div className="space-y-2 rounded-lg border border-border p-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium">Position distribution</span>
+          <span className="text-sm font-medium">
+            {t("ranks.overview.position_distribution")}
+          </span>
           <TrendRangeToggle value={sinceDays} onChange={setSinceDays} />
         </div>
 
         <div className="flex flex-wrap gap-x-3 gap-y-1">
-          {BUCKETS.map((b) => {
+          {buckets.map((b) => {
             const className =
               "inline-flex items-center gap-1 text-[11px] text-muted-foreground";
             const swatch = (
@@ -120,7 +144,7 @@ export function RankTrackingOverview({
 
         <QueryState
           query={trendQuery}
-          errorFallback="Failed to load position history"
+          errorFallback={t("ranks.overview.failed_to_load")}
           loading={<Skeleton className="h-[220px] w-full" />}
         >
           {() =>
@@ -140,7 +164,7 @@ export function RankTrackingOverview({
                       <ChartTooltipContent labelFormatter={formatDateLabel} />
                     }
                   />
-                  {BUCKETS.map((b) => (
+                  {buckets.map((b) => (
                     <Area
                       key={b.key}
                       type="monotone"

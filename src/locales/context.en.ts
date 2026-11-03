@@ -1,4 +1,46 @@
 export const contextEn = {
+  website_setup: {
+    title: "Set up AI visibility",
+    subtitle:
+      "We’ll research your brand and find the most relevant topics to monitor.",
+    submit: "Start research",
+    footnote_gateway:
+      "Research and a first run of your prompts use the DataForSEO and OpenRouter keys on your Every App gateway.",
+    footnote_credits:
+      "Research and a first run of your prompts use a small amount of usage credits.",
+    review_subtitle_link: "project context",
+    url_label: "Website URL",
+    url_placeholder: "Enter your website URL",
+    error_credits_title: "We couldn’t research this website",
+    error_generic:
+      "We couldn’t research this website. Check the URL and provider settings, then try again.",
+    competitor_name_aria: "Competitor {index} name",
+    competitor_name_placeholder: "Competitor name",
+    competitor_website_aria: "Competitor {index} website",
+    competitor_done_aria: "Done editing competitor",
+    competitor_edit_aria: "Edit {name}",
+    competitor_remove_aria: "Remove {name}",
+    competitor_fallback_name: "competitor {index}",
+    step_website: "Researching your website",
+    step_competitors: "Finding competitors",
+    step_topics: "Preparing topics and prompts",
+    step_counter: "Step {current} of {total}",
+    duration_note: "This can take up to a minute.",
+    review_title_complete: "Complete project setup",
+    review_title_competitors: "Edit competitors",
+    review_subtitle_before: "You can edit your ",
+    review_subtitle_after: " at any time.",
+    preserved_competitors:
+      "We’ll use the competitors already saved in your project context.",
+    col_name: "Name",
+    col_website: "Website",
+    col_actions: "Actions",
+    add_competitor: "Add competitor",
+    save_error:
+      "We couldn’t save your project. Check the competitor names and websites, then try again.",
+    back: "Back",
+    continue: "Continue",
+  },
   competitors: {
     domain_placeholder: "competitor.com",
     title: "Competitors",
@@ -22,48 +64,6 @@ export const contextEn = {
     load_failed: "Couldn't load your project.",
   },
   saved: "Project context saved",
-  website_setup: {
-    title: "Set up AI visibility",
-    subtitle:
-      "We’ll research your brand and find the most relevant topics to monitor.",
-    url_label: "Website URL",
-    url_placeholder: "Enter your website URL",
-    error_credits_title: "We couldn’t research this website",
-    error_generic:
-      "We couldn’t research this website. Check the URL and provider settings, then try again.",
-    submit: "Start research",
-    footnote_gateway:
-      "Research and a first run of your prompts use the DataForSEO and OpenRouter keys on your Every App gateway.",
-    footnote_credits:
-      "Research and a first run of your prompts use a small amount of usage credits.",
-    competitor_name_aria: "Competitor {index} name",
-    competitor_name_placeholder: "Competitor name",
-    competitor_website_aria: "Competitor {index} website",
-    competitor_done_aria: "Done editing competitor",
-    competitor_edit_aria: "Edit {name}",
-    competitor_remove_aria: "Remove {name}",
-    competitor_fallback_name: "competitor {index}",
-    step_website: "Researching your website",
-    step_competitors: "Finding competitors",
-    step_topics: "Preparing topics and prompts",
-    step_counter: "Step {current} of {total}",
-    duration_note: "This can take up to a minute.",
-    review_title_complete: "Complete project setup",
-    review_title_competitors: "Edit competitors",
-    review_subtitle_before: "You can edit your ",
-    review_subtitle_link: "project context",
-    review_subtitle_after: " at any time.",
-    preserved_competitors:
-      "We’ll use the competitors already saved in your project context.",
-    col_name: "Name",
-    col_website: "Website",
-    col_actions: "Actions",
-    add_competitor: "Add competitor",
-    save_error:
-      "We couldn’t save your project. Check the competitor names and websites, then try again.",
-    back: "Back",
-    continue: "Continue",
-  },
   editable_list: {
     edit_aria: "Edit {label}",
     remove_label: "Remove {label}",

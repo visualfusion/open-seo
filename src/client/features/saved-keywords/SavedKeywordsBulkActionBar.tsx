@@ -4,6 +4,7 @@ import {
   TableBulkActionButton,
   TableBulkExportMenu,
 } from "@/client/components/table/TableBulkActionBar";
+import { useLocale } from "@/client/lib/i18n";
 
 export function SavedKeywordsBulkActionBar({
   selectedCount,
@@ -24,6 +25,7 @@ export function SavedKeywordsBulkActionBar({
   onClear: () => void;
   exportingSelection: boolean;
 }) {
+  const { t } = useLocale();
   if (selectedCount === 0) return null;
 
   return (
@@ -37,24 +39,24 @@ export function SavedKeywordsBulkActionBar({
               icon={<Tags className="size-3.5" />}
               onClick={onOpenTags}
             >
-              Tag
+              {t("saved_keywords.bulk.tag_button")}
             </TableBulkActionButton>
 
             <TableBulkExportMenu
               busy={exportingSelection}
               actions={[
                 {
-                  label: "Copy keywords",
+                  label: t("saved_keywords.bulk.copy_keywords"),
                   icon: <Copy className="size-4" />,
                   onClick: onCopy,
                 },
                 {
-                  label: "Export to Sheets",
+                  label: t("saved_keywords.bulk.export_sheets"),
                   icon: <Sheet className="size-4" />,
                   onClick: onExportSheets,
                 },
                 {
-                  label: "Export CSV",
+                  label: t("saved_keywords.bulk.export_csv"),
                   icon: <FileDown className="size-4" />,
                   onClick: onExportCsv,
                 },
@@ -68,7 +70,7 @@ export function SavedKeywordsBulkActionBar({
               onClick={onDelete}
               variant="danger"
             >
-              Delete
+              {t("saved_keywords.bulk.delete_button")}
             </TableBulkActionButton>
           </div>
         </>

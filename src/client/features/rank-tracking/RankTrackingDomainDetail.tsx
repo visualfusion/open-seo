@@ -52,6 +52,7 @@ import {
   normalizeFilterValues,
 } from "@/client/lib/filterSearchParams";
 import { useDebouncedDraft } from "@/client/hooks/useDebouncedDraft";
+import { useLocale } from "@/client/lib/i18n";
 
 function deviceVisibility(
   devices: RankTrackingConfig["devices"],
@@ -90,6 +91,7 @@ export function RankTrackingDomainDetail({
   onSearchChange: (update: Partial<RankTrackingDetailSearch>) => void;
   onEdit: () => void;
 }) {
+  const { t } = useLocale();
   const planStatus = useHostedPlanGate();
   const queryClient = useQueryClient();
   const [showAddKeywords, setShowAddKeywords] = useState(false);
@@ -100,7 +102,6 @@ export function RankTrackingDomainDetail({
   );
   const setFilters = (next: Filters) =>
     onSearchChange(filterValuesToSearch<RankTrackingDetailSearch>(next));
-  // Held here, not in the panel, so closing the panel keeps a pending edit.
   const [filterDraft, setFilterDraft] = useDebouncedDraft(
     filters,
     setFilters,
@@ -108,13 +109,10 @@ export function RankTrackingDomainDetail({
   );
   const comparePeriod =
     search.compare ?? defaultComparePeriod(config.scheduleInterval);
-  // A single-device config has only one device to show.
   const activeDevice =
     config.devices === "both" ? (search.device ?? "desktop") : config.devices;
   const viewMode = search.view ?? "table";
 
-  // The route keys this component by config, so previous data here is always
-  // the same domain at another compare period.
   const resultsQuery = useQuery({
     queryKey: ["rankTrackingResults", projectId, config.id, comparePeriod],
     queryFn: () =>
@@ -127,8 +125,6 @@ export function RankTrackingDomainDetail({
 
   const latestRun = useRankRunPolling(projectId, config.id);
 
-  // Also feeds the History toggle: the matrix view only earns its tab once
-  // there are two checks to compare.
   const { data: matrixCells } = useQuery({
     queryKey: ["rankPositionMatrix", projectId, config.id, activeDevice],
     queryFn: () =>
@@ -166,16 +162,18 @@ export function RankTrackingDomainDetail({
     setShowAddKeywords(false);
     captureClientEvent("rank_tracking:keywords_add");
     toast.success(
-      `${result.added} keyword${result.added !== 1 ? "s" : ""} added`,
+      result.added === 1
+        ? t("ranks.table_ext.added_one")
+        : t("ranks.table_ext.added_many", { count: result.added }),
     );
     if (result.checkScheduledSoon) {
-      toast.info("The scheduled check within the hour covers these keywords");
+      toast.info(t("ranks.table_ext.scheduled_soon_toast"));
     } else if (
       !result.checkTriggered &&
       result.added > 0 &&
       planStatus === "paid"
     ) {
-      toast.info("Use 'Check rankings' to check these keywords");
+      toast.info(t("ranks.table_ext.use_check_rankings_toast"));
     }
   };
 
@@ -197,7 +195,6 @@ export function RankTrackingDomainDetail({
       startCheck({ keywordIds });
       return;
     }
-
     if (isBusy) return;
     setPendingCheck({ count, keywordIds });
   };
@@ -216,13 +213,11 @@ export function RankTrackingDomainDetail({
   );
   const activeFilterCount = countActiveFilters(filters);
   const defaultSortId = showDesktop ? "desktopPosition" : "mobilePosition";
-  // A position sort for the hidden device falls back to the default.
   const sortId =
     (search.sort === "desktopPosition" && !showDesktop) ||
     (search.sort === "mobilePosition" && !showMobile)
       ? undefined
       : search.sort;
-  // Fall back to the table if history disappears (e.g. device switch).
   const effectiveViewMode = historyAvailable ? viewMode : "table";
   const exportFiltered = (format: "csv" | "sheets") =>
     exportRankTracking({
@@ -237,20 +232,15 @@ export function RankTrackingDomainDetail({
   return (
     <div className="space-y-3">
       <RankTrackingChangesAlert />
-
       <RankRunAlerts run={latestRun} />
-
       <FreePlanAlert visible={planStatus === "free"} />
-
       <ScheduledChecksPausedAlert
         hasScheduledCheck={isScheduledRankTrackingInterval(
           config.scheduleInterval,
         )}
       />
 
-      {/* Results card */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-        {/* Domain header */}
         <RankTrackingDetailHeader
           config={config}
           run={run}
@@ -258,7 +248,6 @@ export function RankTrackingDomainDetail({
           hasBothDevices={hasBothDevices}
           activeDevice={activeDevice}
           onActiveDeviceChange={(device) =>
-            // The sort column is per device, so a device switch resets it.
             onSearchChange({ device, sort: undefined, order: undefined })
           }
           comparePeriod={comparePeriod}
@@ -278,7 +267,6 @@ export function RankTrackingDomainDetail({
           </div>
         )}
 
-        {/* Portfolio overview */}
         {(rows?.length ?? 0) > 0 && (
           <RankTrackingOverview
             device={activeDevice}
@@ -287,7 +275,6 @@ export function RankTrackingDomainDetail({
           />
         )}
 
-        {/* Table toolbar */}
         <RankTrackingTableToolbar
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters((c) => !c)}
@@ -305,7 +292,7 @@ export function RankTrackingDomainDetail({
             void navigator.clipboard.writeText(
               filtered.map((r) => r.keyword).join("\n"),
             );
-            toast.success("Keywords copied to clipboard");
+            toast.success(t("ranks.table_ext.keywords_copied"));
           }}
           onCheckNow={() => {
             if (trackedKeywordCount > 0) requestCheck(trackedKeywordCount);
@@ -318,7 +305,6 @@ export function RankTrackingDomainDetail({
           hasData={filtered.length > 0}
         />
 
-        {/* Filters panel */}
         {showFilters && (
           <FilterPanel
             draft={filterDraft}
@@ -328,7 +314,6 @@ export function RankTrackingDomainDetail({
           />
         )}
 
-        {/* Table */}
         <div className="p-4">
           {effectiveViewMode === "history" ? (
             <RankTrackingHistoryMatrix
@@ -342,7 +327,7 @@ export function RankTrackingDomainDetail({
           ) : (
             <QueryState
               query={resultsQuery}
-              errorFallback="Failed to load rank data"
+              errorFallback={t("ranks.table_ext.failed_load_rank_data")}
               loading={<SkeletonCard />}
             >
               {(results) => (

@@ -5,6 +5,7 @@ import {
   KEYWORDS_PER_BATCH,
   SECONDS_PER_BATCH,
 } from "@/shared/rank-tracking";
+import { useLocale } from "@/client/lib/i18n";
 
 export function CheckConfirmModal({
   keywordCount,
@@ -22,6 +23,7 @@ export function CheckConfirmModal({
   onRunNow: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useLocale();
   const dc = devicesCount(devices);
   const totalChecks = keywordCount * dc;
   const liveTime =
@@ -32,22 +34,28 @@ export function CheckConfirmModal({
 
   return (
     <ConfirmDialog
-      title={`Check ${keywordCount} keyword${keywordCount !== 1 ? "s" : ""}?`}
-      confirmLabel="Run now"
+      title={
+        keywordCount === 1
+          ? t("ranks.modals.check_confirm_title_one")
+          : t("ranks.modals.check_confirm_title", { count: keywordCount })
+      }
+      confirmLabel={t("ranks.modals.check_confirm_button")}
       pending={isPending}
       onConfirm={onRunNow}
       onClose={onCancel}
     >
-      {keywordCount} keywords &times; {dc} device{dc !== 1 ? "s" : ""} ={" "}
-      {totalChecks} SERP checks. Results in ~{eta}.
+      {t("ranks.modals.check_confirm_desc", {
+        keywords: keywordCount,
+        devices: dc,
+        total: totalChecks,
+        eta,
+      })}
       {costUsd != null ? (
         <>
           {" "}
-          Costs up to{" "}
-          <span className="font-mono font-semibold text-foreground">
-            ${costUsd.toFixed(2)}
-          </span>
-          .
+          {t("ranks.modals.check_confirm_cost", {
+            cost: costUsd.toFixed(2),
+          })}
         </>
       ) : null}
     </ConfirmDialog>

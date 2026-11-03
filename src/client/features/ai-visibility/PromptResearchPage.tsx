@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRight, Telescope } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { EmptyState } from "@/client/components/EmptyState";
 import { BackLink, PageHeader } from "@/client/components/PageHeader";
 import { SearchCard, SearchInput } from "@/client/components/SearchCard";
@@ -32,6 +33,7 @@ export function PromptResearchPage({
   projectId: string;
   keyword: string | undefined;
 }) {
+  const { t } = useLocale();
   const trackerQuery = useAiVisibilityTracker(projectId);
   const state = trackerQuery.data;
   if (trackerQuery.isPending) return <SkeletonPageContent />;
@@ -47,15 +49,15 @@ export function PromptResearchPage({
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Prompt Research"
-        description="Find the questions people ask AI about your market, and the sites the answers cite."
+        title={t("ai_visibility.research_title")}
+        description={t("ai_visibility.research_description")}
         backLink={
           keyword && state?.configured ? (
             <BackLink
               to="/p/$projectId/ai-visibility/research"
               params={{ projectId }}
             >
-              Relevant keywords
+              {t("ai_visibility.relevant_keywords")}
             </BackLink>
           ) : undefined
         }
@@ -63,8 +65,12 @@ export function PromptResearchPage({
       {!state?.configured ? (
         <EmptyState
           icon={Telescope}
-          title="Prompt research starts with a tracker"
-          description="Set up prompt tracking to research prompts for your topics."
+          title={t(
+            "ai_visibility.details.prompt_research_starts_with_a_tracker",
+          )}
+          description={t(
+            "ai_visibility.details.set_up_prompt_tracking_your_topics",
+          )}
           action={
             <Button
               size="sm"
@@ -73,7 +79,7 @@ export function PromptResearchPage({
                 <Link to="/p/$projectId/ai-visibility" params={{ projectId }} />
               }
             >
-              Set up prompt tracking
+              {t("ai_visibility.details.set_up_prompt_tracking")}
             </Button>
           }
         />
@@ -103,14 +109,15 @@ export function PromptResearchPage({
 }
 
 function KeywordList({ projectId }: { projectId: string }) {
+  const { t } = useLocale();
   const navigate = useNavigate();
   const query = useQuery(aiResearchKeywordsQueryOptions(projectId));
   return (
     <div className="overflow-hidden rounded-lg border bg-card border-border">
       <div className="border-b p-4 border-border">
-        <h2 className="font-medium">Relevant keywords</h2>
+        <h2 className="font-medium">{t("ai_visibility.relevant_keywords")}</h2>
         <p className="text-sm text-muted-foreground">
-          Select a keyword to see the prompts people ask AI about it.
+          {t("ai_visibility.details.select_a_keyword_to_ask_ai")}
         </p>
       </div>
       {query.isPending ? (
@@ -124,15 +131,15 @@ function KeywordList({ projectId }: { projectId: string }) {
         />
       ) : !query.data.keywords.length ? (
         <p className="p-10 text-center text-sm text-muted-foreground">
-          Add topics to your tracker, or search a keyword above.
+          {t("ai_visibility.details.add_topics_to_your_keyword_above")}
         </p>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Keyword</TableHead>
+              <TableHead>{t("domain.keywords_table.keyword")}</TableHead>
               <TableHead className="w-10">
-                <span className="sr-only">Open</span>
+                <span className="sr-only">{t("reports.open")}</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -181,6 +188,7 @@ function KeywordSearch({
   projectId: string;
   keyword: string | undefined;
 }) {
+  const { t } = useLocale();
   const navigate = useNavigate();
   const [draft, setDraft] = useState(keyword ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -205,7 +213,7 @@ function KeywordSearch({
           id="ai-keyword-research-cost"
           className="text-xs text-muted-foreground"
         >
-          About $0.25 in credits per keyword.
+          {t("ai_visibility.details.about_0_25_in_credits_per_keyword")}
         </p>
       }
     >
@@ -215,8 +223,8 @@ function KeywordSearch({
           setDraft(event.target.value);
           setError(null);
         }}
-        placeholder="Enter a keyword"
-        aria-label="Keyword"
+        placeholder={t("keywords.search_bar.placeholder")}
+        aria-label={t("domain.keywords_table.keyword")}
         aria-invalid={error ? true : undefined}
         aria-describedby={
           error

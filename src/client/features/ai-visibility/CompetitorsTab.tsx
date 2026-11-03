@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -31,6 +32,7 @@ export function CompetitorsTab({
   runId: string | undefined;
   collecting: boolean;
 }) {
+  const { t } = useLocale();
   const [selectedEngines, setSelectedEngines] = useState<AiEngine[] | null>(
     null,
   );
@@ -64,13 +66,13 @@ export function CompetitorsTab({
             nativeButton={false}
             render={<Link to="/p/$projectId/context" params={{ projectId }} />}
           >
-            Manage competitors
+            {t("ai_visibility.manage_competitors")}
           </Button>
         }
       >
         {runId && state.engines.length > 1 && (
           <EngineFilter
-            label="Filter engine"
+            label={t("ai_visibility.filter_engine")}
             engines={state.engines}
             value={engines}
             onChange={setSelectedEngines}
@@ -84,17 +86,17 @@ export function CompetitorsTab({
       ) : runId && !rows.length ? (
         <p className="p-10 text-center text-sm text-muted-foreground">
           {collecting
-            ? "Collecting answers. Brands appear here as answers arrive."
-            : "No answers match these filters."}
+            ? t("ai_visibility.collecting_competitors")
+            : t("ai_visibility.no_competitors_match")}
         </p>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Brand</TableHead>
-              <TableHead>Mentioned in</TableHead>
-              <TableHead>Cited in</TableHead>
-              <TableHead>Avg. position</TableHead>
+              <TableHead>{t("ai_visibility.col_brand")}</TableHead>
+              <TableHead>{t("ai_visibility.col_mentioned_in")}</TableHead>
+              <TableHead>{t("ai_visibility.col_cited_in")}</TableHead>
+              <TableHead>{t("ai_visibility.col_avg_position")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -106,7 +108,7 @@ export function CompetitorsTab({
                     {name}
                     {own && (
                       <Badge variant="secondary" className="ml-2">
-                        You
+                        {t("ai_visibility.badge_you")}
                       </Badge>
                     )}
                   </span>
@@ -130,7 +132,7 @@ export function CompetitorsTab({
                   colSpan={4}
                   className="py-8 text-center text-muted-foreground"
                 >
-                  No competitors saved yet. Use Manage competitors to add them.
+                  {t("ai_visibility.details.no_competitors_saved_yet_add_them")}
                 </TableCell>
               </TableRow>
             )}
@@ -139,15 +141,15 @@ export function CompetitorsTab({
       )}
       {!runId && (
         <p className="border-t border-border p-4 text-sm text-muted-foreground">
-          Run{" "}
+          {t("ai_visibility.details.run")}{" "}
           <Link
             to="/p/$projectId/ai-visibility"
             params={{ projectId }}
             className="text-foreground underline underline-offset-4"
           >
-            prompt tracking
+            {t("ai_visibility.details.prompt_tracking")}
           </Link>{" "}
-          to see how often AI answers mention and cite your competitors.
+          {t("ai_visibility.details.to_see_how_often_cite_your")}
         </p>
       )}
       {runId && (
@@ -164,5 +166,5 @@ export function CompetitorsTab({
 function share(count: number, total: number) {
   return total
     ? `${count} / ${total} (${Math.round((count / total) * 100)}%)`
-    : "No answers";
+    : getTranslation("ai_visibility.details.no_answers");
 }

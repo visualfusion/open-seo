@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -33,6 +34,7 @@ const COLLAPSED_MAX_PX = 240;
  * emitting `javascript:` payloads.
  */
 export function MarkdownAnswer({ text }: Props) {
+  const { t } = useLocale();
   const contentRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [needsCollapse, setNeedsCollapse] = useState(false);
@@ -50,7 +52,7 @@ export function MarkdownAnswer({ text }: Props) {
   if (normalized.trim().length === 0 && thinking.length === 0) {
     return (
       <p className="text-sm text-muted-foreground italic">
-        Model returned an empty response.
+        {t("brand_lookup.details.model_returned_an_empty_response")}
       </p>
     );
   }
@@ -100,12 +102,12 @@ export function MarkdownAnswer({ text }: Props) {
           {expanded ? (
             <>
               <ChevronUp data-icon="inline-start" />
-              Show less
+              {t("ui.expandable_list.show_less")}
             </>
           ) : (
             <>
               <ChevronDown data-icon="inline-start" />
-              Read more
+              {t("brand_lookup.details.read_more")}
             </>
           )}
         </Button>
@@ -115,6 +117,7 @@ export function MarkdownAnswer({ text }: Props) {
 }
 
 function ThinkingBlock({ text }: { text: string }) {
+  const { t } = useLocale();
   return (
     <Collapsible
       defaultOpen
@@ -122,7 +125,7 @@ function ThinkingBlock({ text }: { text: string }) {
     >
       <CollapsibleTrigger className="group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50">
         <ChevronDown className="size-3.5 transition-transform group-data-panel-open:rotate-180" />
-        Model Thinking
+        {t("brand_lookup.details.model_thinking")}
       </CollapsibleTrigger>
       <CollapsibleContent>
         <pre className="overflow-x-auto rounded-b-lg border-t border-border bg-muted/60 px-3 py-2.5 font-mono text-xs break-words whitespace-pre-wrap text-foreground/80">

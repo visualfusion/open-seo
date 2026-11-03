@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/client/components/ui/table";
 import { LocalPointStatus } from "@/shared/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 import type { LocalGridDisplayPoint } from "./LocalRankGrid";
 
 type PointResult = Awaited<ReturnType<typeof getLocalScan>>["results"][number];
@@ -34,12 +35,15 @@ export function LocalPointResults({
   gridSize: number;
   spacingKm: number;
 }) {
+  const { locale, t } = useLocale();
   return (
     <Card className="h-full min-h-0 min-w-0 gap-0 overflow-hidden py-0 shadow-none">
       <CardHeader className="shrink-0 items-center gap-2 px-4 py-3">
-        <CardTitle className="text-sm">Results</CardTitle>
+        <CardTitle className="text-sm">
+          {t("local_seo.point_results.title")}
+        </CardTitle>
         <CardAction className="row-span-1 self-center text-xs text-muted-foreground">
-          {searchedFrom(point, gridSize, spacingKm)}
+          {searchedFrom(point, gridSize, spacingKm, t)}
         </CardAction>
       </CardHeader>
       <div className="min-h-0 flex-1 overflow-y-auto border-t border-border">
@@ -48,28 +52,28 @@ export function LocalPointResults({
             variant="plain"
             title={
               point.status === LocalPointStatus.Pending
-                ? "Search pending"
-                : "Search failed"
+                ? t("local_seo.point_results.pending_title")
+                : t("local_seo.point_results.failed_title")
             }
             description={
               point.status === LocalPointStatus.Pending
-                ? "The saved scan will update when results arrive."
-                : "This point has no ranking result. Other points remain available."
+                ? t("local_seo.point_results.pending_desc")
+                : t("local_seo.point_results.failed_desc")
             }
           />
         ) : results.length === 0 ? (
           <EmptyState
             variant="plain"
-            title="No listings returned"
-            description="Google Maps returned no businesses at this coordinate."
+            title={t("local_seo.point_results.no_listings_title")}
+            description={t("local_seo.point_results.no_listings_desc")}
           />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Rank</TableHead>
-                <TableHead>Business</TableHead>
-                <TableHead>Reviews</TableHead>
+                <TableHead>{t("local_seo.point_results.rank")}</TableHead>
+                <TableHead>{t("local_seo.point_results.business")}</TableHead>
+                <TableHead>{t("local_seo.point_results.reviews")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -93,7 +97,9 @@ export function LocalPointResults({
                   <TableCell className="text-xs">
                     <p>{result.rating == null ? "—" : `${result.rating} ★`}</p>
                     <p className="text-muted-foreground">
-                      {result.reviews?.toLocaleString() ?? "—"}
+                      {result.reviews?.toLocaleString(
+                        locale === "de" ? "de-DE" : "en-US",
+                      ) ?? "—"}
                     </p>
                   </TableCell>
                 </TableRow>
@@ -111,15 +117,20 @@ function searchedFrom(
   point: LocalGridDisplayPoint,
   gridSize: number,
   spacingKm: number,
+  t: (key: string, params?: Record<string, string | number>) => string,
 ) {
   const center = (gridSize - 1) / 2;
   const north = (center - point.row) * spacingKm;
   const east = (point.col - center) * spacingKm;
   const parts = [
-    north && `${Math.abs(north)} km ${north > 0 ? "north" : "south"}`,
-    east && `${Math.abs(east)} km ${east > 0 ? "east" : "west"}`,
+    north &&
+      `${Math.abs(north)} km ${north > 0 ? t("local_seo.point_results.north") : t("local_seo.point_results.south")}`,
+    east &&
+      `${Math.abs(east)} km ${east > 0 ? t("local_seo.point_results.east") : t("local_seo.point_results.west")}`,
   ].filter(Boolean);
   return parts.length
-    ? `Searched ${parts.join(", ")} of your listing`
-    : "Searched from your listing";
+    ? t("local_seo.point_results.searched_relative", {
+        offset: parts.join(", "),
+      })
+    : t("local_seo.point_results.searched_from_listing");
 }

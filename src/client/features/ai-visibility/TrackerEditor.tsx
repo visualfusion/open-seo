@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
@@ -62,6 +63,7 @@ export function TrackerEditor({
   onClose: () => void;
   onSaved: (state: AiTrackerState, run?: AiRun) => void;
 }) {
+  const { t } = useLocale();
   const adding = mode === TrackerEditorMode.Prompts;
   const [generating, setGenerating] = useState(false);
   const [review, setReview] = useState<TrackerSetupReviewData | null>(null);
@@ -153,13 +155,15 @@ export function TrackerEditor({
       <DialogContent className="sm:max-w-xl" showCloseButton={false}>
         <DialogHeader className="flex-row items-center justify-between gap-3">
           <DialogTitle className="text-lg">
-            {adding ? "Add prompts" : "Tracking settings"}
+            {adding
+              ? t("ai_visibility.add_prompts")
+              : t("ai_visibility.tracking_settings")}
           </DialogTitle>
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Close setup"
+            aria-label={t("ai_visibility.details.close_setup")}
             disabled={save.isPending || generating}
             onClick={onClose}
           >
@@ -168,13 +172,13 @@ export function TrackerEditor({
         </DialogHeader>
         {!adding && !review && (
           <p className="text-sm text-muted-foreground">
-            Brand details and competitors come from{" "}
+            {t("ai_visibility.details.brand_details_and_competitors_come_from")}{" "}
             <Link
               to="/p/$projectId/context"
               params={{ projectId }}
               className="text-foreground underline underline-offset-4"
             >
-              project context
+              {t("context.website_setup.review_subtitle_link")}
             </Link>
             .
           </p>
@@ -182,8 +186,7 @@ export function TrackerEditor({
         {!adding && !review && schedule}
         {!state.providerConfigured && (
           <p className="rounded-lg bg-muted px-4 py-3 text-sm">
-            An administrator needs to configure the DataForSEO API key before we
-            can collect data.
+            {t("ai_visibility.details.an_administrator_needs_to_key_before")}
           </p>
         )}
         {review ? (
@@ -237,13 +240,15 @@ export function TrackerEditor({
                           onGeneratingChange={setGenerating}
                         />
                         <p className="text-xs text-muted-foreground">
-                          Manage the active AI engines and country in{" "}
+                          {t(
+                            "ai_visibility.details.manage_the_active_ai_country_in",
+                          )}{" "}
                           <button
                             type="button"
                             className="text-foreground underline underline-offset-4"
                             onClick={onManageTracking}
                           >
-                            Tracking settings
+                            {t("ai_visibility.tracking_settings")}
                           </button>
                           .
                         </p>
@@ -269,7 +274,9 @@ export function TrackerEditor({
                 {prepare.isPending && (
                   <Loader2 className="size-4 animate-spin" />
                 )}
-                {adding ? "Review prompts" : "Review changes"}
+                {adding
+                  ? t("ai_visibility.details.review_prompts")
+                  : t("ai_visibility.details.review_changes")}
               </Button>
             </DialogFooter>
           </form>

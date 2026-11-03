@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { Sparkles } from "lucide-react";
 import { Badge } from "@/client/components/ui/badge";
 import { exportRows } from "@/client/lib/exportRows";
@@ -9,31 +10,29 @@ import type {
 } from "@/types/schemas/rank-tracking";
 
 const FEATURE_SHORT_LABELS: Record<string, string> = {
-  featured_snippet: "FS",
-  people_also_ask: "PAA",
-  ai_overview: "AI",
-  local_pack: "Local",
-  knowledge_panel: "KP",
-  video: "Video",
-  images: "Img",
-  shopping: "Shop",
-  top_stories: "News",
+  featured_snippet: "ranks.details.serp_featured_snippet_short",
+  people_also_ask: "ranks.details.serp_people_also_ask_short",
+  ai_overview: "ranks.details.serp_ai_overview_short",
+  local_pack: "ranks.details.serp_local_pack_short",
+  knowledge_panel: "ranks.details.serp_knowledge_panel_short",
+  video: "ranks.details.serp_video_short",
+  images: "ranks.details.serp_images_short",
+  shopping: "ranks.details.serp_shopping_short",
+  top_stories: "ranks.details.serp_top_stories_short",
 };
-
 const FEATURE_TOOLTIPS: Record<string, string> = {
-  featured_snippet:
-    "Featured Snippet — highlighted answer box at top of results",
-  people_also_ask: "People Also Ask — expandable related questions",
-  ai_overview: "AI Overview — AI-generated summary at top of search",
-  local_pack: "Local Pack — map with local business listings",
-  knowledge_panel: "Knowledge Panel — info box about an entity",
-  video: "Video — video results shown in the SERP",
-  images: "Images — image results shown in the SERP",
-  shopping: "Shopping — product listings with prices",
-  top_stories: "Top Stories — news articles carousel",
+  featured_snippet: "ranks.details.serp_featured_snippet_tooltip",
+  people_also_ask: "ranks.details.serp_people_also_ask_tooltip",
+  ai_overview: "ranks.details.serp_ai_overview_tooltip",
+  local_pack: "ranks.details.serp_local_pack_tooltip",
+  knowledge_panel: "ranks.details.serp_knowledge_panel_tooltip",
+  video: "ranks.details.serp_video_tooltip",
+  images: "ranks.details.serp_images_tooltip",
+  shopping: "ranks.details.serp_shopping_tooltip",
+  top_stories: "ranks.details.serp_top_stories_tooltip",
 };
-
 export function SerpFeatureTags({ features }: { features: string[] }) {
+  const { t } = useLocale();
   const notable = features.filter((f) => f in FEATURE_SHORT_LABELS);
   if (notable.length === 0) return null;
   return (
@@ -44,10 +43,10 @@ export function SerpFeatureTags({ features }: { features: string[] }) {
           variant="secondary"
           size="sm"
           className="cursor-help"
-          title={FEATURE_TOOLTIPS[f] ?? f}
+          title={t(FEATURE_TOOLTIPS[f])}
         >
           {f === "ai_overview" && <Sparkles />}
-          {FEATURE_SHORT_LABELS[f]}
+          {t(FEATURE_SHORT_LABELS[f])}
         </Badge>
       ))}
     </div>
@@ -59,6 +58,7 @@ export function DeviceRankCell({
 }: {
   result: RankTrackingDeviceResult;
 }) {
+  const { t } = useLocale();
   const { position, previousPosition } = result;
 
   // Nothing at all
@@ -75,7 +75,7 @@ export function DeviceRankCell({
         </span>
         <span className="text-muted-foreground/60">→</span>
         <span className="font-mono rounded px-1.5 py-0.5 text-xs font-semibold bg-destructive/15 text-destructive">
-          lost
+          {t("ranks.table_ext.lost_badge")}
         </span>
       </span>
     );
@@ -167,7 +167,9 @@ function buildRankTrackingExport(
     "Keyword",
     // Exports lack the table's tooltip, so name the city inline.
     locationName
-      ? `Local volume (${formatLocationLabel(locationName, 2)})`
+      ? getTranslation("ranks.details.local_volume_value", undefined, {
+          v1: formatLocationLabel(locationName, 2),
+        })
       : "Volume",
     "KD",
     "CPC",

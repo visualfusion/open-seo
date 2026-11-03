@@ -1,3 +1,4 @@
+import { getCurrentLocale, useLocale } from "@/client/lib/i18n";
 import { Line, LineChart } from "recharts";
 import {
   ChartGrid,
@@ -13,19 +14,20 @@ import {
 import type { AiTrend } from "@/shared/ai-visibility";
 
 export const trendSeries = [
-  { key: "mentionRate", label: "Brand mentions", color: "#2563eb" },
-  { key: "citationRate", label: "Owned citations", color: "#e69f00" },
+  {
+    key: "mentionRate",
+    label: "ai_visibility.brand_mentions",
+    color: "#2563eb",
+  },
+  {
+    key: "citationRate",
+    label: "ai_visibility.owned_citations",
+    color: "#e69f00",
+  },
 ] as const;
 
-const chartConfig: ChartConfig = Object.fromEntries(
-  trendSeries.map((series) => [
-    series.key,
-    { label: series.label, color: series.color },
-  ]),
-);
-
 const shortDate = (value: string | number) =>
-  new Date(value).toLocaleDateString(undefined, {
+  new Date(value).toLocaleDateString(getCurrentLocale(), {
     month: "short",
     day: "numeric",
   });
@@ -36,6 +38,13 @@ const shortDate = (value: string | number) =>
  * leaves a gap, not a zero.
  */
 export function VisibilityTrendChart({ trend }: { trend: AiTrend }) {
+  const { t } = useLocale();
+  const chartConfig: ChartConfig = Object.fromEntries(
+    trendSeries.map((series) => [
+      series.key,
+      { label: t(series.label), color: series.color },
+    ]),
+  );
   const start = Date.parse(trend.current.start);
   const latestByDay = new Map<string, AiTrend["runs"][number]>();
   // Runs arrive oldest first; a later run replaces that day's earlier point.
@@ -47,13 +56,18 @@ export function VisibilityTrendChart({ trend }: { trend: AiTrend }) {
     time: Date.parse(run.createdAt),
     mentionRate: run.mentionRate,
     citationRate: run.citationRate,
-    collected: `${run.coverage.answered} of ${run.coverage.expected} answers collected`,
+    collected: t("ai_visibility.details.value_of_value_answers_collected", {
+      v1: run.coverage.answered,
+      v2: run.coverage.expected,
+    }),
   }));
   return (
     <ChartContainer
       config={chartConfig}
       className="h-[220px]"
-      aria-label="Daily brand mention and owned citation rate"
+      aria-label={t(
+        "ai_visibility.details.daily_brand_mention_and_owned_citation_rate",
+      )}
     >
       <LineChart data={data} margin={{ left: 0, right: 12, top: 8, bottom: 0 }}>
         <ChartGrid />

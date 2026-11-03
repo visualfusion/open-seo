@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useId, useState } from "react";
 import { FormDialog } from "@/client/components/FormDialog";
 import { Button } from "@/client/components/ui/button";
@@ -14,25 +15,26 @@ export function RenameTopicDialog({
   onClose: () => void;
   onRename: (name: string) => void;
 }) {
+  const { t } = useLocale();
   const formId = useId();
   const inputId = useId();
   const [name, setName] = useState(topic);
   const next = name.trim();
   return (
     <FormDialog
-      title="Rename topic"
+      title={t("ai_visibility.topic_rename")}
       onClose={onClose}
       actions={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             type="submit"
             form={formId}
             disabled={!next || next === topic}
           >
-            Rename
+            {t("ai_visibility.details.rename")}
           </Button>
         </>
       }
@@ -45,7 +47,9 @@ export function RenameTopicDialog({
         }}
       >
         <Field>
-          <FieldLabel htmlFor={inputId}>Topic name</FieldLabel>
+          <FieldLabel htmlFor={inputId}>
+            {t("ui.ai_visibility_ext.rename_topic.label")}
+          </FieldLabel>
           <Input
             id={inputId}
             autoFocus

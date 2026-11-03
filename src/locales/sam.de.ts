@@ -1,4 +1,31 @@
 export const samDe = {
+  message_copied: "Nachricht kopiert",
+  copy_message: "Nachricht kopieren",
+  edit_message: "Nachricht bearbeiten",
+  edit_and_resend: "Bearbeiten und erneut senden",
+  undo_from_message: "Ab dieser Nachricht rückgängig machen",
+  undo_title: "Rückgängig – diese Nachricht und alle darauffolgenden entfernen",
+  thinking: "Denkt nach…",
+  thought_process: "Denkprozess",
+  activating_skill: "Aktiviert {skill}",
+  skill_label: "Skill: {skill}",
+  save_and_resend: "Speichern & erneut senden",
+  setup_gate: {
+    guide_link: "Einrichtungsanleitung für den OpenRouter API-Key",
+    confirm_key: "API-Key bestätigen",
+    open_keys: "OpenRouter-Keys öffnen",
+    title: "KI-Funktionen aktivieren",
+    everyapp_p1_prefix:
+      "SAM, der integrierte KI-Agent von OpenSEO, nutzt OpenRouter über dein Every-App-Gateway. Ein Administrator erstellt einen Schlüssel bei OpenRouter, hinterlegt ihn auf dem Gateway mit ",
+    everyapp_p1_suffix: " und bestätigt ihn anschließend hier.",
+    selfhosted_p1_prefix:
+      "SAM, der integrierte KI-Agent von OpenSEO, benötigt einen OpenRouter API-Key. Erstelle einen Schlüssel bei OpenRouter, setze ihn als Umgebungsvariable ",
+    selfhosted_p1_suffix:
+      ", starte OpenSEO neu und bestätige ihn anschließend hier.",
+    guide_prefix:
+      "Eine Schritt-für-Schritt-Anleitung für jede Umgebung findest du in der ",
+    guide_suffix: ".",
+  },
   help: {
     command_copied: "Befehl kopiert",
     copy_command: "Befehl kopieren",
@@ -67,6 +94,48 @@ export const samDe = {
   },
   reconnect: "Neu verbinden",
   reconnecting: "Verbinde neu…",
+  placeholder: "Frag SAM nach Recherchen, Analysen oder Rankings…",
+  stop: "Stopp",
+  stopped_error: "SAM hat vor Abschluss dieser Antwort gestoppt.",
+  send: "Nachricht senden",
+  beta_gate: {
+    title: "SAM ist in der Beta",
+    p1: "SAM verpackt den OpenSEO MCP und die Skills in ein Chatfenster. Der KI-Agent, den du bereits nutzt – wie Claude Code, ChatGPT, Grok Bot oder Hermes –, führt genau dieselben Werkzeuge auf einer deutlich leistungsfähigeren Umgebung aus. Wir empfehlen, OpenSEO dort zu nutzen.",
+    p2: "Du kannst SAM trotzdem direkt hier verwenden, allerdings befindet er sich noch in einem frühen Stadium.",
+    setup_agent: "Deinen Agenten einrichten",
+    use_anyway: "SAM trotzdem nutzen",
+  },
+  setup_status_error:
+    "Einrichtungsstatus des KI-Agenten konnte nicht geladen werden.",
+  load_chats_error: "Deine Chats konnten nicht geladen werden.",
+  start_chat_error: "Neuer Chat konnte nicht gestartet werden.",
+  chat_missing_desc: "Dieser Chat wurde archiviert oder existiert nicht.",
+  go_to_latest_chat: "Zum letzten Chat wechseln",
+  project_memory: "Projekt-Gedächtnis",
+  suggestions: {
+    q1: "Auf welche Keywords sollte ich mich als Nächstes konzentrieren?",
+    q2: "Wer sind meine wichtigsten SERP-Wettbewerber?",
+    q3: "Wie entwickelt sich mein Search-Console-Traffic?",
+    q4: "Finde Quick-Win-Keywords, für die ich bereits ranke",
+  },
+  rewind_error:
+    "Unterhaltung konnte nicht geändert werden. Bitte erneut versuchen.",
+  clear_history_dev: "Verlauf leeren (Dev)",
+  intro_p1:
+    "Hi, ich bin SAM – dein integrierter SEO-Agent. Ich kann Keywords recherchieren, Wettbewerber analysieren, deine SERPs, Backlinks, dein Rank-Tracking und deine Search Console auswerten und daraus konkrete nächste Schritte für dieses Projekt ableiten.",
+  intro_p2: "Frag mich alles oder starte mit einem dieser Vorschläge:",
+  saving_cut_off: "Abgebrochene Antwort wird gespeichert…",
+  lost_connection: "Verbindung zu SAM verloren.",
+  beta: "Beta",
+  dismiss: "Ausblenden",
+  sidebar_beta_desc:
+    "Für noch leistungsfähigere KI-Workflows kannst du den OpenSEO MCP mit deinem eigenen Agenten wie Claude Code oder Hermes nutzen.",
+  sidebar_setup_mcp: "MCP einrichten →",
+  sidebar_opt_in_hint:
+    "Deine Chats erscheinen hier, sobald du der Beta beitrittst.",
+  new_chat: "Neuer Chat",
+  sidebar_empty: "Noch keine Chats. Starte einen neuen.",
+  archive_chat: "Chat archivieren",
   support: {
     eyebrow: "Hilfe & Community",
     title: "Wir freuen uns auf dein Feedback",

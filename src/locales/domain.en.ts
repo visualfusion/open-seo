@@ -10,6 +10,19 @@ export const domainEn = {
     subdomains_desc: "The domain plus all its subdomains",
     aria_label: "Research scope",
   },
+  keywords_table: {
+    keyword: "Keyword",
+    rank: "Rank",
+    volume: "Volume",
+    traffic: "Traffic",
+    cpc: "CPC",
+    cpc_help: "Cost per click in USD.",
+    url: "URL",
+    score: "Score",
+    score_help:
+      "Organic ranking difficulty (0-100): higher means harder to reach Google's top 10.",
+    empty_title: "No keywords match this search.",
+  },
   pages_table: {
     page: "Page",
     organic_traffic: "Organic Traffic",
@@ -40,19 +53,6 @@ export const domainEn = {
     over_limit_title:
       "This scope leaves room for at most {maxConditions} filter conditions per request",
     apply_filters: "Apply filters",
-  },
-  keywords_table: {
-    keyword: "Keyword",
-    rank: "Rank",
-    volume: "Volume",
-    traffic: "Traffic",
-    cpc: "CPC",
-    cpc_help: "Cost per click in USD.",
-    url: "URL",
-    score: "Score",
-    score_help:
-      "Organic ranking difficulty (0-100): higher means harder to reach Google's top 10.",
-    empty_title: "No keywords match this search.",
   },
   sort: {
     rank: "By Rank",

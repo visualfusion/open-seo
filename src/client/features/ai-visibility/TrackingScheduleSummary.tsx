@@ -1,4 +1,5 @@
 import { CalendarClock, Pause } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { Button } from "@/client/components/ui/button";
 import type { AiTracker } from "@/shared/ai-visibility";
 import { scheduleLabel } from "@/shared/rank-tracking";
@@ -18,16 +19,22 @@ export function TrackingScheduleSummary({
   onSchedule: () => void;
   onPause: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <section className="space-y-3">
-      <h3 className="text-sm font-semibold">Schedule</h3>
+      <h3 className="text-sm font-semibold">
+        {t("ai_visibility.schedule_title")}
+      </h3>
       {tracker.enabled ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3">
           <p className="text-sm">
             {scheduleLabel(tracker.scheduleInterval)}
             <span className="text-muted-foreground">
               {" "}
-              · Next run {aiDate(tracker.nextCheckAt)}
+              ·{" "}
+              {t("ai_visibility.next_run", {
+                date: aiDate(tracker.nextCheckAt),
+              })}
             </span>
           </p>
           <div className="flex flex-wrap gap-2">
@@ -39,7 +46,7 @@ export function TrackingScheduleSummary({
               onClick={onPause}
             >
               <Pause />
-              Pause
+              {t("ai_visibility.pause")}
             </Button>
             <Button
               type="button"
@@ -49,7 +56,7 @@ export function TrackingScheduleSummary({
               onClick={onSchedule}
             >
               <CalendarClock />
-              Change schedule
+              {t("ai_visibility.change_schedule")}
             </Button>
           </div>
         </div>
@@ -61,7 +68,7 @@ export function TrackingScheduleSummary({
           onClick={onSchedule}
         >
           <CalendarClock />
-          Schedule tracking
+          {t("ai_visibility.schedule_tracking")}
         </Button>
       )}
     </section>

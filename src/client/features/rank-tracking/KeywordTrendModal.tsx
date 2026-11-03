@@ -35,6 +35,7 @@ import type { RankKeywordHistoryPoint } from "@/serverFunctions/rank-tracking";
 import { LOCATIONS } from "@/client/features/keywords/locations";
 import { formatLocationLabel } from "@/shared/keyword-locations";
 import { googleSerpUrl } from "@/shared/google-serp-url";
+import { useLocale } from "@/client/lib/i18n";
 import { csvChange, DeviceRankCell } from "./RankTrackingTableParts";
 import {
   RankTrendChart,
@@ -43,12 +44,9 @@ import {
   type TrendSeries,
 } from "./RankTrackingTrendChart";
 
-const DEVICE_STYLE: Record<
-  "desktop" | "mobile",
-  { label: string; color: string }
-> = {
-  desktop: { label: "Desktop", color: "#2563eb" },
-  mobile: { label: "Mobile", color: "#e69f00" },
+const DEVICE_COLOR: Record<"desktop" | "mobile", string> = {
+  desktop: "#2563eb",
+  mobile: "#e69f00",
 };
 
 export interface KeywordTrendTarget {
@@ -77,6 +75,7 @@ export function KeywordTrendModal({
   serpDepth: number;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const [sinceDays, setSinceDays] = useState(730);
 
   const historyQuery = useQuery({
@@ -115,12 +114,16 @@ export function KeywordTrendModal({
     [points, devices],
   );
 
-  const series: TrendSeries[] = devices.map((device) => ({
-    dataKey: device,
-    name: DEVICE_STYLE[device].label,
-    color: DEVICE_STYLE[device].color,
-    strokeDasharray: "4 3",
-  }));
+  const series: TrendSeries[] = useMemo(
+    () =>
+      devices.map((device) => ({
+        dataKey: device,
+        name: device === "desktop" ? t("ranks.desktop") : t("ranks.mobile"),
+        color: DEVICE_COLOR[device],
+        strokeDasharray: "4 3",
+      })),
+    [devices, t],
+  );
 
   const chartData = useMemo(
     () => buildChartData(points, serpDepth),
@@ -146,7 +149,7 @@ export function KeywordTrendModal({
     void navigator.clipboard.writeText(
       buildCsv(HISTORY_HEADERS, historyRows.map(historyExportRow)),
     );
-    toast.success("Copied to clipboard");
+    toast.success(t("ranks.table_ext.copied_clipboard"));
     captureClientEvent("rank_tracking:keyword_trend_copy");
   };
 
@@ -162,12 +165,7 @@ export function KeywordTrendModal({
   };
 
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent showCloseButton={false} className="sm:max-w-3xl">
         <DialogHeader className="flex-row items-start justify-between gap-3">
           <div className="space-y-1">
@@ -177,7 +175,7 @@ export function KeywordTrendModal({
               {locationName
                 ? formatLocationLabel(locationName, 2)
                 : (LOCATIONS[locationCode] ?? "US")}{" "}
-              &middot; Position over time
+              &middot; {t("ranks.view_history")}
             </DialogDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -185,7 +183,7 @@ export function KeywordTrendModal({
               variant="outline"
               size="sm"
               nativeButton={false}
-              title="Search this keyword on Google with the tracked language, country, and city"
+              title={t("ranks.table_ext.open_on_google_title")}
               render={
                 <a
                   href={googleSerpUrl(target.keyword, {
@@ -199,7 +197,7 @@ export function KeywordTrendModal({
               }
             >
               <ExternalLink data-icon="inline-start" />
-              Open on Google
+              {t("ranks.table_ext.open_on_google")}
             </Button>
             <TrendRangeToggle value={sinceDays} onChange={setSinceDays} />
           </div>
@@ -207,7 +205,7 @@ export function KeywordTrendModal({
 
         <QueryState
           query={historyQuery}
-          errorFallback="Failed to load keyword history"
+          errorFallback={t("ranks.overview.failed_to_load")}
           loading={<Skeleton className="h-56 w-full" />}
         >
           {() =>
@@ -221,7 +219,6 @@ export function KeywordTrendModal({
                   serpDepth={serpDepth}
                   showBottomBand
                   valueFormatter={(value, item) => {
-                    // The payload is the chart row, typed `any` upstream.
                     const row: unknown = item.payload;
                     const checkedAt =
                       typeof row === "object" &&
@@ -233,7 +230,7 @@ export function KeywordTrendModal({
                       typeof item.dataKey === "string" &&
                       bottomBandKeys.has(`${checkedAt}:${item.dataKey}`) ? (
                       <span className="font-normal text-muted-foreground">
-                        Not found
+                        {t("ranks.table_ext.not_found")}
                       </span>
                     ) : (
                       String(value)
@@ -244,11 +241,11 @@ export function KeywordTrendModal({
                 <div className="flex items-center justify-end gap-2">
                   <Button variant="ghost" size="xs" onClick={handleCopy}>
                     <Copy data-icon="inline-start" />
-                    Copy
+                    {t("ui.copy_button.copy")}
                   </Button>
                   <Button variant="ghost" size="xs" onClick={handleExport}>
                     <Download data-icon="inline-start" />
-                    Export CSV
+                    {t("saved_keywords.bulk.export_csv")}
                   </Button>
                 </div>
 
@@ -256,18 +253,18 @@ export function KeywordTrendModal({
                   <Table containerClassName="max-h-64">
                     <TableHeader className="sticky top-0 z-10 bg-popover">
                       <TableRow>
-                        <TableHead>Date</TableHead>
-                        {devices.length > 1 && <TableHead>Device</TableHead>}
-                        <TableHead>Position</TableHead>
-                        <TableHead>Δ vs previous check</TableHead>
+                        <TableHead>{t("common.date")}</TableHead>
+                        {devices.length > 1 && (
+                          <TableHead>{t("ranks.filters.device")}</TableHead>
+                        )}
+                        <TableHead>{t("ranks.position")}</TableHead>
+                        <TableHead>
+                          {t("ranks.details.vs")} {t("ranks.previous")}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {historyRows.map((r, idx) => {
-                        // No prior ranking to compare against (first check, or the
-                        // previous check was unranked): show the lone position as a
-                        // centered neutral pill so it doesn't look like a stray number
-                        // next to the "before → after" rows.
                         const noPrevious =
                           r.position !== null && r.previousPosition === null;
                         return (
@@ -277,7 +274,9 @@ export function KeywordTrendModal({
                             </TableCell>
                             {devices.length > 1 && (
                               <TableCell className="text-xs">
-                                {DEVICE_STYLE[r.device].label}
+                                {r.device === "desktop"
+                                  ? t("ranks.desktop")
+                                  : t("ranks.mobile")}
                               </TableCell>
                             )}
                             <TableCell>
@@ -289,10 +288,10 @@ export function KeywordTrendModal({
                                       <span className="cursor-help text-xs text-muted-foreground underline decoration-dotted underline-offset-2" />
                                     }
                                   >
-                                    Not found
+                                    {t("ranks.table_ext.not_found")}
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    Not ranking, or incomplete results
+                                    {t("ranks.table_ext.not_found_tooltip")}
                                   </TooltipContent>
                                 </Tooltip>
                               ) : (
@@ -303,9 +302,6 @@ export function KeywordTrendModal({
                             </TableCell>
                             <TableCell>
                               {noPrevious ? (
-                                // Invisible placeholders matching the "before → after"
-                                // layout so the lone pill lines up under the position
-                                // badge column instead of floating.
                                 <span className="inline-flex items-center gap-1.5">
                                   <span className="w-6" aria-hidden />
                                   <span aria-hidden className="opacity-0">
@@ -421,7 +417,7 @@ const HISTORY_HEADERS = ["Date", "Device", "Position", "Change vs previous"];
 function historyExportRow(row: HistoryRow): CsvValue[] {
   return [
     new Date(row.checkedAt).toISOString(),
-    DEVICE_STYLE[row.device].label,
+    row.device === "desktop" ? "Desktop" : "Mobile",
     row.position ?? "",
     csvChange(row.position, row.previousPosition),
   ];

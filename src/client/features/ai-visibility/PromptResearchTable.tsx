@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useMemo, type ComponentProps } from "react";
 import type {
   ColumnDef,
@@ -21,13 +22,13 @@ import { DomainFavicon } from "./DomainFavicon";
 const promptColumns: ColumnDef<AiResearchedPrompt>[] = [
   {
     id: "prompt",
-    header: "Prompt",
+    header: () => getTranslation("ai_visibility.details.prompt"),
     cell: ({ row: { original: prompt } }) => (
       <>
         <span>{prompt.text}</span>
         {prompt.tracked && (
           <Badge variant="secondary" className="ml-2">
-            Tracked
+            {getTranslation("ai_visibility.details.tracked")}
           </Badge>
         )}
         {prompt.variants.length > 0 && (
@@ -35,8 +36,12 @@ const promptColumns: ColumnDef<AiResearchedPrompt>[] = [
             className="text-xs text-muted-foreground"
             title={prompt.variants.join("\n")}
           >
-            +{prompt.variants.length} similar{" "}
-            {prompt.variants.length === 1 ? "prompt" : "prompts"} merged
+            +
+            {getTranslation(
+              "ai_visibility.details.similar_prompts",
+              undefined,
+              { count: prompt.variants.length },
+            )}
           </p>
         )}
       </>
@@ -44,18 +49,24 @@ const promptColumns: ColumnDef<AiResearchedPrompt>[] = [
   },
   {
     id: "sources",
-    header: "Sources",
+    header: () => getTranslation("ai_visibility.details.sources"),
     meta: { headerClassName: "w-40" },
     cell: ({ row: { original: prompt } }) => (
       <>
         <span className="text-sm">
           {prompt.sources.length
-            ? `${prompt.sources.length} ${prompt.sources.length === 1 ? "source" : "sources"}`
-            : "No sources"}
+            ? getTranslation(
+                prompt.sources.length === 1
+                  ? "ai_visibility.details.source_count"
+                  : "ai_visibility.details.sources_count",
+                undefined,
+                { count: prompt.sources.length },
+              )
+            : getTranslation("ai_visibility.details.no_sources")}
         </span>
         {prompt.ownDomainCited && (
           <Badge variant="success" size="sm" className="ml-2">
-            You
+            {getTranslation("ai_visibility.badge_you")}
           </Badge>
         )}
       </>
@@ -63,14 +74,22 @@ const promptColumns: ColumnDef<AiResearchedPrompt>[] = [
   },
   {
     id: "expand",
-    header: () => <span className="sr-only">Details</span>,
+    header: () => (
+      <span className="sr-only">
+        {getTranslation("ai_visibility.details.details")}
+      </span>
+    ),
     meta: { headerClassName: "w-10" },
     cell: ({ row }) => (
       <Button
         variant="ghost"
         size="icon-sm"
         aria-expanded={row.getIsExpanded()}
-        aria-label={`Show sources for ${row.original.text}`}
+        aria-label={getTranslation(
+          "ai_visibility.details.show_sources",
+          undefined,
+          { prompt: row.original.text },
+        )}
         onClick={() => row.toggleExpanded()}
       >
         {row.getIsExpanded() ? <ChevronDown /> : <ChevronRight />}
@@ -92,16 +111,16 @@ export function PromptResearchTable({
   onRowSelectionChange: OnChangeFn<RowSelectionState>;
   empty: ComponentProps<typeof DataTable>["empty"];
 }) {
+  const { t } = useLocale();
   const selectAnchorRef = useSelectionAnchor();
   const columns = useMemo(
     () => [
-      makeSelectionColumn<AiResearchedPrompt>(
-        selectAnchorRef,
-        (row) => `Select ${row.original.text}`,
+      makeSelectionColumn<AiResearchedPrompt>(selectAnchorRef, (row) =>
+        t("ai_visibility.details.select_prompt", { prompt: row.original.text }),
       ),
       ...promptColumns,
     ],
-    [selectAnchorRef],
+    [selectAnchorRef, t],
   );
   const table = useDataTable({
     data: prompts,
@@ -122,12 +141,13 @@ export function PromptResearchTable({
 }
 
 function PromptSources({ prompt }: { prompt: AiResearchedPrompt }) {
+  const { t } = useLocale();
   return (
     <div className="space-y-2 py-1 pl-10">
       <Badge variant={prompt.brandMentioned ? "success" : "outline"}>
         {prompt.brandMentioned
-          ? "Your brand is mentioned"
-          : "Your brand is not mentioned"}
+          ? t("ai_visibility.details.your_brand_is_mentioned")
+          : t("ai_visibility.details.your_brand_is_not_mentioned")}
       </Badge>
       {prompt.sources.length ? (
         <ul className="space-y-1.5">
@@ -144,7 +164,7 @@ function PromptSources({ prompt }: { prompt: AiResearchedPrompt }) {
               />
               {source.own && (
                 <Badge variant="success" size="sm">
-                  You
+                  {t("ai_visibility.badge_you")}
                 </Badge>
               )}
             </li>
@@ -152,7 +172,7 @@ function PromptSources({ prompt }: { prompt: AiResearchedPrompt }) {
         </ul>
       ) : (
         <p className="text-sm text-muted-foreground">
-          The AI answered from memory and cited no sources.
+          {t("ai_visibility.details.the_ai_answered_from_no_sources")}
         </p>
       )}
     </div>

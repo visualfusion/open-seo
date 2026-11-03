@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useId, useState, type ReactNode } from "react";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2, X } from "lucide-react";
@@ -39,6 +40,7 @@ export function TrackerPatchReview({
   onClose: () => void;
   onSaved: (state: AiTrackerState) => void;
 }) {
+  const { t } = useLocale();
   const estimate = useQuery({
     queryKey: [...aiVisibilityKey(projectId), "changeEstimate", patch],
     queryFn: () => estimateAiVisibilityCost({ data: { projectId, patch } }),
@@ -67,13 +69,15 @@ export function TrackerPatchReview({
     >
       <DialogContent className="sm:max-w-lg" showCloseButton={false}>
         <DialogHeader className="flex-row items-center justify-between gap-3">
-          <DialogTitle className="text-lg">Review tracking change</DialogTitle>
+          <DialogTitle className="text-lg">
+            {t("ai_visibility.details.review_tracking_change")}
+          </DialogTitle>
           <Button
             variant="ghost"
             size="icon-sm"
             disabled={save.isPending}
             onClick={onClose}
-            aria-label="Close review"
+            aria-label={t("ai_visibility.details.close_review")}
           >
             <X />
           </Button>
@@ -106,7 +110,7 @@ export function TrackerPatchReview({
                 disabled={save.isPending}
                 onClick={onClose}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 disabled={
@@ -115,7 +119,7 @@ export function TrackerPatchReview({
                 onClick={() => save.mutate()}
               >
                 {save.isPending && <Loader2 className="size-4 animate-spin" />}
-                Save change
+                {t("ai_visibility.details.save_change")}
               </Button>
             </DialogFooter>
           </>
@@ -143,6 +147,7 @@ export function PromptEditor({
   /** A topic change keeps the prompt and its answers, so it saves directly. */
   onMove: (patch: AiTrackerPatch) => void;
 }) {
+  const { t } = useLocale();
   const [text, setText] = useState(prompt.text);
   const [topic, setTopic] = useState(prompt.topic);
   const textId = useId();
@@ -157,18 +162,22 @@ export function PromptEditor({
     >
       <DialogContent className="sm:max-w-xl" showCloseButton={false}>
         <DialogHeader className="flex-row items-center justify-between gap-3">
-          <DialogTitle className="text-lg">Edit prompt</DialogTitle>
+          <DialogTitle className="text-lg">
+            {t("ai_visibility.prompt_edit")}
+          </DialogTitle>
           <Button
             variant="ghost"
             size="icon-sm"
             onClick={onClose}
-            aria-label="Close prompt editor"
+            aria-label={t("ai_visibility.details.close_prompt_editor")}
           >
             <X />
           </Button>
         </DialogHeader>
         <Field>
-          <FieldLabel htmlFor={textId}>Exact prompt</FieldLabel>
+          <FieldLabel htmlFor={textId}>
+            {t("ai_visibility.details.exact_prompt")}
+          </FieldLabel>
           <Textarea
             id={textId}
             className="min-h-28"
@@ -181,7 +190,7 @@ export function PromptEditor({
         <TopicField topics={state.topics} value={topic} onChange={setTopic} />
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             disabled={
@@ -197,7 +206,9 @@ export function PromptEditor({
             }}
           >
             {pending && <Loader2 className="size-4 animate-spin" />}
-            {reworded ? "Review change" : "Save"}
+            {reworded
+              ? t("ai_visibility.details.review_change")
+              : t("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

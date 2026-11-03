@@ -10,6 +10,19 @@ export const domainDe = {
     subdomains_desc: "Die Domain inklusive aller Subdomains",
     aria_label: "Suchbereich",
   },
+  keywords_table: {
+    keyword: "Keyword",
+    rank: "Position",
+    volume: "Volumen",
+    traffic: "Traffic",
+    cpc: "CPC",
+    cpc_help: "Klickkosten in USD.",
+    url: "URL",
+    score: "Score",
+    score_help:
+      "Organische Ranking-Schwierigkeit (0–100): Je höher, desto schwieriger sind Googles Top 10 zu erreichen.",
+    empty_title: "Keine Keywords entsprechen dieser Suche.",
+  },
   pages_table: {
     page: "Seite",
     organic_traffic: "Organischer Traffic",
@@ -40,19 +53,6 @@ export const domainDe = {
     over_limit_title:
       "Dieser Bereich lässt maximal {maxConditions} Filterbedingungen pro Anfrage zu",
     apply_filters: "Filter anwenden",
-  },
-  keywords_table: {
-    keyword: "Keyword",
-    rank: "Position",
-    volume: "Volumen",
-    traffic: "Traffic",
-    cpc: "CPC",
-    cpc_help: "Klickkosten in USD.",
-    url: "URL",
-    score: "Score",
-    score_help:
-      "Organische Ranking-Schwierigkeit (0–100): Je höher, desto schwieriger sind Googles Top 10 zu erreichen.",
-    empty_title: "Keine Keywords entsprechen dieser Suche.",
   },
   sort: {
     rank: "Nach Position",

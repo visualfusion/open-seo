@@ -16,6 +16,7 @@ import {
 } from "@/client/components/ui/sidebar";
 import { useSamBetaOptIn } from "./samBetaOptIn";
 import { useSamSessions } from "./useSamSessions";
+import { useLocale } from "@/client/lib/i18n";
 
 const BETA_NOTICE_DISMISSED_KEY = "sam-beta-notice-dismissed";
 
@@ -24,6 +25,7 @@ const BETA_NOTICE_DISMISSED_KEY = "sam-beta-notice-dismissed";
 // browser; localStorage is read in an effect so SSR and the first client
 // render stay identical.
 function BetaNotice() {
+  const { t } = useLocale();
   const [dismissed, setDismissed] = useState(true);
   useEffect(() => {
     setDismissed(localStorage.getItem(BETA_NOTICE_DISMISSED_KEY) === "1");
@@ -33,11 +35,11 @@ function BetaNotice() {
   return (
     <div className="mx-2 mb-2 rounded-lg border border-border bg-card p-3">
       <div className="flex items-center justify-between">
-        <Badge>Beta</Badge>
+        <Badge>{t("sam.beta")}</Badge>
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label="Dismiss"
+          aria-label={t("sam.dismiss")}
           className="text-muted-foreground"
           onClick={() => {
             localStorage.setItem(BETA_NOTICE_DISMISSED_KEY, "1");
@@ -48,14 +50,13 @@ function BetaNotice() {
         </Button>
       </div>
       <p className="mt-1.5 text-xs text-muted-foreground">
-        For more powerful AI workflows, use the OpenSEO MCP with your own agent
-        like Claude Code or Hermes.
+        {t("sam.sidebar_beta_desc")}
       </p>
       <Link
         to="/ai"
         className="mt-1.5 inline-block text-xs text-primary underline-offset-4 hover:underline"
       >
-        Set up the MCP →
+        {t("sam.sidebar_setup_mcp")}
       </Link>
     </div>
   );
@@ -98,6 +99,7 @@ export function SamSidebarPanel({
   projectId: string;
   onNavigate?: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const location = useLocation();
   const activeSessionId = (location.search as { s?: string }).s;
@@ -127,7 +129,7 @@ export function SamSidebarPanel({
   if (!optedIn) {
     return (
       <p className="px-4 py-6 text-center text-xs text-muted-foreground">
-        Your chats will show here once you opt in to the beta.
+        {t("sam.sidebar_opt_in_hint")}
       </p>
     );
   }
@@ -145,20 +147,20 @@ export function SamSidebarPanel({
           onClick={() => createSession.mutate()}
         >
           {createSession.isPending ? null : <Plus />}
-          New chat
+          {t("sam.new_chat")}
         </Button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-2 py-1">
         <QueryState
           query={sessionsQuery}
-          errorFallback="Failed to load chats."
+          errorFallback={t("sam.load_chats_error")}
           loading={<SamChatListSkeleton />}
         >
           {(loadedSessions) =>
             loadedSessions.length === 0 ? (
               <p className="px-2 py-6 text-center text-xs text-muted-foreground">
-                No chats yet. Start a new one.
+                {t("sam.sidebar_empty")}
               </p>
             ) : (
               loadedSessions.map((session) => {
@@ -188,7 +190,7 @@ export function SamSidebarPanel({
                       <Button
                         variant="ghost"
                         size="icon-xs"
-                        aria-label="Archive chat"
+                        aria-label={t("sam.archive_chat")}
                         className="text-muted-foreground reveal-on-hover"
                         disabled={archiveSession.isPending}
                         onClick={() => archiveSession.mutate(session.id)}

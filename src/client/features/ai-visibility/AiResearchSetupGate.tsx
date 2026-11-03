@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useEffect, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
@@ -42,6 +43,7 @@ export function AiResearchSetupGate({
   projectId: string;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const setupOptions = aiResearchSetupQueryOptions(projectId);
   const setup = useQuery(setupOptions);
@@ -170,24 +172,27 @@ export function AiResearchSetupGate({
               <Sparkles className="size-5" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Set up AI visibility
+              {t("context.website_setup.title")}
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              We’ll research your brand and find the most relevant topics to
-              monitor.
+              {t("context.website_setup.subtitle")}
             </p>
           </div>
           {getErrorCode(start.error) === "INSUFFICIENT_CREDITS" ? (
-            <InsufficientCreditsError title="We couldn’t set up AI visibility" />
+            <InsufficientCreditsError
+              title={t(
+                "ai_visibility.details.we_couldn_t_set_up_ai_visibility",
+              )}
+            />
           ) : (
             failed && (
               <Alert variant="destructive">
                 <AlertDescription>
                   {unreadable
-                    ? "We couldn’t read this website. Its bot protection may be blocking us. Describe your business below and try again, or check the URL in project settings."
+                    ? t("ai_visibility.details.we_couldn_t_read_protection_may")
                     : isEveryAppClientAuthMode()
-                      ? "We couldn’t finish setting up AI visibility. It needs DataForSEO and OpenRouter on your Every App gateway: if they aren’t set up yet, an owner or admin runs pnpm everyapp secret set DATAFORSEO_API_KEY OPENROUTER_API_KEY. Then try again."
-                      : "We couldn’t finish setting up AI visibility. Try again."}
+                      ? t("ai_visibility.details.we_couldn_t_finish_it_needs")
+                      : t("ai_visibility.details.we_couldn_t_finish_try_again")}
                 </AlertDescription>
               </Alert>
             )
@@ -195,7 +200,7 @@ export function AiResearchSetupGate({
           {unreadable && (
             <Field>
               <FieldLabel htmlFor="business-overview">
-                What you sell, who buys it, and where
+                {t("ai_visibility.details.what_you_sell_who_and_where")}
               </FieldLabel>
               <Textarea
                 id="business-overview"
@@ -206,7 +211,7 @@ export function AiResearchSetupGate({
               />
               {saveOverview.isError && (
                 <p className="text-sm text-destructive">
-                  We couldn’t save your description. Try again.
+                  {t("ai_visibility.details.we_couldn_t_save_try_again")}
                 </p>
               )}
             </Field>
@@ -220,12 +225,14 @@ export function AiResearchSetupGate({
                 overview.trim() ? saveOverview.mutate() : start.mutate()
               }
             >
-              {failed ? "Try again" : "Start research"}
+              {failed
+                ? t("ui.error_boundary.try_again")
+                : t("context.website_setup.submit")}
             </Button>
             <p className="text-xs leading-relaxed text-muted-foreground">
               {isEveryAppClientAuthMode()
-                ? "Research and a first run of your prompts use the DataForSEO and OpenRouter keys on your Every App gateway."
-                : "Research and a first run of your prompts use a small amount of usage credits."}
+                ? t("context.website_setup.footnote_gateway")
+                : t("context.website_setup.footnote_credits")}
             </p>
           </div>
         </CardContent>

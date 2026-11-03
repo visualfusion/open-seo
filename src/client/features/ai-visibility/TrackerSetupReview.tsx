@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/client/components/ui/button";
 import { DialogFooter } from "@/client/components/ui/dialog";
@@ -35,21 +36,26 @@ export function TrackerSetupReview({
   onSave: () => void;
   onSaveAndSchedule: () => void;
 }) {
+  const { t } = useLocale();
   const paused = !enabled && !creating;
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Review your changes before saving.{" "}
+        {t("ai_visibility.details.review_your_changes_before_saving")}{" "}
         {enabled
-          ? "These settings apply to your enabled schedule."
+          ? t(
+              "ai_visibility.details.these_settings_apply_to_your_enabled_schedule",
+            )
           : creating
-            ? "Tracking runs weekly. The first check is a week from now; use Run now for results sooner."
-            : "Track weekly to collect fresh answers once a week. A tracker that has never run on a schedule also runs its first check now."}
+            ? t("ai_visibility.details.tracking_runs_weekly_the_week_from")
+            : t("ai_visibility.details.track_weekly_to_collect_week_a")}
       </p>
       <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 text-sm border-border">
         {review.patch.engines && (
           <div>
-            <dt className="text-muted-foreground">Engines</dt>
+            <dt className="text-muted-foreground">
+              {t("ai_visibility.col_engines")}
+            </dt>
             <dd className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
               {review.patch.engines?.map((engine) => (
                 <EngineLabel key={engine} engine={engine} />
@@ -59,19 +65,25 @@ export function TrackerSetupReview({
         )}
         {review.patch.prompts !== undefined && (
           <div>
-            <dt className="text-muted-foreground">New prompts</dt>
+            <dt className="text-muted-foreground">
+              {t("ai_visibility.details.new_prompts")}
+            </dt>
             <dd className="mt-1">{review.patch.prompts?.length ?? 0}</dd>
           </div>
         )}
         {review.patch.prompts?.[0]?.topic && (
           <div>
-            <dt className="text-muted-foreground">Topic</dt>
+            <dt className="text-muted-foreground">
+              {t("ui.ai_visibility_ext.tracker_editor.topic_label")}
+            </dt>
             <dd className="mt-1">{review.patch.prompts[0].topic}</dd>
           </div>
         )}
         {review.patch.locationCode && review.patch.languageCode && (
           <div>
-            <dt className="text-muted-foreground">Market</dt>
+            <dt className="text-muted-foreground">
+              {t("ai_visibility.details.market")}
+            </dt>
             <dd className="mt-1">
               {aiMarketLabel({
                 locationCode: review.patch.locationCode,
@@ -86,7 +98,9 @@ export function TrackerSetupReview({
           className="max-h-56 space-y-2 overflow-y-auto rounded-lg border p-4 border-border"
           data-ph-mask
         >
-          <h3 className="text-sm font-semibold">Prompts to add</h3>
+          <h3 className="text-sm font-semibold">
+            {t("ai_visibility.details.prompts_to_add")}
+          </h3>
           {review.patch.prompts.map((prompt) => (
             <p
               key={prompt.text}
@@ -99,13 +113,20 @@ export function TrackerSetupReview({
       )}
       <div className="space-y-1 rounded-lg bg-muted/60 p-4 text-sm">
         <p>
-          Each run collects <strong>{review.estimate.observations}</strong>{" "}
-          {review.estimate.observations === 1 ? "answer" : "answers"} for{" "}
+          {t("ai_visibility.details.each_run_collects")}{" "}
+          <strong>{review.estimate.observations}</strong>{" "}
+          {t(
+            review.estimate.observations === 1
+              ? "ai_visibility.details.answer_word"
+              : "ai_visibility.details.answers_word",
+          )}{" "}
+          {t("ai_visibility.details.for")}{" "}
           <strong>{aiMoney(review.estimate.costUsd)}</strong>
         </p>
         <p>
-          <strong>{aiMoney(review.estimate.monthlyCostUsd)}</strong> estimated
-          per month if it runs {review.estimate.scheduleInterval}.
+          <strong>{aiMoney(review.estimate.monthlyCostUsd)}</strong>{" "}
+          {t("ai_visibility.details.estimated_per_month_if_it_runs")}{" "}
+          {t("ranks.schedule." + review.estimate.scheduleInterval)}.
         </p>
       </div>
       {!!error && <AiQueryError error={error} />}
@@ -116,7 +137,7 @@ export function TrackerSetupReview({
           disabled={pending}
           onClick={onBack}
         >
-          Back to editing
+          {t("ai_visibility.details.back_to_editing")}
         </Button>
         <Button
           type="button"
@@ -128,10 +149,10 @@ export function TrackerSetupReview({
             <Loader2 className="size-4 animate-spin" />
           )}
           {enabled
-            ? "Save reviewed changes"
+            ? t("ai_visibility.details.save_reviewed_changes")
             : creating
-              ? "Save and track weekly"
-              : "Save as paused"}
+              ? t("ai_visibility.details.save_and_track_weekly")
+              : t("ai_visibility.details.save_as_paused")}
         </Button>
         {paused && (
           <Button
@@ -144,7 +165,7 @@ export function TrackerSetupReview({
             {pending && scheduling && (
               <Loader2 className="size-4 animate-spin" />
             )}
-            Save and track weekly
+            {t("ai_visibility.details.save_and_track_weekly")}
           </Button>
         )}
       </DialogFooter>

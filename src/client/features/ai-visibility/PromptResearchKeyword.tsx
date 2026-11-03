@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { RowSelectionState } from "@tanstack/react-table";
@@ -23,6 +24,7 @@ export function PromptResearchKeyword({
   state: AiTrackerState;
   keyword: string;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   // The prompts to track and their topic, while the user reviews them.
@@ -71,7 +73,7 @@ export function PromptResearchKeyword({
               icon={<Plus className="size-3.5" />}
               onClick={track}
             >
-              Track prompts
+              {t("ai_visibility.details.track_prompts")}
             </TableBulkActionButton>
           </div>
         }
@@ -92,12 +94,17 @@ export function PromptResearchKeyword({
           ) : undefined
         }
         empty={{
-          title: `No prompts found for “${keyword}”`,
-          description: "Try a shorter, broader term.",
+          title: t("ai_visibility.details.no_prompts_found_for_value", {
+            v1: keyword,
+          }),
+          description: t("ai_visibility.details.try_a_shorter_broader_term"),
         }}
         toolbar={
           <div className="border-b px-4 py-3 border-border">
-            <h2 className="font-medium">Prompts about “{keyword}”</h2>
+            <h2 className="font-medium">
+              {t("ai_visibility.details.prompts_about")}
+              {keyword}”
+            </h2>
           </div>
         }
       />

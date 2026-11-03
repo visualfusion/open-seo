@@ -4,6 +4,7 @@ import { useAppForm } from "@/client/components/form/useAppForm";
 import { QueryError } from "@/client/components/QueryState";
 import { Button } from "@/client/components/ui/button";
 import { updateLocalKeywords } from "@/serverFunctions/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 import { cleanKeywords, LocalKeywordFields } from "./LocalKeywordFields";
 
 export function LocalKeywordsDialog({
@@ -17,6 +18,7 @@ export function LocalKeywordsDialog({
   keywords: { keyword: string }[];
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const save = useMutation({
     mutationFn: (terms: string[]) =>
@@ -38,15 +40,15 @@ export function LocalKeywordsDialog({
   });
   return (
     <FormDialog
-      title="Manage keywords"
+      title={t("local_seo.keywords_dialog.title")}
       onClose={onClose}
       actions={
         <>
           <Button variant="outline" disabled={save.isPending} onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" form="local-keywords" pending={save.isPending}>
-            Save keywords
+            {t("local_seo.keywords_dialog.save")}
           </Button>
         </>
       }
@@ -58,7 +60,7 @@ export function LocalKeywordsDialog({
               <LocalKeywordFields
                 value={field.state.value}
                 onChange={field.handleChange}
-                description="Each check searches every keyword at every point. Results for removed keywords are kept."
+                description={t("local_seo.keywords_dialog.field_description")}
               />
             )}
           </form.Field>
@@ -67,7 +69,7 @@ export function LocalKeywordsDialog({
       {save.isError && (
         <QueryError
           error={save.error}
-          fallback="Could not save these keywords."
+          fallback={t("local_seo.keywords_dialog.error_fallback")}
         />
       )}
     </FormDialog>

@@ -5,12 +5,6 @@ export const searchPerformanceEn = {
     queries: "Queries",
     pages: "Pages",
   },
-  failed_to_load: "Failed to load Search Console data",
-  export_failed: "Export failed",
-  title: "Search Performance",
-  description:
-    "See your site's clicks, impressions, CTR, and position from Google Search Console.",
-  change_property: "Change property",
   filters: {
     toggle_title: "Toggle table filters",
     toggle: "Filters",
@@ -32,6 +26,12 @@ export const searchPerformanceEn = {
     cancel: "Cancel",
     apply: "Apply filters",
   },
+  failed_to_load: "Failed to load Search Console data",
+  export_failed: "Export failed",
+  title: "Search Performance",
+  description:
+    "See your site's clicks, impressions, CTR, and position from Google Search Console.",
+  change_property: "Change property",
   loading_matching: "Loading matching results…",
   columns: {
     query: "Query",

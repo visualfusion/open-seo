@@ -21,6 +21,7 @@ import {
   ToggleGroupItem,
 } from "@/client/components/ui/toggle-group";
 import type { SavedKeywordTag, SavedKeywordTagSummary } from "@/types/keywords";
+import { useLocale } from "@/client/lib/i18n";
 import { TagChip, TagDot } from "./TagChip";
 
 type Mode = "add" | "remove";
@@ -42,6 +43,7 @@ export function SavedKeywordsBulkTagsModal({
   onClose: () => void;
   onApply: (input: { addTags?: string[]; removeTagIds?: string[] }) => void;
 }) {
+  const { t } = useLocale();
   const [mode, setMode] = useState<Mode>("add");
   const [query, setQuery] = useState("");
   const [addNames, setAddNames] = useState<string[]>([]);
@@ -119,10 +121,13 @@ export function SavedKeywordsBulkTagsModal({
     >
       <DialogContent showCloseButton={false} className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Update tags</DialogTitle>
+          <DialogTitle>{t("saved_keywords.bulk.modal_title")}</DialogTitle>
           <DialogDescription>
-            Apply or remove tags across {selectedCount} selected keyword
-            {selectedCount !== 1 ? "s" : ""}.
+            {selectedCount === 1
+              ? t("saved_keywords.bulk.modal_desc_one")
+              : t("saved_keywords.bulk.modal_desc_many", {
+                  count: selectedCount,
+                })}
           </DialogDescription>
         </DialogHeader>
 
@@ -136,10 +141,14 @@ export function SavedKeywordsBulkTagsModal({
           }}
           className="rounded-lg bg-muted p-0.5 ring-1 ring-border ring-inset"
         >
-          <SegmentItem value="add" label="Add tags" count={addNames.length} />
+          <SegmentItem
+            value="add"
+            label={t("saved_keywords.bulk.add_tags_tab")}
+            count={addNames.length}
+          />
           <SegmentItem
             value="remove"
-            label="Remove tags"
+            label={t("saved_keywords.bulk.remove_tags_tab")}
             count={removeIds.length}
             disabled={selectedRowTags.length === 0}
           />
@@ -172,7 +181,7 @@ export function SavedKeywordsBulkTagsModal({
                         )
                       }
                       trailing={<X className="size-3 opacity-70" />}
-                      title="Remove from selection"
+                      title={t("saved_keywords.bulk.remove_from_selection")}
                     />
                   );
                 })}
@@ -185,7 +194,7 @@ export function SavedKeywordsBulkTagsModal({
               </InputGroupAddon>
               <InputGroupInput
                 ref={inputRef}
-                aria-label="Search or create a tag"
+                aria-label={t("saved_keywords.bulk.search_or_create_aria")}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 onKeyDown={(event) => {
@@ -194,7 +203,9 @@ export function SavedKeywordsBulkTagsModal({
                     handleCreate();
                   }
                 }}
-                placeholder="Search or create…"
+                placeholder={t(
+                  "saved_keywords.bulk.search_or_create_placeholder",
+                )}
               />
             </InputGroup>
 
@@ -206,7 +217,9 @@ export function SavedKeywordsBulkTagsModal({
                   onClick={handleCreate}
                 >
                   <Plus data-icon="inline-start" className="text-primary" />
-                  <span className="text-muted-foreground">Create</span>
+                  <span className="text-muted-foreground">
+                    {t("saved_keywords.bulk.create_prefix")}
+                  </span>
                   <span className="font-medium">
                     &ldquo;{trimmedQuery}&rdquo;
                   </span>
@@ -216,8 +229,8 @@ export function SavedKeywordsBulkTagsModal({
               {filteredAvailable.length === 0 && !showCreate ? (
                 <p className="px-3 py-6 text-center text-xs text-muted-foreground">
                   {availableTags.length === 0
-                    ? "No tags yet. Type a name above to create one."
-                    : "No tags match that search."}
+                    ? t("saved_keywords.bulk.no_tags_yet")
+                    : t("saved_keywords.bulk.no_tags_match")}
                 </p>
               ) : null}
 
@@ -252,15 +265,22 @@ export function SavedKeywordsBulkTagsModal({
                     onClick={() => handleToggleRemove(tag)}
                     selected={checked}
                     trailing={checked ? <Check className="size-3" /> : null}
-                    title={checked ? "Will be removed" : "Click to remove"}
+                    title={
+                      checked
+                        ? t("saved_keywords.bulk.will_be_removed")
+                        : t("saved_keywords.bulk.click_to_remove")
+                    }
                   />
                 );
               })}
             </div>
             {removeIds.length > 0 ? (
               <p className="text-xs text-muted-foreground">
-                {removeIds.length} tag{removeIds.length !== 1 ? "s" : ""} will
-                be detached from the selected keywords.
+                {removeIds.length === 1
+                  ? t("saved_keywords.bulk.detach_notice_one")
+                  : t("saved_keywords.bulk.detach_notice_many", {
+                      count: removeIds.length,
+                    })}
               </p>
             ) : null}
           </div>
@@ -268,7 +288,7 @@ export function SavedKeywordsBulkTagsModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             pending={isPending}
@@ -280,7 +300,7 @@ export function SavedKeywordsBulkTagsModal({
               })
             }
           >
-            Apply
+            {t("saved_keywords.bulk.apply")}
           </Button>
         </DialogFooter>
       </DialogContent>

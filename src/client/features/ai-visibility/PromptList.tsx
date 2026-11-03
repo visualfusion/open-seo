@@ -10,6 +10,7 @@ import { Input } from "@/client/components/ui/input";
 import { exportAiVisibilityData } from "@/serverFunctions/ai-visibility";
 import { safeHttpUrl } from "@/shared/safe-url";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import type { AiPrompt, AiRun, AiTrackerState } from "@/shared/ai-visibility";
 import type { AiTrackerPatch } from "@/types/schemas/ai-visibility";
 import { PromptInventory, promptHasResults } from "./PromptInventory";
@@ -36,6 +37,7 @@ export function PromptList({
   onReview: (patch: AiTrackerPatch) => void;
   reducePending: boolean;
 }) {
+  const { t } = useLocale();
   const [search, setSearch] = useState("");
   const results = useQuery(aiRunResultsQueryOptions(projectId, currentRun?.id));
   const exportMutation = useMutation({
@@ -51,7 +53,7 @@ export function PromptList({
     onSuccess: (result) => {
       const url = safeHttpUrl(result.url);
       if (!url) {
-        toast.error("The export link was invalid.");
+        toast.error(t("ai_visibility.export_link_invalid"));
         return;
       }
       const link = document.createElement("a");
@@ -79,15 +81,15 @@ export function PromptList({
             )}
             <Button size="sm" onClick={onSetup}>
               <Plus />
-              Add prompts
+              {t("ai_visibility.add_prompts")}
             </Button>
           </>
         }
       >
         <Input
-          aria-label="Search tracked prompts"
+          aria-label={t("ai_visibility.search_prompts_aria")}
           className="h-7 w-64"
-          placeholder="Search prompts"
+          placeholder={t("ai_visibility.search_prompts")}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
@@ -106,7 +108,7 @@ export function PromptList({
           <Alert variant="info" banner>
             <Info />
             <AlertDescription>
-              Run prompts before interacting with results.
+              {t("ai_visibility.run_prompts_info")}
             </AlertDescription>
           </Alert>
         )}

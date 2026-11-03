@@ -11,6 +11,7 @@ import {
   MAX_LOCAL_KEYWORD_LENGTH,
   MAX_LOCAL_KEYWORDS,
 } from "@/types/schemas/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 
 /** The keywords entered, without blank rows or repeats. */
 export function cleanKeywords(rows: string[]) {
@@ -27,21 +28,26 @@ export function LocalKeywordFields({
   onChange: (rows: string[]) => void;
   description?: string;
 }) {
+  const { t } = useLocale();
   const id = useId();
   // The row "Add keyword" just created, so typing can start right away.
   const [addedRow, setAddedRow] = useState<number | null>(null);
   const setRows = (rows: string[]) => onChange(rows.length ? rows : [""]);
   return (
     <Field>
-      <FieldLabel htmlFor={`${id}-0`}>Keywords to track</FieldLabel>
+      <FieldLabel htmlFor={`${id}-0`}>
+        {t("local_seo.keywords_dialog.field_label")}
+      </FieldLabel>
       {description && <FieldDescription>{description}</FieldDescription>}
       <div className="space-y-2">
         {value.map((keyword, index) => (
           <div key={index} className="flex items-center gap-1">
             <Input
               id={`${id}-${index}`}
-              aria-label={`Keyword ${index + 1}`}
-              placeholder="e.g. pizza delivery"
+              aria-label={t("local_seo.keywords_dialog.keyword_aria", {
+                index: index + 1,
+              })}
+              placeholder={t("local_seo.keywords_dialog.keyword_placeholder")}
               maxLength={MAX_LOCAL_KEYWORD_LENGTH}
               autoFocus={index === addedRow}
               value={keyword}
@@ -73,7 +79,9 @@ export function LocalKeywordFields({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label={`Remove keyword ${index + 1}`}
+              aria-label={t("local_seo.keywords_dialog.remove_keyword_aria", {
+                index: index + 1,
+              })}
               onClick={() =>
                 setRows(value.filter((_, position) => position !== index))
               }
@@ -94,7 +102,7 @@ export function LocalKeywordFields({
           onChange([...value, ""]);
         }}
       >
-        <Plus /> Add keyword
+        <Plus /> {t("local_seo.keywords_dialog.add_keyword")}
       </Button>
     </Field>
   );

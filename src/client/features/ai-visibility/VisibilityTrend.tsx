@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Info, TriangleAlert } from "lucide-react";
 import { cn } from "cn";
+import { useLocale } from "@/client/lib/i18n";
 import { SegmentedToggle } from "@/client/components/SegmentedToggle";
 import { Skeleton } from "@/client/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
@@ -18,26 +19,24 @@ import { EngineLabel } from "./EngineLabel";
 import { trendSeries, VisibilityTrendChart } from "./VisibilityTrendChart";
 import { AiQueryError, type AiTrendDays, aiTrendQueryOptions } from "./shared";
 
-const periods = [
-  { value: "7", icon: null, label: "7d" },
-  { value: "28", icon: null, label: "28d" },
-  { value: "90", icon: null, label: "90d" },
-];
-
 const rate = (value: number | null) =>
   value === null ? "—" : `${Math.round(value)}%`;
 
-function notice(trend: AiTrend, collecting: boolean) {
+function notice(
+  trend: AiTrend,
+  collecting: boolean,
+  t: (key: string, params?: Record<string, string | number>) => string,
+) {
   const { days } = trend;
   switch (trend.comparison) {
     case "incomplete":
-      return `Fewer than 90% of planned answers were collected in one period, so no change is shown. Failed collections never count as lost visibility.`;
+      return t("ai_visibility.incomplete_notice");
     case "scope_changed":
-      return `No prompt and engine has answers for the same market and brand in both periods. The tracked scope changed, so the periods cannot be compared.`;
+      return t("ai_visibility.scope_changed_notice");
     case "no_data":
       return collecting
-        ? "Collecting answers. Visibility appears here when the run finishes."
-        : `There are no finished runs in the last ${days} days.`;
+        ? t("ai_visibility.no_data_collecting")
+        : t("ai_visibility.no_data_days", { days });
     default:
       return null;
   }
@@ -51,21 +50,31 @@ export function VisibilityTrend({
   projectId: string;
   collecting: boolean;
 }) {
+  const { t } = useLocale();
   const [days, setDays] = useState<AiTrendDays>(7);
   const query = useQuery(aiTrendQueryOptions(projectId, days));
   const trend = query.data;
-  const message = trend && notice(trend, collecting);
+  const message = trend && notice(trend, collecting, t);
   // Incomplete collection and a changed scope need attention; missing history does not.
   const warning =
     trend?.comparison === "incomplete" || trend?.comparison === "scope_changed";
+
+  const periodItems = [
+    { value: "7", icon: null, label: t("ai_visibility.period_7d") },
+    { value: "28", icon: null, label: t("ai_visibility.period_28d") },
+    { value: "90", icon: null, label: t("ai_visibility.period_90d") },
+  ];
+
   return (
     <div className="px-4 pt-2 pb-6">
       <section className="space-y-3 rounded-lg border border-border p-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-medium">Visibility over time</h2>
+          <h2 className="text-sm font-medium">
+            {t("ai_visibility.trend_title")}
+          </h2>
           <SegmentedToggle
             showLabels
-            items={periods}
+            items={periodItems}
             value={String(days)}
             onChange={(next) =>
               setDays(next === "90" ? 90 : next === "28" ? 28 : 7)
@@ -96,7 +105,7 @@ export function VisibilityTrend({
                           className="size-2 rounded-sm"
                           style={{ backgroundColor: series.color }}
                         />
-                        {series.label}
+                        {t(series.label)}
                       </span>
                     ))}
                   </div>
@@ -142,10 +151,15 @@ function Change({ metric }: { metric: AiTrendMetric }) {
  * engines first, then one row per engine.
  */
 function TrendSummary({ trend }: { trend: AiTrend }) {
+  const { t } = useLocale();
   const rows = [
     {
       key: "all",
-      label: <span className="font-medium">All engines</span>,
+      label: (
+        <span className="font-medium">
+          {t("ui.ai_visibility_ext.engine_filter.all")}
+        </span>
+      ),
       mentions: trend.mentions,
       citations: trend.citations,
     },
@@ -163,8 +177,8 @@ function TrendSummary({ trend }: { trend: AiTrend }) {
       <TableHeader>
         <TableRow>
           <TableHead />
-          <TableHead>Brand mentions</TableHead>
-          <TableHead>Owned citations</TableHead>
+          <TableHead>{t("ai_visibility.brand_mentions")}</TableHead>
+          <TableHead>{t("ai_visibility.owned_citations")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

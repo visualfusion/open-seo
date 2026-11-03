@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Star } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/client/components/ui/radio-group";
 import type { lookupLocalBusiness } from "@/serverFunctions/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 
 export type Listing = Awaited<ReturnType<typeof lookupLocalBusiness>>[number];
 
@@ -16,6 +17,7 @@ export function LocalListingChoices({
   selected: number;
   onSelectedChange: (index: number) => void;
 }) {
+  const { locale, t } = useLocale();
   const list = useRef<HTMLDivElement>(null);
   // A pin picked on the map brings its listing into view.
   useEffect(() => {
@@ -26,11 +28,13 @@ export function LocalListingChoices({
   return (
     <div className="space-y-2">
       <p className="text-sm text-muted-foreground">
-        {listings.length} listings match your search.
+        {t("local_seo.listings_choices.match_count", {
+          count: listings.length,
+        })}
       </p>
       <RadioGroup
         ref={list}
-        aria-label="Google Maps listings"
+        aria-label={t("local_seo.listings_choices.aria_label")}
         value={selected}
         onValueChange={(value) => onSelectedChange(Number(value))}
         className="max-h-80 overflow-y-auto"
@@ -48,14 +52,18 @@ export function LocalListingChoices({
                 {listing.business.title}
               </p>
               <p className="text-sm text-muted-foreground">
-                {listing.business.address ?? "No public address"}
+                {listing.business.address ??
+                  t("local_seo.listings_choices.no_public_address")}
               </p>
               <p className="flex items-center gap-1 text-xs text-muted-foreground">
                 {listing.rating != null && (
                   <>
                     <Star className="size-3 fill-current" />
-                    {listing.rating} · {(listing.reviews ?? 0).toLocaleString()}{" "}
-                    reviews
+                    {listing.rating} ·{" "}
+                    {(listing.reviews ?? 0).toLocaleString(
+                      locale === "de" ? "de-DE" : "en-US",
+                    )}{" "}
+                    {t("local_seo.listings_choices.reviews")}
                     {listing.category && " · "}
                   </>
                 )}

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ export function SuggestedCompetitors({
   state: AiTrackerState;
   runId: string;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const sources = useQuery({
     queryKey: [...aiVisibilityKey(projectId), "sources", "suggested", runId],
@@ -40,7 +42,9 @@ export function SuggestedCompetitors({
       });
     },
     onSuccess: (_, domain) => {
-      toast.success(`${domain} added as a competitor`);
+      toast.success(
+        t("ai_visibility.details.value_added_as_a_competitor", { v1: domain }),
+      );
       void Promise.all([
         queryClient.invalidateQueries({ queryKey: aiVisibilityKey(projectId) }),
         queryClient.invalidateQueries({
@@ -61,9 +65,11 @@ export function SuggestedCompetitors({
   const top = rows.slice(0, 5);
   return (
     <div className="space-y-3 border-t border-border p-4">
-      <h2 className="text-sm font-semibold">Suggested competitors</h2>
+      <h2 className="text-sm font-semibold">
+        {t("ai_visibility.details.suggested_competitors")}
+      </h2>
       <p className="text-xs text-muted-foreground">
-        Other sites AI answers cite most for your prompts.
+        {t("ai_visibility.details.other_sites_ai_answers_your_prompts")}
       </p>
       <div className="divide-y divide-border">
         {top.map((row) => (
@@ -75,7 +81,7 @@ export function SuggestedCompetitors({
               <DomainFavicon domain={row.domain} />
               {row.domain}
               <span className="ml-2 text-xs text-muted-foreground">
-                cited in {row.answerCount}{" "}
+                {t("ai_visibility.details.cited_in")} {row.answerCount}{" "}
                 {row.answerCount === 1 ? "answer" : "answers"}
               </span>
             </span>
@@ -86,7 +92,7 @@ export function SuggestedCompetitors({
               onClick={() => add.mutate(row.domain)}
             >
               <Plus />
-              Add
+              {t("ranks.modals.add_button")}
             </Button>
           </div>
         ))}

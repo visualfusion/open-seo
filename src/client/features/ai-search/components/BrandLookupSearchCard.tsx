@@ -6,6 +6,7 @@ import { SearchCard, SearchInput } from "@/client/components/SearchCard";
 import { Field, FieldDescription } from "@/client/components/ui/field";
 import { Input } from "@/client/components/ui/input";
 import type { ResearchScope } from "@/shared/researchScope";
+import { useLocale } from "@/client/lib/i18n";
 import { BRAND_LOOKUP_MAX_INPUT_LENGTH } from "@/types/schemas/ai-search";
 
 type Props = {
@@ -58,6 +59,7 @@ export function BrandLookupSearchCard({
   isLoading,
   validationError,
 }: Props) {
+  const { t } = useLocale();
   const hasCompetitors = competitors.trim().length > 0;
   const queryError = validationError?.field === "query";
   const competitorsError = validationError?.field === "competitors";
@@ -72,33 +74,31 @@ export function BrandLookupSearchCard({
         <>
           <Field>
             <Input
-              placeholder="Add competitors (comma-separated)"
+              placeholder={t("brand_lookup.search_card.comp_placeholder")}
               value={competitors}
               onChange={(event) => onCompetitorsChange(event.target.value)}
               autoComplete="off"
               spellCheck={false}
-              aria-label="Competitors"
+              aria-label={t("brand_lookup.search_card.comp_aria")}
               aria-invalid={competitorsError || undefined}
               aria-describedby={
                 competitorsError ? "brand-lookup-input-error" : undefined
               }
             />
             <FieldDescription>
-              Add up to 5 competitor brands or domains to see your Share of
-              Voice.
+              {t("brand_lookup.search_card.comp_desc")}
             </FieldDescription>
           </Field>
           <p className="text-xs text-muted-foreground tabular-nums">
-            Est.{" "}
+            {t("brand_lookup.search_card.est_prefix")}
             <span className="font-medium text-foreground">
               ${BRAND_LOOKUP_DISPLAYED_COST_USD.toFixed(2)}
             </span>
             {hasCompetitors ? (
               <span>
-                {" "}
-                plus ~$
-                {BRAND_LOOKUP_COMPETITOR_DISPLAYED_COST_USD.toFixed(2)} to
-                compare competitors
+                {t("brand_lookup.search_card.est_comp_prefix", {
+                  cost: BRAND_LOOKUP_COMPETITOR_DISPLAYED_COST_USD.toFixed(2),
+                })}
               </span>
             ) : null}
           </p>
@@ -106,8 +106,8 @@ export function BrandLookupSearchCard({
       }
     >
       <SearchInput
-        placeholder="Enter a brand name or domain"
-        aria-label="Brand name or domain"
+        placeholder={t("brand_lookup.search_card.placeholder")}
+        aria-label={t("brand_lookup.search_card.aria_label")}
         value={query}
         maxLength={BRAND_LOOKUP_MAX_INPUT_LENGTH}
         onChange={(event) => onQueryChange(event.target.value)}

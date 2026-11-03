@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { sort } from "remeda";
 import { Badge } from "@/client/components/ui/badge";
@@ -18,6 +19,7 @@ import { aiRate } from "./shared";
 const VISIBLE_BRANDS = 4;
 
 export function PromptSummary({ summaries }: { summaries: AiBrandSummary[] }) {
+  const { t } = useLocale();
   const [expanded, setExpanded] = useState(false);
   // Most-mentioned competitors first, so the collapsed table shows the ones that matter.
   const ranked = sort(
@@ -32,14 +34,16 @@ export function PromptSummary({ summaries }: { summaries: AiBrandSummary[] }) {
   return (
     <div className="overflow-hidden rounded-lg border bg-card border-border">
       <h2 className="border-b px-4 py-2 text-sm font-medium border-border">
-        Brand comparison
+        {t("ai_visibility.details.brand_comparison")}
       </h2>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Brand</TableHead>
-            <TableHead>Mentioned</TableHead>
-            <TableHead>Cited</TableHead>
+            <TableHead>{t("ai_visibility.col_brand")}</TableHead>
+            <TableHead>
+              {t("ui.ai_visibility_ext.answer_view.mentioned")}
+            </TableHead>
+            <TableHead>{t("ui.ai_visibility_ext.answer_view.cited")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -51,30 +55,38 @@ export function PromptSummary({ summaries }: { summaries: AiBrandSummary[] }) {
                   {brand.name}
                   {brand.own && (
                     <Badge variant="secondary" size="sm">
-                      You
+                      {t("ai_visibility.badge_you")}
                     </Badge>
                   )}
                 </span>
               </TableCell>
               <TableCell
                 className="tabular-nums"
-                title={`${brand.mentions} of ${brand.answers} answers`}
+                title={t("ai_visibility.details.value_of_value_answers", {
+                  v1: brand.mentions,
+                  v2: brand.answers,
+                })}
               >
                 {aiRate(brand.mentions, brand.answers)}
                 {brand.answers > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    {brand.mentions} of {brand.answers}
+                    {brand.mentions} {t("ai_visibility.details.of")}{" "}
+                    {brand.answers}
                   </p>
                 )}
               </TableCell>
               <TableCell
                 className="tabular-nums"
-                title={`${brand.citations} of ${brand.answers} answers`}
+                title={t("ai_visibility.details.value_of_value_answers", {
+                  v1: brand.citations,
+                  v2: brand.answers,
+                })}
               >
                 {aiRate(brand.citations, brand.answers)}
                 {brand.answers > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    {brand.citations} of {brand.answers}
+                    {brand.citations} {t("ai_visibility.details.of")}{" "}
+                    {brand.answers}
                   </p>
                 )}
               </TableCell>
@@ -83,7 +95,7 @@ export function PromptSummary({ summaries }: { summaries: AiBrandSummary[] }) {
           {!summaries.length && (
             <TableRow>
               <TableCell colSpan={3} className="py-4 text-muted-foreground">
-                No brand evidence is available for this period yet.
+                {t("ai_visibility.details.no_brand_evidence_is_period_yet")}
               </TableCell>
             </TableRow>
           )}
@@ -97,7 +109,8 @@ export function PromptSummary({ summaries }: { summaries: AiBrandSummary[] }) {
             className="h-auto px-0 text-muted-foreground hover:text-foreground"
             onClick={() => setExpanded(true)}
           >
-            Show {hiddenCount} more
+            {t("ai_visibility.details.show")} {hiddenCount}{" "}
+            {t("ai_visibility.details.more")}
           </Button>
         </div>
       )}

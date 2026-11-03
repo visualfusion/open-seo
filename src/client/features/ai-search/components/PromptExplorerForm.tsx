@@ -41,6 +41,7 @@ import {
   type PromptExplorerModel,
   type WebSearchCountrySelection,
 } from "@/types/schemas/ai-search";
+import { useLocale } from "@/client/lib/i18n";
 
 type FormValues = {
   prompt: string;
@@ -61,19 +62,13 @@ type Props = {
   validationError: string | null;
 };
 
-const COUNTRY_ITEMS: Array<{
-  value: WebSearchCountrySelection;
-  label: string;
-}> = [
-  { value: "default", label: "No country preference" },
-  ...sortBy(
-    WEB_SEARCH_COUNTRY_CODES.map((code) => ({
-      value: code,
-      label: formatCountryLabel(code),
-    })),
-    (item) => item.label,
-  ),
-];
+const SORTED_COUNTRY_ITEMS = sortBy(
+  WEB_SEARCH_COUNTRY_CODES.map((code) => ({
+    value: code as WebSearchCountrySelection,
+    label: formatCountryLabel(code),
+  })),
+  (item) => item.label,
+);
 
 export function PromptExplorerForm({
   form,
@@ -85,6 +80,17 @@ export function PromptExplorerForm({
   onSubmit,
   validationError,
 }: Props) {
+  const { t } = useLocale();
+  const allCountryItems: Array<{
+    value: WebSearchCountrySelection;
+    label: string;
+  }> = [
+    {
+      value: "default",
+      label: t("brand_lookup.prompt_explorer.no_country_pref"),
+    },
+    ...SORTED_COUNTRY_ITEMS,
+  ];
   const toggleModel = (model: PromptExplorerModel) => {
     if (form.models.includes(model)) {
       onModelsChange(form.models.filter((m) => m !== model));
@@ -93,7 +99,7 @@ export function PromptExplorerForm({
     }
   };
 
-  const countryItems = COUNTRY_ITEMS.filter(
+  const countryItems = allCountryItems.filter(
     (item) =>
       item.value === "default" ||
       item.value === form.webSearchCountryCode ||
@@ -118,7 +124,9 @@ export function PromptExplorerForm({
       <CardContent>
         <form onSubmit={onSubmit} noValidate className="space-y-5">
           <Field>
-            <FieldLabel htmlFor="prompt-explorer-prompt">Prompt</FieldLabel>
+            <FieldLabel htmlFor="prompt-explorer-prompt">
+              {t("brand_lookup.prompt_explorer.prompt_label")}
+            </FieldLabel>
             <Textarea
               id="prompt-explorer-prompt"
               className="resize-none"
@@ -130,7 +138,7 @@ export function PromptExplorerForm({
               autoFocus
             />
             <FieldDescription className="flex items-center justify-between">
-              <span>What your customers might ask AI.</span>
+              <span>{t("brand_lookup.prompt_explorer.prompt_desc")}</span>
               <span
                 className={cn(
                   "tabular-nums",
@@ -145,7 +153,7 @@ export function PromptExplorerForm({
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <Field>
               <FieldLabel htmlFor="prompt-explorer-brand">
-                Highlight brand (optional)
+                {t("brand_lookup.prompt_explorer.highlight_label")}
               </FieldLabel>
               <Input
                 id="prompt-explorer-brand"
@@ -155,12 +163,14 @@ export function PromptExplorerForm({
                 spellCheck={false}
               />
               <FieldDescription>
-                We&apos;ll flag whether each model mentions this brand.
+                {t("brand_lookup.prompt_explorer.highlight_desc")}
               </FieldDescription>
             </Field>
 
             <Field>
-              <FieldTitle>Models</FieldTitle>
+              <FieldTitle>
+                {t("brand_lookup.prompt_explorer.models_label")}
+              </FieldTitle>
               <div className="flex flex-wrap items-start gap-x-5 gap-y-2 pt-1.5">
                 {PROMPT_EXPLORER_MODELS.map((model) => (
                   <Label key={model} className="font-normal">
@@ -173,8 +183,14 @@ export function PromptExplorerForm({
                       {unsupportedModels.includes(model) &&
                       form.webSearchCountryCode !== "default" ? (
                         <span className="block text-xs text-muted-foreground">
-                          Skipped for{" "}
-                          {formatCountryLabel(form.webSearchCountryCode)}
+                          {t(
+                            "brand_lookup.prompt_explorer.skipped_for_country",
+                            {
+                              country: formatCountryLabel(
+                                form.webSearchCountryCode,
+                              ),
+                            },
+                          )}
                         </span>
                       ) : null}
                     </span>
@@ -191,12 +207,12 @@ export function PromptExplorerForm({
                   checked={form.webSearch}
                   onCheckedChange={onWebSearchChange}
                 />
-                Allow web search
+                {t("brand_lookup.prompt_explorer.allow_web_search")}
               </Label>
               <Combobox
                 items={countryItems}
                 value={
-                  COUNTRY_ITEMS.find(
+                  allCountryItems.find(
                     (item) => item.value === form.webSearchCountryCode,
                   ) ?? null
                 }
@@ -208,14 +224,20 @@ export function PromptExplorerForm({
                 disabled={!form.webSearch}
               >
                 <ComboboxInput
-                  aria-label="Web search country"
-                  placeholder="Search countries"
+                  aria-label={t(
+                    "brand_lookup.prompt_explorer.web_search_country_aria",
+                  )}
+                  placeholder={t(
+                    "brand_lookup.prompt_explorer.search_countries_placeholder",
+                  )}
                   className="w-full sm:w-80"
                 />
                 <ComboboxContent>
-                  <ComboboxEmpty>No supported countries match.</ComboboxEmpty>
+                  <ComboboxEmpty>
+                    {t("brand_lookup.prompt_explorer.no_countries_match")}
+                  </ComboboxEmpty>
                   <ComboboxList>
-                    {(item: (typeof COUNTRY_ITEMS)[number]) => (
+                    {(item: (typeof allCountryItems)[number]) => (
                       <ComboboxItem key={item.value} value={item}>
                         {item.label}
                       </ComboboxItem>
@@ -228,7 +250,9 @@ export function PromptExplorerForm({
                   render={
                     <button
                       type="button"
-                      aria-label="About country targeting"
+                      aria-label={t(
+                        "brand_lookup.prompt_explorer.about_country_aria",
+                      )}
                       className="text-muted-foreground"
                     />
                   }
@@ -236,9 +260,7 @@ export function PromptExplorerForm({
                   <Info className="size-4" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  A country guides web search when a model supports it. Models
-                  may answer without searching. Leave it unset to run all
-                  selected models.
+                  {t("brand_lookup.prompt_explorer.about_country_tip")}
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -247,8 +269,11 @@ export function PromptExplorerForm({
               className="px-6"
               disabled={supportedModels.length === 0}
             >
-              Run {supportedModels.length}{" "}
-              {supportedModels.length === 1 ? "model" : "models"}
+              {supportedModels.length === 1
+                ? t("brand_lookup.prompt_explorer.run_one_model")
+                : t("brand_lookup.prompt_explorer.run_many_models", {
+                    count: supportedModels.length,
+                  })}
             </Button>
           </div>
 

@@ -1,3 +1,11 @@
+import {
+  aiObservationStatusLabel,
+  AiLoading,
+  AiMatchBadge,
+  AiQueryError,
+  aiVisibilityKey,
+} from "./shared";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
@@ -20,17 +28,8 @@ import {
   TabsTrigger,
 } from "@/client/components/ui/tabs";
 import { getAiVisibilityAnswer } from "@/serverFunctions/ai-visibility";
-import {
-  aiObservationStatusLabel,
-  type AiAnswer,
-} from "@/shared/ai-visibility";
+import { type AiAnswer } from "@/shared/ai-visibility";
 import { DomainFavicon } from "./DomainFavicon";
-import {
-  AiLoading,
-  AiMatchBadge,
-  AiQueryError,
-  aiVisibilityKey,
-} from "./shared";
 
 /** The selected engine's answer lives in the prompt page, beside its sources. */
 export function AnswerContent({
@@ -60,6 +59,7 @@ export function AnswerContent({
 }
 
 function AnswerEvidence({ answer }: { answer: AiAnswer }) {
+  const { t } = useLocale();
   const [view, setView] = useState("answer");
   const citations = answer.sources;
   const answered = answer.observation.answerStatus === "answered";
@@ -68,9 +68,11 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
       {answer.observation.answerStatus === "no_answer" && (
         <p className="border-b px-5 py-3 text-sm text-warning border-border">
           {answer.observation.engine === "google_ai_overview"
-            ? "Google showed no AI Overview for this search."
-            : "No substantive answer was returned."}{" "}
-          This collection is excluded from visibility rates.
+            ? t("ai_visibility.details.google_showed_no_ai_this_search")
+            : t(
+                "ai_visibility.details.no_substantive_answer_was_returned",
+              )}{" "}
+          {t("ai_visibility.answer_excluded_notice")}
         </p>
       )}
       {answer.observation.error && (
@@ -83,13 +85,13 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
       )}
       {answer.truncated && (
         <p className="border-b px-5 py-3 text-xs text-warning border-border">
-          This response was truncated. The retained evidence may be incomplete.
+          {t("ai_visibility.details.this_response_was_truncated_be_incomplete")}
         </p>
       )}
       <div
         className="flex gap-2 border-b px-5 py-3 lg:hidden border-border"
         role="group"
-        aria-label="Answer view"
+        aria-label={t("ai_visibility.details.answer_view")}
       >
         <Button
           size="sm"
@@ -97,7 +99,7 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
           aria-pressed={view === "answer"}
           onClick={() => setView("answer")}
         >
-          Answer
+          {t("ai_visibility.answer_section_title")}
         </Button>
         <Button
           size="sm"
@@ -105,7 +107,8 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
           aria-pressed={view === "citations"}
           onClick={() => setView("citations")}
         >
-          Citations ({citations.length})
+          {t("ai_visibility.details.citations")}
+          {citations.length})
         </Button>
         <Button
           size="sm"
@@ -113,13 +116,13 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
           aria-pressed={view === "brands"}
           onClick={() => setView("brands")}
         >
-          Brands
+          {t("ai_visibility.details.brands")}
         </Button>
       </div>
       <div className="grid lg:grid-cols-[minmax(0,1fr)_300px]">
         <article
           className={`min-w-0 space-y-5 p-5 text-sm sm:p-6 lg:block ${view !== "answer" ? "hidden" : ""}`}
-          aria-label="AI answer"
+          aria-label={t("ai_visibility.details.ai_answer")}
           data-ph-mask
         >
           {answer.answerMarkdown ? (
@@ -133,15 +136,15 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
             <div className="whitespace-pre-wrap">{answer.answerText}</div>
           ) : (
             <p className="text-muted-foreground">
-              No answer was captured. Status:{" "}
-              {aiObservationStatusLabel(answer.observation.status)}. This is not
-              a negative brand result.
+              {t("ai_visibility.details.no_answer_was_captured_status")}{" "}
+              {aiObservationStatusLabel(answer.observation.status)}
+              {t("ai_visibility.details.this_is_not_a_negative_brand_result")}
             </p>
           )}
         </article>
         <aside
           className={`min-w-0 bg-muted/20 p-4 lg:block lg:border-l border-border ${view === "answer" ? "hidden" : ""}`}
-          aria-label="Answer evidence"
+          aria-label={t("ai_visibility.details.answer_evidence")}
         >
           <Tabs
             value={view === "brands" ? "brands" : "citations"}
@@ -152,14 +155,17 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
           >
             <TabsList className="hidden w-full lg:flex">
               <TabsTrigger value="citations">
-                Citations ({citations.length})
+                {t("ai_visibility.details.citations")}
+                {citations.length})
               </TabsTrigger>
-              <TabsTrigger value="brands">Brands</TabsTrigger>
+              <TabsTrigger value="brands">
+                {t("ai_visibility.details.brands")}
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="citations" className="space-y-3">
               {!citations.length && (
                 <p className="text-sm text-muted-foreground">
-                  This answer has no citations.
+                  {t("ai_visibility.details.this_answer_has_no_citations")}
                 </p>
               )}
               {citations.map((source) => (
@@ -181,12 +187,11 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
             </TabsContent>
             <TabsContent value="brands" className="space-y-3">
               <p className="text-xs text-muted-foreground">
-                Mentions appear in the answer text. Citations link to the
-                brand’s domain.
+                {t("ai_visibility.details.mentions_appear_in_the_to_the")}
               </p>
               {!answer.observation.brands.length && (
                 <p className="text-sm text-muted-foreground">
-                  No brand evidence was captured.
+                  {t("ai_visibility.details.no_brand_evidence_was_captured")}
                 </p>
               )}
               {answer.observation.brands.map((brand) => {
@@ -204,7 +209,7 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
                       {brand.name}
                       {brand.own && (
                         <Badge variant="secondary" size="sm">
-                          You
+                          {t("ai_visibility.badge_you")}
                         </Badge>
                       )}
                     </div>
@@ -218,7 +223,8 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
                       <Accordion>
                         <AccordionItem value="mentions">
                           <AccordionTrigger className="py-1 text-xs">
-                            Mention excerpts ({spans.length})
+                            {t("ai_visibility.details.mention_excerpts")}
+                            {spans.length})
                           </AccordionTrigger>
                           <AccordionContent
                             className="space-y-2 pt-2 text-xs text-muted-foreground"
@@ -263,7 +269,11 @@ const ANSWER_COMPONENTS = {
   ...MARKDOWN_COMPONENTS,
   img: ({ alt }: { alt?: string }) => (
     <span className="text-muted-foreground">
-      {alt ? `[Image: ${alt}]` : "[Image]"}
+      {alt
+        ? getTranslation("ai_visibility.details.image_value", undefined, {
+            v1: alt,
+          })
+        : getTranslation("ai_visibility.details.image")}
     </span>
   ),
 };

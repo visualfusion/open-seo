@@ -1,3 +1,4 @@
+import { getCurrentLocale, getTranslation, useLocale } from "@/client/lib/i18n";
 import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,7 +16,12 @@ import {
   getAiVisibilityResults,
   listAiResearchKeywords,
 } from "@/serverFunctions/ai-visibility";
-import type { AiRun, AiTrackerState } from "@/shared/ai-visibility";
+import type {
+  AiRun,
+  AiTrackerState,
+  AiEngine,
+  AiObservationStatus,
+} from "@/shared/ai-visibility";
 
 export const aiVisibilityKey = (projectId: string) => [
   "aiVisibility",
@@ -164,19 +170,24 @@ export function AiQueryError({
   error: unknown;
   retry?: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <QueryError
       error={error}
-      fallback="Could not load AI visibility. Please try again."
+      fallback={t("ai_visibility.details.could_not_load_ai_try_again")}
       onRetry={retry}
     />
   );
 }
 
 export function AiLoading() {
+  const { t } = useLocale();
   return (
     <div className="flex justify-center py-12">
-      <Spinner size="sm" label="Loading AI visibility…" />
+      <Spinner
+        size="sm"
+        label={t("ai_visibility.details.loading_ai_visibility")}
+      />
     </div>
   );
 }
@@ -188,9 +199,18 @@ export function AiMatchBadge({
   value: boolean;
   positive?: "Mentioned" | "Cited";
 }) {
+  const { t } = useLocale();
   return (
     <Badge variant={value ? "success" : "secondary"}>
-      {value ? positive : positive === "Cited" ? "Not cited" : "Not mentioned"}
+      {value
+        ? t(
+            positive === "Cited"
+              ? "ui.ai_visibility_ext.answer_view.cited"
+              : "ui.ai_visibility_ext.answer_view.mentioned",
+          )
+        : positive === "Cited"
+          ? t("ui.ai_visibility_ext.answer_view.not_cited")
+          : t("ui.ai_visibility_ext.answer_view.not_mentioned")}
     </Badge>
   );
 }
@@ -198,7 +218,9 @@ export function AiMatchBadge({
 export function aiDate(value: string | null) {
   if (!value) return "—";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "Unavailable" : date.toLocaleString();
+  return Number.isNaN(date.getTime())
+    ? getTranslation("ui.details.not_available")
+    : date.toLocaleString(getCurrentLocale());
 }
 
 export function aiRate(count: number, eligible: number) {
@@ -206,7 +228,7 @@ export function aiRate(count: number, eligible: number) {
 }
 
 export function aiMoney(value: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(getCurrentLocale(), {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
@@ -215,6 +237,7 @@ export function aiMoney(value: number) {
 }
 
 export function AiRunStatus({ run }: { run: AiRun }) {
+  const { t } = useLocale();
   const pending = run.status === "running" || run.status === "queued";
   return (
     <div
@@ -225,10 +248,10 @@ export function AiRunStatus({ run }: { run: AiRun }) {
         <span className="flex items-center gap-2 font-medium">
           {pending && <Loader2 className="size-4 animate-spin" />}
           {run.trigger === "manual"
-            ? "One-off run"
+            ? t("ai_visibility.details.one_off_run")
             : run.trigger === "baseline"
-              ? "First scheduled run"
-              : "Scheduled run"}
+              ? t("ai_visibility.details.first_scheduled_run")
+              : t("ai_visibility.details.scheduled_run")}
           <Badge variant="secondary">{run.status}</Badge>
         </span>
         <span className="text-xs text-muted-foreground">
@@ -237,11 +260,18 @@ export function AiRunStatus({ run }: { run: AiRun }) {
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
         <span>
-          {run.completed} of {run.expected} answers collected
+          {run.completed} {t("ai_visibility.details.of")} {run.expected}{" "}
+          {t("ai_visibility.details.answers_collected")}
         </span>
-        {run.pending > 0 && <span>{run.pending} pending</span>}
+        {run.pending > 0 && (
+          <span>
+            {run.pending} {t("ai_visibility.details.pending")}
+          </span>
+        )}
         {run.failed > 0 && (
-          <span className="text-destructive">{run.failed} failed</span>
+          <span className="text-destructive">
+            {run.failed} {t("ai_visibility.details.failed")}
+          </span>
         )}
       </div>
       {pending && (
@@ -257,6 +287,7 @@ export function PromptTrackingWithoutUpgradeButton({
 }: {
   projectId: string;
 }) {
+  const { t } = useLocale();
   return (
     <Button
       size="lg"
@@ -264,7 +295,18 @@ export function PromptTrackingWithoutUpgradeButton({
       nativeButton={false}
       render={<Link to="/p/$projectId/ai-visibility" params={{ projectId }} />}
     >
-      Use Prompt Tracking without upgrading
+      {t("ai_visibility.details.use_prompt_tracking_without_upgrading")}
     </Button>
+  );
+}
+
+export function aiObservationStatusLabel(status: AiObservationStatus) {
+  return getTranslation("ai_visibility.details.observation_" + status);
+}
+export function aiNoAnswerLabel(engine: AiEngine) {
+  return getTranslation(
+    engine === "google_ai_overview"
+      ? "ai_visibility.details.no_overview"
+      : "ai_visibility.details.no_answer",
   );
 }

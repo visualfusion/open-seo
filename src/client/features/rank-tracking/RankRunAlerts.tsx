@@ -2,6 +2,7 @@ import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { InsufficientCreditsError } from "@/client/features/billing/InsufficientCreditsError";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import type { useRankRunPolling } from "./useRankRunPolling";
 
 /** Warnings about the latest rank check: stale, failed, or incomplete. */
@@ -10,6 +11,7 @@ export function RankRunAlerts({
 }: {
   run: ReturnType<typeof useRankRunPolling>;
 }) {
+  const { t } = useLocale();
   if (!run) return null;
 
   if (run.maybeStale) {
@@ -17,14 +19,18 @@ export function RankRunAlerts({
       <Alert variant="warning">
         <AlertTriangle />
         <AlertDescription className="text-foreground">
-          This run may be unresponsive and will be cleaned up automatically.
+          {t("ranks.alerts.run_stale")}
         </AlertDescription>
       </Alert>
     );
   }
 
   if (run.status === "failed" && run.errorMessage === "INSUFFICIENT_CREDITS") {
-    return <InsufficientCreditsError title="Your last rank check didn't run" />;
+    return (
+      <InsufficientCreditsError
+        title={t("ranks.alerts.run_insufficient_credits")}
+      />
+    );
   }
 
   if (run.status === "failed") {
@@ -33,7 +39,9 @@ export function RankRunAlerts({
         <AlertTriangle />
         <AlertDescription className="text-foreground">
           <p>
-            <span className="font-medium">Last check failed.</span>{" "}
+            <span className="font-medium">
+              {t("ranks.alerts.run_failed_bold")}
+            </span>{" "}
             {run.errorMessage &&
               getStandardErrorMessage(new Error(run.errorMessage))}
           </p>
@@ -51,9 +59,10 @@ export function RankRunAlerts({
         <AlertTriangle />
         <AlertDescription className="text-foreground">
           <p>
-            <span className="font-medium">Your last check was incomplete.</span>{" "}
-            We couldn't confirm a result for some keywords, so they show their
-            previous position.
+            <span className="font-medium">
+              {t("ranks.alerts.run_incomplete_bold")}
+            </span>{" "}
+            {t("ranks.alerts.run_incomplete_desc")}
           </p>
         </AlertDescription>
       </Alert>

@@ -24,6 +24,7 @@ import {
   type KeywordTrendTarget,
 } from "./KeywordTrendModal";
 import type { SelectionAnchor } from "@/client/components/table/tableSelection";
+import { useLocale } from "@/client/lib/i18n";
 
 export function RankTrackingTable({
   totalCount,
@@ -58,6 +59,7 @@ export function RankTrackingTable({
   onAddKeywords: () => void;
   onClearFilters: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [showConfirm, setShowConfirm] = useState(false);
   const [trendTarget, setTrendTarget] = useState<KeywordTrendTarget | null>(
@@ -142,7 +144,9 @@ export function RankTrackingTable({
         queryKey: ["rankTrackingCostEstimate", projectId, configId],
       });
       toast.success(
-        `${result.removed} keyword${result.removed !== 1 ? "s" : ""} removed`,
+        result.removed === 1
+          ? t("ranks.table_ext.removed_one")
+          : t("ranks.table_ext.removed_many", { count: result.removed }),
       );
     },
   });
@@ -159,17 +163,17 @@ export function RankTrackingTable({
               onClick={() => setShowConfirm(true)}
               variant="danger"
             >
-              Remove
+              {t("ranks.table_ext.remove_action")}
             </TableBulkActionButton>
             <TableBulkExportMenu
               actions={[
                 {
-                  label: "Export to Sheets",
+                  label: t("saved_keywords.bulk.export_sheets"),
                   icon: <Sheet className="size-4" />,
                   onClick: () => exportSelection("sheets"),
                 },
                 {
-                  label: "Export CSV",
+                  label: t("saved_keywords.bulk.export_csv"),
                   icon: <FileDown className="size-4" />,
                   onClick: () => exportSelection("csv"),
                 },
@@ -181,16 +185,24 @@ export function RankTrackingTable({
 
       {showConfirm && (
         <ConfirmDialog
-          title="Remove keywords?"
-          confirmLabel={`Remove ${selectedCount} keyword${selectedCount !== 1 ? "s" : ""}`}
+          title={t("ranks.table_ext.remove_confirm_title")}
+          confirmLabel={
+            selectedCount === 1
+              ? t("ranks.table_ext.remove_confirm_one")
+              : t("ranks.table_ext.remove_confirm_many", {
+                  count: selectedCount,
+                })
+          }
           destructive
           pending={removeMutation.isPending}
           onConfirm={() => removeMutation.mutate(selectedRows.map((r) => r.id))}
           onClose={() => setShowConfirm(false)}
         >
-          This will stop tracking {selectedCount} keyword
-          {selectedCount !== 1 ? "s" : ""}. Historical ranking data is preserved
-          but won't appear in the table.
+          {selectedCount === 1
+            ? t("ranks.table_ext.remove_confirm_desc_one")
+            : t("ranks.table_ext.remove_confirm_desc_many", {
+                count: selectedCount,
+              })}
         </ConfirmDialog>
       )}
 
@@ -213,19 +225,22 @@ export function RankTrackingTable({
         isFiltered={totalCount > 0}
         onClearFilters={onClearFilters}
         empty={{
-          title: "No keywords yet",
-          description: "Add the keywords you want to track for this domain.",
+          title: t("ranks.table_ext.empty_title"),
+          description: t("ranks.table_ext.empty_desc"),
           action: (
             <Button size="sm" onClick={onAddKeywords}>
               <Plus data-icon="inline-start" />
-              Add Keywords
+              {t("ranks.add_keywords")}
             </Button>
           ),
         }}
         footer={
           rows.length > 0 ? (
             <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
-              {rows.length} of {totalCount} keywords
+              {t("ranks.table_ext.footer_count", {
+                shown: rows.length,
+                total: totalCount,
+              })}
             </p>
           ) : null
         }

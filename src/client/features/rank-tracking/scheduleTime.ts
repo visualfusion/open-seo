@@ -1,3 +1,4 @@
+import { getCurrentLocale, getTranslation } from "@/client/lib/i18n";
 import type {
   RankCheckScheduleTime,
   RankTrackingConfig,
@@ -73,7 +74,7 @@ export function describeSchedule(
   time: LocalScheduleTime,
 ): string {
   const date = nextLocalOccurrence(time);
-  const localTime = date.toLocaleTimeString([], {
+  const localTime = date.toLocaleTimeString(getCurrentLocale(), {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -84,19 +85,17 @@ export function describeSchedule(
   });
   const utcWeekday =
     interval === "weekly" && date.getUTCDay() !== date.getDay()
-      ? `${WEEKDAYS[date.getUTCDay()].slice(0, 3)} `
+      ? `${date.toLocaleDateString(getCurrentLocale(), { weekday: "short", timeZone: "UTC" })} `
       : "";
-  const when =
-    interval === "daily"
-      ? "daily"
-      : interval === "weekly"
-        ? `weekly on ${WEEKDAYS[time.weekday]}s`
-        : "on the last day of each month";
-  return `Runs ${when} at ${localTime} (${utcWeekday}${utcTime} UTC)`;
+  return getTranslation("ranks.schedule.runs_" + interval, undefined, {
+    day: date.toLocaleDateString(getCurrentLocale(), { weekday: "long" }),
+    time: localTime,
+    utc: utcWeekday + utcTime,
+  });
 }
 
 export function formatNextCheck(nextCheckAt: string): string {
-  return new Date(nextCheckAt).toLocaleString([], {
+  return new Date(nextCheckAt).toLocaleString(getCurrentLocale(), {
     weekday: "short",
     month: "short",
     day: "numeric",

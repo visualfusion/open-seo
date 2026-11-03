@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { identity, sortBy } from "remeda";
 import { Columns3, MessageSquare, SearchCheck, Sparkles } from "lucide-react";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useHostedPlanGate } from "@/client/features/billing/HostedPlanGate";
 import { ResearchPageShell } from "@/client/features/ai-search/ResearchPageShell";
 import { PromptTrackingWithoutUpgradeButton } from "@/client/features/ai-visibility/shared";
@@ -40,29 +41,18 @@ type Props = {
   onClear: () => void;
 };
 
-const PROMPT_EXPLORER_BULLETS = [
-  {
-    icon: Columns3,
-    title: "Four models side-by-side",
-    body: "Run one prompt across ChatGPT, Claude, Gemini, and Perplexity and compare answers in a single view.",
-  },
-  {
-    icon: SearchCheck,
-    title: "See what the models cite",
-    body: "Every answer lists the sources it drew from, so you can audit where each model gets its information.",
-  },
-  {
-    icon: Sparkles,
-    title: "Check brand mentions",
-    body: "Highlight a brand to instantly see whether it shows up in the answer text or the cited sources.",
-  },
-];
-
 // The strip truncates labels to its width; the tooltip shows the full prompt.
 function promptTabLabel(input: SearchTabInput) {
   if (input.type !== "prompt") return "";
   return input.models.length > 1
-    ? `${input.prompt} · ${input.models.length} models`
+    ? getTranslation(
+        "brand_lookup.prompt_explorer.models_tab_suffix",
+        undefined,
+        {
+          prompt: input.prompt,
+          count: input.models.length,
+        },
+      )
     : input.prompt;
 }
 
@@ -72,6 +62,7 @@ export function PromptExplorerPage({
   onSubmit,
   onClear,
 }: Props) {
+  const { t } = useLocale();
   const planStatus = useHostedPlanGate();
   const [form, setForm] = useState<PromptExplorerFormValues>(urlState);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -132,23 +123,27 @@ export function PromptExplorerPage({
     event.preventDefault();
     const trimmed = form.prompt.trim();
     if (trimmed.length === 0) {
-      setValidationError("Enter a prompt");
+      setValidationError(t("brand_lookup.prompt_explorer.err_enter_prompt"));
       return;
     }
     if (trimmed.length > PROMPT_EXPLORER_MAX_PROMPT_LENGTH) {
       setValidationError(
-        `Keep prompts under ${PROMPT_EXPLORER_MAX_PROMPT_LENGTH} characters`,
+        t("brand_lookup.prompt_explorer.err_prompt_max", {
+          max: PROMPT_EXPLORER_MAX_PROMPT_LENGTH,
+        }),
       );
       return;
     }
     if (form.highlightBrand.trim().length > BRAND_LOOKUP_MAX_INPUT_LENGTH) {
       setValidationError(
-        `Keep the brand under ${BRAND_LOOKUP_MAX_INPUT_LENGTH} characters`,
+        t("brand_lookup.prompt_explorer.err_brand_max", {
+          max: BRAND_LOOKUP_MAX_INPUT_LENGTH,
+        }),
       );
       return;
     }
     if (form.models.length === 0) {
-      setValidationError("Select at least one model");
+      setValidationError(t("brand_lookup.prompt_explorer.err_select_model"));
       return;
     }
     setValidationError(null);
@@ -178,16 +173,33 @@ export function PromptExplorerPage({
     urlState.webSearchCountryCode,
   ].join("|");
 
+  const explorerBullets = [
+    {
+      icon: Columns3,
+      title: t("ai_visibility.explorer_bullet_1_title"),
+      body: t("ai_visibility.explorer_bullet_1_body"),
+    },
+    {
+      icon: SearchCheck,
+      title: t("ai_visibility.explorer_bullet_2_title"),
+      body: t("ai_visibility.explorer_bullet_2_body"),
+    },
+    {
+      icon: Sparkles,
+      title: t("ai_visibility.explorer_bullet_3_title"),
+      body: t("ai_visibility.explorer_bullet_3_body"),
+    },
+  ];
+
   return (
     <ResearchPageShell
       contained
-      title="Prompt Explorer"
-      description="Ask any prompt across ChatGPT, Claude, Gemini, and Perplexity side-by-side."
+      title={t("ai_visibility.explorer_title")}
+      description={t("ai_visibility.explorer_description")}
       gate={{
-        feature: "Prompt Explorer",
-        description:
-          "Ask one prompt across ChatGPT, Claude, Gemini, and Perplexity at the same time and compare their answers: including which sources each model cites.",
-        features: PROMPT_EXPLORER_BULLETS,
+        feature: t("ai_visibility.explorer_title"),
+        description: t("ai_visibility.explorer_description"),
+        features: explorerBullets,
         alternative: (
           <PromptTrackingWithoutUpgradeButton projectId={projectId} />
         ),
@@ -221,7 +233,7 @@ export function PromptExplorerPage({
       loadingState={<PromptExplorerLoadingState models={urlState.models} />}
       query={exploreQuery}
       hasActiveQuery={hasActivePrompt}
-      errorFallback="Failed to load prompt results"
+      errorFallback={t("brand_lookup.prompt_explorer.err_load_failed")}
       // Covers browser back/forward and history links. The route builds a
       // fresh `urlState` object on every render, so compare by value.
       urlKey={`${projectId}:${JSON.stringify(urlState)}`}
@@ -247,7 +259,7 @@ export function PromptExplorerPage({
           search={{}}
           replace
         >
-          Recent searches
+          {t("brand_lookup.recent_searches")}
         </BackLink>
       }
       renderResults={(result) => <PromptExplorerResults result={result} />}
@@ -257,7 +269,7 @@ export function PromptExplorerPage({
           loaded={historyLoaded}
           onRemove={removeHistoryItem}
           emptyIcon={MessageSquare}
-          emptyTitle="Enter a prompt to compare model answers"
+          emptyTitle={t("brand_lookup.prompt_explorer.empty_history")}
           getTitle={(item) => item.prompt}
           getSubtitle={(item) => item.models.map(formatModelLabel).join(", ")}
           renderLink={(item, props) => (

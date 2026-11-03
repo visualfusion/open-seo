@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, MapPin, Plus } from "lucide-react";
 import { listLocalTrackers } from "@/serverFunctions/local-seo";
-import { localAreaLabel } from "@/shared/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 import {
   Card,
   CardAction,
@@ -21,6 +21,7 @@ export function LocalTrackerList({
   projectId: string;
   onAdd: () => void;
 }) {
+  const { t } = useLocale();
   const query = useQuery({
     queryKey: ["localSeo", projectId, "trackers"],
     queryFn: () => listLocalTrackers({ data: { projectId } }),
@@ -29,19 +30,21 @@ export function LocalTrackerList({
     <Card className="gap-0 py-0">
       <CardHeader className="px-5 pt-4 pb-3">
         <CardTitle>
-          <h2 className="text-sm font-semibold">Tracked Businesses</h2>
+          <h2 className="text-sm font-semibold">
+            {t("local_seo.tracked_businesses")}
+          </h2>
         </CardTitle>
         <CardAction className="self-center">
           <Button size="sm" onClick={onAdd}>
             <Plus data-icon="inline-start" />
-            Add Business
+            {t("local_seo.add_business")}
           </Button>
         </CardAction>
       </CardHeader>
       <div className="divide-y divide-border border-t border-border">
         <QueryState
           query={query}
-          errorFallback="Failed to load tracked businesses"
+          errorFallback={t("local_seo.failed_to_load_businesses")}
           loading={
             <div className="space-y-3 p-5">
               <Skeleton className="h-4 w-48" />
@@ -54,8 +57,8 @@ export function LocalTrackerList({
               <EmptyState
                 variant="plain"
                 icon={MapPin}
-                title="No tracked businesses yet"
-                description="Add a Google Maps listing to check keyword rankings across the surrounding area."
+                title={t("local_seo.no_businesses_title")}
+                description={t("local_seo.no_businesses_desc")}
               />
             ) : (
               trackers.map((tracker) => (
@@ -72,7 +75,11 @@ export function LocalTrackerList({
                       {tracker.address}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {localAreaLabel(tracker)} · Mobile
+                      {t("local_seo.area_label", {
+                        points: tracker.gridSize * tracker.gridSize,
+                        distance: (tracker.gridSize - 1) * tracker.spacingKm,
+                      })}{" "}
+                      · {t("local_seo.mobile")}
                     </p>
                   </div>
                   <ChevronRight className="size-4 shrink-0 text-muted-foreground" />

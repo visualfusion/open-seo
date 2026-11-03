@@ -12,17 +12,25 @@ import {
   type ChartConfig,
 } from "@/client/components/ui/chart";
 import { formatCount } from "@/client/features/ai-search/platformLabels";
+import { useLocale } from "@/client/lib/i18n";
 import type { BrandLookupResult } from "@/types/schemas/ai-search";
 
 type Props = {
   result: BrandLookupResult;
 };
 
-const chartConfig = {
-  volume: { label: "Mentions", color: "hsl(220 70% 50%)" },
-} satisfies ChartConfig;
-
 export function BrandLookupMentionTrendCard({ result }: Props) {
+  const { t } = useLocale();
+  const chartConfig = useMemo(
+    () =>
+      ({
+        volume: {
+          label: t("brand_lookup.results.mentions_col"),
+          color: "hsl(220 70% 50%)",
+        },
+      }) satisfies ChartConfig,
+    [t],
+  );
   const chartData = useMemo(
     () =>
       result.monthlyVolume.map((entry) => ({

@@ -7,6 +7,7 @@ import {
   type QueryClient,
 } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { FormDialog } from "@/client/components/FormDialog";
 import { Button } from "@/client/components/ui/button";
 import {
@@ -98,6 +99,7 @@ export function TrackingCostReview({
   onClose: () => void;
   onStarted: (run: AiRun | null) => void;
 }) {
+  const { t } = useLocale();
   const [scheduleInterval, setScheduleInterval] = useState<AiScheduleInterval>(
     tracker.scheduleInterval,
   );
@@ -158,10 +160,10 @@ export function TrackingCostReview({
     <FormDialog
       title={
         mode === "check"
-          ? "Run now"
+          ? t("ai_visibility.cost_check_title")
           : tracker.enabled
-            ? "Change tracking schedule"
-            : "Schedule tracking"
+            ? t("ai_visibility.change_schedule")
+            : t("ai_visibility.schedule_tracking")
       }
       onClose={() => {
         if (!start.isPending) onClose();
@@ -169,7 +171,7 @@ export function TrackingCostReview({
       actions={
         <>
           <Button variant="ghost" disabled={start.isPending} onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             disabled={
@@ -184,10 +186,10 @@ export function TrackingCostReview({
           >
             {start.isPending && <Loader2 className="size-4 animate-spin" />}
             {mode === "check"
-              ? "Run now"
+              ? t("ai_visibility.cost_run_now")
               : tracker.enabled
-                ? "Save schedule"
-                : "Start tracking"}
+                ? t("ai_visibility.cost_save_schedule")
+                : t("ai_visibility.cost_run_now")}
           </Button>
         </>
       }
@@ -220,14 +222,25 @@ export function TrackingCostReview({
             )}
             <Field>
               <FieldLabel>
-                {mode === "schedule" ? "Cost per run" : "Cost"}
+                {mode === "schedule"
+                  ? t("ai_visibility.details.cost_per_run")
+                  : t("ai_visibility.estimated_cost")}
               </FieldLabel>
               <span className="text-2xl font-semibold tabular-nums">
                 {aiMoney(runCostUsd)}
               </span>
               <FieldDescription>
                 {/* No per-answer price: engines cost different amounts. */}
-                {`${cost.observations} ${cost.observations === 1 ? "answer" : "answers"}${mode === "schedule" ? ` · about ${aiMoney(cost.monthlyCostUsd)} a month (${cost.checksPerMonth} ${cost.checksPerMonth === 1 ? "run" : "runs"})` : " · live answers, ready in a few minutes"}`}
+                {t(
+                  mode === "schedule"
+                    ? "ai_visibility.details.answer_cost"
+                    : "ai_visibility.details.answer_cost_live",
+                  {
+                    count: cost.observations,
+                    cost: aiMoney(cost.monthlyCostUsd),
+                    runs: cost.checksPerMonth,
+                  },
+                )}
               </FieldDescription>
             </Field>
             {start.error && <AiQueryError error={start.error} />}

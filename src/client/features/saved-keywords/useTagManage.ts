@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import {
 import type { TagColorKey } from "@/shared/tag-colors";
 
 export function useTagManage(projectId: string) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [busyTagIds, setBusyTagIds] = useState<Set<string>>(new Set());
 
@@ -40,7 +42,7 @@ export function useTagManage(projectId: string) {
         },
       });
       await invalidate();
-      toast.success("Tag updated");
+      toast.success(t("saved_keywords.details.tag_updated"));
     } catch (error) {
       toast.error(getStandardErrorMessage(error, "Could not update tag"));
     } finally {
@@ -53,7 +55,7 @@ export function useTagManage(projectId: string) {
     try {
       await deleteSavedKeywordTag({ data: { projectId, tagId } });
       await invalidate();
-      toast.success("Tag deleted");
+      toast.success(t("saved_keywords.details.tag_deleted"));
       return true;
     } catch (error) {
       toast.error(

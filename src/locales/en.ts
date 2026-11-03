@@ -3,21 +3,25 @@ import { authEn } from "./auth.en";
 import { domainEn } from "./domain.en";
 import { shellEn } from "./shell.en";
 import { settingsEn } from "./settings.en";
+import { samEn } from "./sam.en";
 import { ranksEn } from "./ranks.en";
 import { aiEn } from "./ai.en";
+import { brandLookupEn } from "./brandLookup.en";
+import { aiVisibilityEn } from "./aiVisibility.en";
+import { contextEn } from "./context.en";
+import { teamEn } from "./team.en";
+import { reportsEn } from "./reports.en";
+import { keywordsEn } from "./keywords.en";
 import { auditEn } from "./audit.en";
 import { billingEn } from "./billing.en";
 import { backlinksEn } from "./backlinks.en";
 import { dashboardEn } from "./dashboard.en";
 import { integrationsEn } from "./integrations.en";
-import { aiVisibilityEn } from "./aiVisibility.en";
 import { searchPerformanceEn } from "./searchPerformance.en";
-import { contextEn } from "./context.en";
-import { samEn } from "./sam.en";
-import { keywordsEn } from "./keywords.en";
+import { localSeoEn } from "./localSeo.en";
 import { projectsEn } from "./projects.en";
 import { projectSettingsEn } from "./projectSettings.en";
-import { teamEn } from "./team.en";
+import { savedKeywordsEn } from "./savedKeywords.en";
 export const en = {
   ui: uiEn,
   auth: authEn,
@@ -33,11 +37,13 @@ export const en = {
     system: "System",
     light: "Light",
     dark: "Dark",
-    close: "Close",
-    status: "Status",
     cancel: "Cancel",
+    close: "Close",
+    date: "Date",
     save: "Save",
     saved: "Saved",
+    status: "Status",
+    all: "All",
   },
   domain: domainEn,
   shell: shellEn,
@@ -65,20 +71,24 @@ export const en = {
     context: "Context",
     agent_setup: "Agent setup",
   },
+  sam: samEn,
   ranks: ranksEn,
   ai: aiEn,
+  brand_lookup: brandLookupEn,
+  ai_visibility: aiVisibilityEn,
+  context: contextEn,
+  team: teamEn,
+  reports: reportsEn,
+  keywords: keywordsEn,
   audit: auditEn,
   billing: billingEn,
   backlinks: backlinksEn,
   dashboard: dashboardEn,
   integrations: integrationsEn,
-  ai_visibility: aiVisibilityEn,
   search_performance: searchPerformanceEn,
-  context: contextEn,
-  sam: samEn,
-  keywords: keywordsEn,
+  local_seo: localSeoEn,
   projects: projectsEn,
   project_settings: projectSettingsEn,
-  team: teamEn,
+  saved_keywords: savedKeywordsEn,
 };
 export type TranslationDict = typeof en;

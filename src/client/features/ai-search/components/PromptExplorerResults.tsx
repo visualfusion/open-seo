@@ -15,6 +15,7 @@ import {
 import { formatUrlForDisplay } from "@/client/components/table/url";
 import { ExpandableList } from "@/client/components/ExpandableList";
 import { Badge } from "@/client/components/ui/badge";
+import { useLocale } from "@/client/lib/i18n";
 import type {
   PromptExplorerCitation,
   PromptExplorerModelResult,
@@ -49,6 +50,7 @@ function ModelResultCard({
   modelResult: PromptExplorerModelResult;
   highlightBrand: string | null;
 }) {
+  const { t } = useLocale();
   const accent = getModelAccent(modelResult.model);
 
   if (modelResult.status === "error") {
@@ -91,8 +93,10 @@ function ModelResultCard({
 
       <p className="px-5 pt-3 text-xs text-muted-foreground">
         {modelResult.webSearchCountryCode
-          ? `Country hint sent: ${formatCountryLabel(modelResult.webSearchCountryCode)}. This is not a verified search location.`
-          : "No country hint sent. Any search uses the provider’s default location."}
+          ? t("brand_lookup.prompt_explorer.country_hint_sent", {
+              country: formatCountryLabel(modelResult.webSearchCountryCode),
+            })
+          : t("brand_lookup.prompt_explorer.no_country_hint")}
       </p>
       <div className="px-5 py-5">
         <MarkdownAnswer text={modelResult.text} />
@@ -108,7 +112,7 @@ function ModelResultCard({
       {modelResult.fanOutQueries.length > 0 ? (
         <div className="border-t border-border px-5 py-3">
           <p className="mb-2 text-xs font-medium tracking-wider text-muted-foreground uppercase">
-            Related queries the model considered
+            {t("brand_lookup.prompt_explorer.related_queries_heading")}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {modelResult.fanOutQueries.map((query, index) => (
@@ -134,10 +138,13 @@ function CitationsList({
   citations: PromptExplorerCitation[];
   highlightBrand: string | null;
 }) {
+  const { t } = useLocale();
   return (
     <div className="border-t border-border bg-muted/30 px-5 py-3">
       <p className="mb-2 text-xs font-medium tracking-wider text-muted-foreground uppercase">
-        Cited sources ({citations.length})
+        {t("brand_lookup.prompt_explorer.cited_sources_heading", {
+          count: citations.length,
+        })}
       </p>
       <ExpandableList
         items={citations}
@@ -189,6 +196,7 @@ function ModelHeader({
   highlightBrand: string | null;
   status: "success" | "error" | "skipped";
 }) {
+  const { t } = useLocale();
   const accent = getModelAccent(model);
   return (
     <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/40 px-5 py-3">
@@ -198,9 +206,15 @@ function ModelHeader({
         {modelName ? (
           <code className="text-xs text-muted-foreground">{modelName}</code>
         ) : null}
-        {status === "error" ? <Badge variant="destructive">Error</Badge> : null}
+        {status === "error" ? (
+          <Badge variant="destructive">
+            {t("brand_lookup.prompt_explorer.status_error")}
+          </Badge>
+        ) : null}
         {status === "skipped" ? (
-          <Badge variant="secondary">Skipped</Badge>
+          <Badge variant="secondary">
+            {t("brand_lookup.prompt_explorer.status_skipped")}
+          </Badge>
         ) : null}
         <BrandMentionBadge
           mentioned={brandMentioned}
@@ -209,20 +223,22 @@ function ModelHeader({
         {webSearch ? (
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <Globe className="size-3" />
-            web search
+            {t("brand_lookup.prompt_explorer.web_search_used")}
           </span>
         ) : webSearch === false ? (
           // The model chose not to browse for this answer — that's why there
           // are no cited sources on this card.
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <Globe className="size-3" />
-            no web search
+            {t("brand_lookup.prompt_explorer.no_web_search_used")}
           </span>
         ) : null}
       </div>
       {tokens != null ? (
         <span className="text-xs text-muted-foreground tabular-nums">
-          {tokens.toLocaleString()} tokens
+          {t("brand_lookup.prompt_explorer.tokens_suffix", {
+            count: tokens.toLocaleString(),
+          })}
         </span>
       ) : null}
     </header>
@@ -236,6 +252,7 @@ function BrandMentionBadge({
   mentioned: boolean | null;
   highlightBrand: string | null;
 }) {
+  const { t } = useLocale();
   if (mentioned == null || !highlightBrand) return null;
   if (mentioned) {
     return (
@@ -248,7 +265,9 @@ function BrandMentionBadge({
   return (
     <Badge variant="secondary" className="font-normal text-muted-foreground">
       <XCircle data-icon="inline-start" />
-      no {highlightBrand}
+      {t("brand_lookup.prompt_explorer.no_brand_prefix", {
+        brand: highlightBrand,
+      })}
     </Badge>
   );
 }

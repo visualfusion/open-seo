@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/client/components/ui/select";
 import type { RankTrackingConfig } from "@/types/schemas/rank-tracking";
+import { useLocale } from "@/client/lib/i18n";
 import {
   WEEKDAYS,
   browserTimeZoneLabel,
@@ -23,13 +24,6 @@ import {
 } from "./scheduleTime";
 
 type Schedule = RankTrackingConfig["scheduleInterval"];
-
-const SCHEDULE_ITEMS: { value: Schedule; label: string }[] = [
-  { value: "daily", label: "Daily" },
-  { value: "weekly", label: "Weekly" },
-  { value: "monthly", label: "Monthly (end of month)" },
-  { value: "manual", label: "Manual only" },
-];
 
 const WEEKDAY_ITEMS = WEEKDAYS.map((day, index) => ({
   value: index,
@@ -52,15 +46,28 @@ export function ScheduleField({
   onScheduleTimeChange,
   allowManual = true,
 }: Props) {
+  const { t, locale } = useLocale();
+  const weekdayItems = WEEKDAY_ITEMS.map((item) => ({
+    ...item,
+    label: new Date(2026, 10, 1 + item.value).toLocaleDateString(locale, {
+      weekday: "long",
+    }),
+  }));
   const id = useId();
+  const scheduleItems: { value: Schedule; label: string }[] = [
+    { value: "daily", label: t("ranks.schedule.daily") },
+    { value: "weekly", label: t("ranks.schedule.weekly") },
+    { value: "monthly", label: t("ranks.schedule.monthly") },
+    { value: "manual", label: t("ranks.schedule.manual") },
+  ];
   const items = allowManual
-    ? SCHEDULE_ITEMS
-    : SCHEDULE_ITEMS.filter((item) => item.value !== "manual");
+    ? scheduleItems
+    : scheduleItems.filter((item) => item.value !== "manual");
   const [showScheduleTime, setShowScheduleTime] = useState(false);
 
   return (
     <Field>
-      <FieldLabel htmlFor={id}>Schedule</FieldLabel>
+      <FieldLabel htmlFor={id}>{t("ranks.schedule.label")}</FieldLabel>
       <Select
         items={items}
         value={schedule}
@@ -92,7 +99,7 @@ export function ScheduleField({
                 className="h-auto p-0 text-xs"
                 onClick={() => setShowScheduleTime(true)}
               >
-                change
+                {t("ranks.schedule.change")}
               </Button>
             </>
           )}
@@ -103,7 +110,7 @@ export function ScheduleField({
           <div className="flex gap-2">
             {schedule === "weekly" && (
               <Select
-                items={WEEKDAY_ITEMS}
+                items={weekdayItems}
                 value={scheduleTime.weekday}
                 onValueChange={(weekday) => {
                   if (weekday !== null) {
@@ -111,11 +118,11 @@ export function ScheduleField({
                   }
                 }}
               >
-                <SelectTrigger aria-label="Day of week">
+                <SelectTrigger aria-label={t("ranks.schedule.day_of_week")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {WEEKDAY_ITEMS.map((item) => (
+                  {weekdayItems.map((item) => (
                     <SelectItem key={item.value} value={item.value}>
                       {item.label}
                     </SelectItem>
@@ -126,7 +133,7 @@ export function ScheduleField({
             <Input
               type="time"
               className="w-auto"
-              aria-label="Time of day"
+              aria-label={t("ranks.schedule.time_of_day")}
               value={`${String(scheduleTime.hour).padStart(2, "0")}:${String(scheduleTime.minute).padStart(2, "0")}`}
               onChange={(e) => {
                 const [hour, minute] = e.target.value.split(":").map(Number);
@@ -137,14 +144,16 @@ export function ScheduleField({
             />
           </div>
           <FieldDescription>
-            In your local timezone: {browserTimeZoneLabel()}
+            {t("ranks.schedule.local_timezone", {
+              tz: browserTimeZoneLabel(),
+            })}
           </FieldDescription>
         </>
       )}
       {schedule === "daily" && (
         <p className="flex items-start gap-1.5 text-xs text-warning">
           <Info className="mt-0.5 size-3.5 shrink-0" />
-          Daily checks use 7x more credits than weekly
+          {t("ranks.schedule.daily_warning")}
         </p>
       )}
     </Field>

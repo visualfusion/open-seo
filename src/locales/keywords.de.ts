@@ -1,42 +1,30 @@
 export const keywordsDe = {
-  intents: {
-    informational: {
-      short: "Info",
-      label: "Informationell",
-      description:
-        "Der Suchende möchte Informationen oder Antworten. Geeignet für Ratgeber, Anleitungen und Erklärungen.",
-    },
-    commercial: {
-      short: "Komm",
-      label: "Kommerziell",
-      description:
-        "Der Suchende vergleicht Optionen vor einem Kauf. Kaufabsicht für Produktvergleiche, Alternativen und Lösungsseiten.",
-    },
-    transactional: {
-      short: "Trans",
-      label: "Transaktionsorientiert",
-      description:
-        "Der Suchende ist bereit für eine Handlung, meist einen Kauf. Priorisiere klare Angebote, Preise, Testphasen oder Konversionspfade.",
-    },
-    navigational: {
-      short: "Nav",
-      label: "Navigational",
-      description:
-        "Der Suchende sucht nach einer bestimmten Website, Marke oder Seite. Diese Anfragen erfordern meist das passende Ziel.",
-    },
-    unknown: {
-      short: "?",
-      label: "Unbekannt",
-      description:
-        "Die Suchintention war für dieses Keyword nicht verfügbar. Triff Content-Entscheidungen nicht allein anhand dieses Badges.",
-    },
-  },
-  overview: {
-    vol: "Vol",
-    cpc: "CPC",
-    comp: "Wettb.",
+  search_bar: {
+    placeholder: "Keyword eingeben",
+    validation_required: "Bitte gib mindestens ein Keyword ein.",
+    validation_max:
+      "Bitte gib nicht mehr als {max} Keywords ein (eines pro Zeile).",
+    city_tooltip:
+      "Suchvolumen für eine Stadt, einen Landkreis oder eine Region abrufen. Für das gesamte Land leer lassen.",
+    city_placeholder: "Stadt (optional)",
+    local_volume_cost: "Lokales Volumen kostet ca. ~${cost} pro Suche.",
+    aria_label: "Keywords",
+    search_button: "Suchen",
+    google_ads_notice:
+      "Keyword-Daten für dieses Land stammen aus Google Ads – Suchvolumen, CPC und Trends sind verfügbar, Difficulty und Intention jedoch nicht.",
+    options_button: "Optionen",
   },
   results: {
+    filters: {
+      search_volume: "Suchvolumen",
+      include_terms: "Begriffe einschließen",
+      include_placeholder: "audit, checker, vorlage",
+      exclude_terms: "Begriffe ausschließen",
+      exclude_placeholder: "jobs, gehalt, kurs",
+      cpc_usd: "CPC (USD)",
+      difficulty: "Difficulty",
+      intent: "Intention",
+    },
     serp: {
       page_header: "Seite",
       show_top_20: "Top 20 anzeigen",
@@ -78,32 +66,44 @@ export const keywordsDe = {
         "{keyword}: Stimmt im gemeldeten Volumen mit {parent} überein. Geteilte Volumina können sich überschneiden.",
       no_keywords: "Keine Keywords",
     },
-    filters: {
-      include_terms: "Begriffe einschließen",
-      include_placeholder: "audit, checker, vorlage",
-      exclude_terms: "Begriffe ausschließen",
-      exclude_placeholder: "jobs, gehalt, kurs",
-      search_volume: "Suchvolumen",
-      cpc_usd: "CPC (USD)",
-      difficulty: "Difficulty",
-      intent: "Intention",
-    },
     search_trends: "Suchtrends",
   },
-  search_bar: {
-    validation_required: "Bitte gib mindestens ein Keyword ein.",
-    validation_max:
-      "Bitte gib nicht mehr als {max} Keywords ein (eines pro Zeile).",
-    city_tooltip:
-      "Suchvolumen für eine Stadt, einen Landkreis oder eine Region abrufen. Für das gesamte Land leer lassen.",
-    city_placeholder: "Stadt (optional)",
-    local_volume_cost: "Lokales Volumen kostet ca. ~${cost} pro Suche.",
-    placeholder: "Keyword eingeben",
-    aria_label: "Keywords",
-    search_button: "Suchen",
-    google_ads_notice:
-      "Keyword-Daten für dieses Land stammen aus Google Ads – Suchvolumen, CPC und Trends sind verfügbar, Difficulty und Intention jedoch nicht.",
-    options_button: "Optionen",
+  intents: {
+    informational: {
+      short: "Info",
+      label: "Informationell",
+      description:
+        "Der Suchende möchte Informationen oder Antworten. Geeignet für Ratgeber, Anleitungen und Erklärungen.",
+    },
+    commercial: {
+      short: "Komm",
+      label: "Kommerziell",
+      description:
+        "Der Suchende vergleicht Optionen vor einem Kauf. Kaufabsicht für Produktvergleiche, Alternativen und Lösungsseiten.",
+    },
+    transactional: {
+      short: "Trans",
+      label: "Transaktionsorientiert",
+      description:
+        "Der Suchende ist bereit für eine Handlung, meist einen Kauf. Priorisiere klare Angebote, Preise, Testphasen oder Konversionspfade.",
+    },
+    navigational: {
+      short: "Nav",
+      label: "Navigational",
+      description:
+        "Der Suchende sucht nach einer bestimmten Website, Marke oder Seite. Diese Anfragen erfordern meist das passende Ziel.",
+    },
+    unknown: {
+      short: "?",
+      label: "Unbekannt",
+      description:
+        "Die Suchintention war für dieses Keyword nicht verfügbar. Triff Content-Entscheidungen nicht allein anhand dieses Badges.",
+    },
+  },
+  overview: {
+    vol: "Vol",
+    cpc: "CPC",
+    comp: "Wettb.",
   },
   empty: {
     no_results_title: "Noch nicht genügend Keyword-Daten für diese Anfrage",

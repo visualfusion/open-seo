@@ -28,6 +28,7 @@ import {
   applyShiftRangeSelection,
   type SelectionAnchor,
 } from "@/client/components/table/tableSelection";
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 
 type SuggestedKeyword = {
   keyword: string;
@@ -45,8 +46,8 @@ const baseColumns: ColumnDef<SuggestedKeyword>[] = [
     header: ({ column }) => (
       <SortableHeader
         column={column}
-        label="Keyword"
-        title="The search term this domain ranks for"
+        label={getTranslation("ranks.keyword")}
+        title={getTranslation("ranks.suggestions.col_keyword_title")}
         className={RANK_TRACKING_HEADER_CLASS}
       />
     ),
@@ -61,8 +62,8 @@ const baseColumns: ColumnDef<SuggestedKeyword>[] = [
     header: ({ column }) => (
       <SortableHeader
         column={column}
-        label="Position"
-        title="Current Google ranking position"
+        label={getTranslation("ranks.position")}
+        title={getTranslation("ranks.suggestions.col_position_title")}
         className={RANK_TRACKING_HEADER_CLASS}
       />
     ),
@@ -86,8 +87,8 @@ const baseColumns: ColumnDef<SuggestedKeyword>[] = [
     header: ({ column }) => (
       <SortableHeader
         column={column}
-        label="Volume"
-        title="Monthly search volume"
+        label={getTranslation("ranks.suggestions.col_volume")}
+        title={getTranslation("ranks.suggestions.col_volume_title")}
         className={RANK_TRACKING_HEADER_CLASS}
       />
     ),
@@ -111,8 +112,8 @@ const baseColumns: ColumnDef<SuggestedKeyword>[] = [
     header: ({ column }) => (
       <SortableHeader
         column={column}
-        label="Traffic"
-        title="Estimated monthly organic traffic"
+        label={getTranslation("ranks.suggestions.col_traffic")}
+        title={getTranslation("ranks.suggestions.col_traffic_title")}
         className={RANK_TRACKING_HEADER_CLASS}
       />
     ),
@@ -149,6 +150,7 @@ export function KeywordSuggestionStep({
   onDone,
   onClose,
 }: Props) {
+  const { t } = useLocale();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [hasInitialized, setHasInitialized] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([
@@ -217,7 +219,9 @@ export function KeywordSuggestionStep({
     mutationFn: (keywords: string[]) =>
       addTrackingKeywords({ data: { projectId, configId, keywords } }),
     onSuccess: (result) => {
-      toast.success(`Added ${result.added} keywords for tracking`);
+      toast.success(
+        t("ranks.suggestions.added_toast", { count: result.added }),
+      );
       onDone(configId);
     },
   });
@@ -235,11 +239,11 @@ export function KeywordSuggestionStep({
     return (
       <>
         <StepHeader
-          title="Add keywords manually"
-          description="Ranked-keyword suggestions aren't available for this country. Continue and add the keywords you want to track manually."
+          title={t("ranks.suggestions.manual_title")}
+          description={t("ranks.suggestions.manual_desc")}
         />
         <DialogFooter>
-          <Button onClick={onClose}>Continue</Button>
+          <Button onClick={onClose}>{t("ranks.suggestions.continue")}</Button>
         </DialogFooter>
       </>
     );
@@ -248,9 +252,9 @@ export function KeywordSuggestionStep({
   if (suggestionsQuery.isLoading) {
     return (
       <>
-        <StepHeader title="Finding your top keywords..." />
+        <StepHeader title={t("ranks.suggestions.loading_title")} />
         <div className="flex flex-col items-center justify-center py-16">
-          <Spinner label="This usually takes a few seconds" />
+          <Spinner label={t("ranks.suggestions.loading_spinner")} />
         </div>
       </>
     );
@@ -260,11 +264,11 @@ export function KeywordSuggestionStep({
     return (
       <>
         <StepHeader
-          title="Couldn't fetch keywords"
-          description="You can skip this step and add keywords manually later."
+          title={t("ranks.suggestions.error_title")}
+          description={t("ranks.suggestions.error_desc")}
         />
         <DialogFooter>
-          <Button onClick={onClose}>Skip</Button>
+          <Button onClick={onClose}>{t("ranks.suggestions.skip")}</Button>
         </DialogFooter>
       </>
     );
@@ -274,11 +278,11 @@ export function KeywordSuggestionStep({
     return (
       <>
         <StepHeader
-          title="No rankings found"
-          description={`We couldn't find any keywords ${domain} currently ranks for. You can add keywords manually.`}
+          title={t("ranks.suggestions.empty_title")}
+          description={t("ranks.suggestions.empty_desc", { domain })}
         />
         <DialogFooter>
-          <Button onClick={onClose}>Skip</Button>
+          <Button onClick={onClose}>{t("ranks.suggestions.skip")}</Button>
         </DialogFooter>
       </>
     );
@@ -287,13 +291,16 @@ export function KeywordSuggestionStep({
   return (
     <>
       <StepHeader
-        title="Choose keywords to track"
-        description={`We found ${data.length} keywords ${domain} ranks for.`}
+        title={t("ranks.suggestions.choose_title")}
+        description={t("ranks.suggestions.choose_desc", {
+          count: data.length,
+          domain,
+        })}
       />
 
       <DataTable
         table={table}
-        empty={{ title: "No keywords" }}
+        empty={{ title: t("ranks.suggestions.no_keywords") }}
         scrollClassName="max-h-[400px]"
         onRowClick={(row, event) => {
           if (applyShiftRangeSelection(event, row, table, selectAnchorRef)) {
@@ -305,18 +312,23 @@ export function KeywordSuggestionStep({
 
       <DialogFooter className="items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">
-          {selectedCount} of {data.length} selected
+          {t("ranks.suggestions.selected_count", {
+            selected: selectedCount,
+            total: data.length,
+          })}
         </p>
         <div className="flex items-center gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Skip
+            {t("ranks.suggestions.skip")}
           </Button>
           <Button
             onClick={handleAdd}
             pending={addMutation.isPending}
             disabled={selectedCount === 0}
           >
-            Save Keyword{selectedCount !== 1 ? "s" : ""}
+            {selectedCount === 1
+              ? t("ranks.suggestions.save_one")
+              : t("ranks.suggestions.save_many")}
           </Button>
         </div>
       </DialogFooter>

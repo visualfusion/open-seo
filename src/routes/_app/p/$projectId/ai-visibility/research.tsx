@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link2, ListPlus, MessagesSquare } from "lucide-react";
 import { z } from "zod";
+import { useLocale } from "@/client/lib/i18n";
 import { PromptResearchPage } from "@/client/features/ai-visibility/PromptResearchPage";
 import { PromptTrackingWithoutUpgradeButton } from "@/client/features/ai-visibility/shared";
 import { PaidPlanGate } from "@/client/features/billing/PaidPlanGate";
@@ -12,32 +13,34 @@ export const Route = createFileRoute(
   component: AiResearchRoute,
 });
 
-const PROMPT_RESEARCH_FEATURES = [
-  {
-    icon: MessagesSquare,
-    title: "Questions about your market",
-    body: "See the questions people ask about a keyword, most common first, with ChatGPT's answer to each.",
-  },
-  {
-    icon: Link2,
-    title: "Who gets cited",
-    body: "See which sites ChatGPT cited when it answered, and whether yours is one of them.",
-  },
-  {
-    icon: ListPlus,
-    title: "Track the ones that matter",
-    body: "Pick the questions worth watching and add them to Prompt Tracking in one step.",
-  },
-];
-
 function AiResearchRoute() {
+  const { t } = useLocale();
   const { projectId } = Route.useParams();
   const { q } = Route.useSearch();
+
+  const features = [
+    {
+      icon: MessagesSquare,
+      title: t("ai_visibility.research_feature_1_title"),
+      body: t("ai_visibility.research_feature_1_body"),
+    },
+    {
+      icon: Link2,
+      title: t("ai_visibility.research_feature_2_title"),
+      body: t("ai_visibility.research_feature_2_body"),
+    },
+    {
+      icon: ListPlus,
+      title: t("ai_visibility.research_feature_3_title"),
+      body: t("ai_visibility.research_feature_3_body"),
+    },
+  ];
+
   return (
     <PaidPlanGate
-      feature="Prompt Research"
-      description="Find questions people ask about your market, see how ChatGPT answers them, and check which sites the answers cite."
-      features={PROMPT_RESEARCH_FEATURES}
+      feature={t("ai_visibility.research_features_title")}
+      description={t("ai_visibility.research_description")}
+      features={features}
       alternative={<PromptTrackingWithoutUpgradeButton projectId={projectId} />}
     >
       <PromptResearchPage key={projectId} projectId={projectId} keyword={q} />

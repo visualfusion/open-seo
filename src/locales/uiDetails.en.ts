@@ -45,6 +45,8 @@ export const uiDetailsEn = {
   displays_the_mobile_sidebar: "Displays the mobile sidebar.",
   toggle_sidebar: "Toggle Sidebar",
   loading: "Loading",
+  vs_value: "vs {v1}",
+  not_available: "Not available",
   spam_score_unknown: "Spam score unknown",
   last_value: "Last {v1}",
   these_filters_exceed_the_this_view:
@@ -110,5 +112,5 @@ export const uiDetailsEn = {
   copied_data: "Copied data",
   redirecting_you_to_billing_a_hosted:
     "Redirecting you to billing so you can start a hosted subscription.",
-  not_available: "Not available",
+  failed_to_load_saved_keywords: "Failed to load saved keywords.",
 };

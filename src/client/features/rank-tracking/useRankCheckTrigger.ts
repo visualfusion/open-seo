@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { getTranslation } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { triggerRankCheck } from "@/serverFunctions/rank-tracking";
 
@@ -31,12 +32,12 @@ export function useRankCheckTrigger({
         queryKey: ["rankTrackingLatestRun", projectId, configId],
       });
       if (!result.ok) {
-        toast.info("A rank check is already running");
+        toast.info(getTranslation("ranks.table_ext.check_already_running"));
         return;
       }
 
       captureClientEvent("rank_tracking:check_trigger");
-      toast.success("Rank check started");
+      toast.success(getTranslation("ranks.table_ext.check_started"));
     },
   });
 

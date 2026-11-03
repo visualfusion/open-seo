@@ -6,6 +6,7 @@ import {
   formatCount,
   formatPlatformLabel,
 } from "@/client/features/ai-search/platformLabels";
+import { useLocale } from "@/client/lib/i18n";
 import type { BrandLookupResult } from "@/types/schemas/ai-search";
 
 type ShareOfVoice = NonNullable<BrandLookupResult["shareOfVoice"]>;
@@ -25,6 +26,7 @@ export function BrandLookupShareOfVoice({
   /** True under a URL scope: SoV always compares whole domains. */
   isDomainLevel: boolean;
 }) {
+  const { t } = useLocale();
   const target = shareOfVoice.entries.find((entry) => entry.isTarget) ?? null;
   const maxPct = Math.max(
     0,
@@ -35,16 +37,16 @@ export function BrandLookupShareOfVoice({
     <div className="flex h-full flex-col rounded-lg border border-border">
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium">Share of Voice</h3>
+          <h3 className="text-sm font-medium">{t("brand_lookup.sov.title")}</h3>
           {isDomainLevel ? (
-            <DomainLevelBadge tooltip="Share of Voice compares whole domains — it is not narrowed to the page or folder you searched." />
+            <DomainLevelBadge tooltip={t("brand_lookup.sov.domain_tip")} />
           ) : null}
         </div>
         {target ? (
           <span className="text-xs text-muted-foreground">
             <span className="font-medium text-foreground">{target.label}</span>{" "}
             {target.sharePct == null
-              ? "· no comparable data"
+              ? t("brand_lookup.sov.no_comparable_data")
               : `· ${Math.round(target.sharePct)}%`}
           </span>
         ) : null}
@@ -64,8 +66,8 @@ export function BrandLookupShareOfVoice({
       {/* Captions only the platforms actually summed — when one platform's
           cross_aggregated call failed, the leaderboard must not claim both. */}
       <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-        Share of mentions on{" "}
-        {shareOfVoice.platforms.map(formatPlatformLabel).join(" and ")}
+        {t("brand_lookup.sov.caption_prefix")}
+        {shareOfVoice.platforms.map(formatPlatformLabel).join(", ")}
       </p>
     </div>
   );
@@ -80,6 +82,7 @@ function LeaderboardRow({
   rank: number;
   maxPct: number;
 }) {
+  const { t } = useLocale();
   const hasData = entry.mentions != null && entry.sharePct != null;
   const barWidth =
     hasData && maxPct > 0 ? ((entry.sharePct ?? 0) / maxPct) * 100 : 0;
@@ -95,7 +98,9 @@ function LeaderboardRow({
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm">{entry.label}</span>
-          {entry.isTarget ? <Badge size="sm">You</Badge> : null}
+          {entry.isTarget ? (
+            <Badge size="sm">{t("brand_lookup.sov.you_badge")}</Badge>
+          ) : null}
           <span className="ml-auto shrink-0 text-xs text-muted-foreground tabular-nums">
             {/* Null mentions = "no data"; render a dash, not zero. */}
             {entry.mentions == null ? "—" : formatCount(entry.mentions)}
@@ -103,7 +108,7 @@ function LeaderboardRow({
         </div>
         <Progress
           value={barWidth}
-          aria-label={`${entry.label} share of the leader`}
+          aria-label={t("brand_lookup.sov.share_aria", { label: entry.label })}
           className={cn(
             "mt-1.5 **:data-[slot=progress-track]:h-1.5",
             !entry.isTarget &&

@@ -1,7 +1,8 @@
+import { aiObservationStatusLabel } from "./shared";
 import type { ReactNode } from "react";
+import { useLocale } from "@/client/lib/i18n";
 import {
   AI_ENGINE_LABELS,
-  aiObservationStatusLabel,
   type AiObservationRow,
   type AiPrompt,
 } from "@/shared/ai-visibility";
@@ -20,13 +21,16 @@ export function PromptAnswers({
   /** Chooses which answer is shown. */
   controls: ReactNode;
 }) {
+  const { t } = useLocale();
   return (
     <section
       className="overflow-hidden rounded-lg border bg-card border-border"
-      aria-label="Selected execution answer"
+      aria-label={t("ai_visibility.details.selected_execution_answer")}
     >
       <div className="flex flex-wrap items-center gap-3 border-b px-5 py-3 border-border">
-        <h2 className="mr-auto text-sm font-semibold">Answer</h2>
+        <h2 className="mr-auto text-sm font-semibold">
+          {t("ai_visibility.answer_section_title")}
+        </h2>
         {controls}
       </div>
       {prompt && observation.prompt !== prompt.text && (
@@ -34,7 +38,9 @@ export function PromptAnswers({
           className="border-b px-5 py-3 text-xs text-muted-foreground border-border"
           data-ph-mask
         >
-          Collected prompt: {observation.prompt}
+          {t("ai_visibility.collected_prompt_label", {
+            text: observation.prompt,
+          })}
         </p>
       )}
       {observation.status === "completed" ? (
@@ -52,10 +58,10 @@ export function PromptAnswers({
           <p className="text-sm text-muted-foreground">
             {observation.error
               ? getStandardErrorMessage(new Error(observation.error))
-              : "An answer is not available for this collection yet."}
+              : t("ai_visibility.answer_not_available")}
           </p>
           <p className="text-xs text-muted-foreground">
-            This collection is excluded from visibility rates.
+            {t("ai_visibility.answer_excluded_notice")}
           </p>
         </div>
       )}

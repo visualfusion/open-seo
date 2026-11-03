@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Pencil, Settings2, Tag as TagIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/client/components/ui/button";
@@ -50,6 +51,7 @@ export function SavedKeywordsTagFilter({
   onUpdateTag: (input: UpdateTagInput) => void;
   onDeleteTag: (tagId: string) => void;
 }) {
+  const { t } = useLocale();
   const anchor = useComboboxAnchor();
   const [managing, setManaging] = useState(false);
   const selectedTags = availableTags.filter((tag) =>
@@ -62,7 +64,9 @@ export function SavedKeywordsTagFilter({
         multiple
         items={availableTags}
         value={selectedTags}
-        onValueChange={(tags) => onSelectedTagIdsChange(tags.map((t) => t.id))}
+        onValueChange={(tags) =>
+          onSelectedTagIdsChange(tags.map((tag) => tag.id))
+        }
         itemToStringLabel={(tag) => tag.name}
         isItemEqualToValue={(a, b) => a.id === b.id}
       >
@@ -82,15 +86,19 @@ export function SavedKeywordsTagFilter({
             }
           </ComboboxValue>
           <ComboboxChipsInput
-            aria-label="Filter by tag"
-            placeholder={selectedTags.length > 0 ? "" : "Filter by tag…"}
+            aria-label={t("saved_keywords.details.filter_by_tag")}
+            placeholder={
+              selectedTags.length > 0
+                ? ""
+                : t("saved_keywords.details.filter_by_tag_2")
+            }
           />
         </ComboboxChips>
         <ComboboxContent anchor={anchor}>
           <ComboboxEmpty className="px-3">
             {availableTags.length === 0
-              ? "No tags yet. Add tags from a selection of keywords."
-              : "No tags match that search."}
+              ? t("saved_keywords.details.no_tags_yet_add_of_keywords")
+              : t("saved_keywords.bulk.no_tags_match")}
           </ComboboxEmpty>
           <ComboboxList>
             {(tag: SavedKeywordTagSummary) => (
@@ -109,8 +117,8 @@ export function SavedKeywordsTagFilter({
       <Button
         variant="ghost"
         size="icon-sm"
-        aria-label="Manage tags"
-        title="Manage tags"
+        aria-label={t("saved_keywords.details.manage_tags")}
+        title={t("saved_keywords.details.manage_tags")}
         disabled={availableTags.length === 0}
         onClick={() => setManaging(true)}
       >
@@ -143,6 +151,7 @@ function TagManagerDialog({
   onDeleteTag: (tagId: string) => void;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
 
   return (
@@ -154,16 +163,16 @@ function TagManagerDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Manage tags</DialogTitle>
+          <DialogTitle>{t("saved_keywords.details.manage_tags")}</DialogTitle>
           <DialogDescription>
-            Rename, recolor, or delete the tags in this project.
+            {t("saved_keywords.details.rename_recolor_or_delete_this_project")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="-mx-4 -mb-4 max-h-96 overflow-y-auto border-t border-border py-1">
           {tags.length === 0 ? (
             <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-              No tags yet. Add tags from a selection of keywords.
+              {t("saved_keywords.details.no_tags_yet_add_of_keywords")}
             </p>
           ) : null}
           {tags.map((tag) => {
@@ -179,7 +188,9 @@ function TagManagerDialog({
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    aria-label={`Edit ${tag.name}`}
+                    aria-label={t("saved_keywords.details.edit_value", {
+                      v1: tag.name,
+                    })}
                     aria-pressed={editing}
                     className="aria-pressed:bg-muted"
                     onClick={() => setEditingTagId(editing ? null : tag.id)}

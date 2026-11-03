@@ -1,3 +1,5 @@
+import { aiObservationStatusLabel, aiDate } from "./shared";
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { sort } from "remeda";
 import { Button } from "@/client/components/ui/button";
@@ -8,10 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/client/components/ui/select";
-import {
-  aiObservationStatusLabel,
-  type AiPrompt,
-} from "@/shared/ai-visibility";
+import { type AiPrompt } from "@/shared/ai-visibility";
 import { summarizeAiBrands } from "@/shared/ai-visibility-results";
 import type { getAiVisibilityResults } from "@/serverFunctions/ai-visibility";
 import { aiEngineSchema } from "@/types/schemas/ai-visibility";
@@ -25,7 +24,6 @@ import {
 } from "./PromptDateRange";
 import { PromptExecutions, type PromptExecution } from "./PromptExecutions";
 import { PromptSummary } from "./PromptSummary";
-import { aiDate } from "./shared";
 
 const answered = ({ observation }: PromptExecution) =>
   observation.status === "completed" && observation.answerStatus === "answered";
@@ -39,6 +37,7 @@ export function PromptAnalysis({
   prompt: AiPrompt | undefined;
   history: Awaited<ReturnType<typeof getAiVisibilityResults>>;
 }) {
+  const { t } = useLocale();
   const [period, setPeriod] = useState(() => promptPeriod());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const executions = sort(
@@ -92,13 +91,13 @@ export function PromptAnalysis({
         <div className="space-y-3 rounded-lg border border-border bg-card p-8 text-center">
           <h2 className="text-sm font-medium">
             {history.rows.length
-              ? "No executions in this period"
-              : "No answers yet"}
+              ? t("ai_visibility.details.no_executions_in_this_period")
+              : t("ai_visibility.details.no_answers_yet")}
           </h2>
           <p className="text-sm text-muted-foreground">
             {history.rows.length
-              ? "Choose another date range to see this prompt’s answers."
-              : "Choose Run now to collect answers, brand mentions, and citations."}
+              ? t("ai_visibility.details.choose_another_date_range_s_answers")
+              : t("ai_visibility.details.choose_run_now_to_and_citations")}
           </p>
           {history.rows.length > 0 && (
             <Button
@@ -106,15 +105,14 @@ export function PromptAnalysis({
               variant="outline"
               onClick={() => setPeriod(promptPeriod(PromptRange.All))}
             >
-              Show all available history
+              {t("ai_visibility.details.show_all_available_history")}
             </Button>
           )}
         </div>
       )}
       {history.truncated && (
         <p className="text-xs text-muted-foreground">
-          History covers the latest 50 project runs. Older executions are not
-          included in this period’s metrics.
+          {t("ai_visibility.details.history_covers_the_latest_executions_are")}
         </p>
       )}
     </div>
@@ -131,6 +129,7 @@ function ExecutionSelects({
   selected: PromptExecution;
   onSelect: (id: string) => void;
 }) {
+  const { t } = useLocale();
   const engine = selected.observation.engine;
   const engineItems = aiEngineSchema.options
     .filter((value) =>
@@ -164,7 +163,10 @@ function ExecutionSelects({
           if (match) onSelect(match.observation.id);
         }}
       >
-        <SelectTrigger size="sm" aria-label="AI provider">
+        <SelectTrigger
+          size="sm"
+          aria-label={t("ai_visibility.details.ai_provider")}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -182,7 +184,10 @@ function ExecutionSelects({
           if (id) onSelect(id);
         }}
       >
-        <SelectTrigger size="sm" aria-label="Answer date">
+        <SelectTrigger
+          size="sm"
+          aria-label={t("ai_visibility.details.answer_date")}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

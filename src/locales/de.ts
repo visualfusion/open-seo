@@ -4,21 +4,25 @@ import { authDe } from "./auth.de";
 import { domainDe } from "./domain.de";
 import { shellDe } from "./shell.de";
 import { settingsDe } from "./settings.de";
+import { samDe } from "./sam.de";
 import { ranksDe } from "./ranks.de";
 import { aiDe } from "./ai.de";
+import { brandLookupDe } from "./brandLookup.de";
+import { aiVisibilityDe } from "./aiVisibility.de";
+import { contextDe } from "./context.de";
+import { teamDe } from "./team.de";
+import { reportsDe } from "./reports.de";
+import { keywordsDe } from "./keywords.de";
 import { auditDe } from "./audit.de";
 import { billingDe } from "./billing.de";
 import { backlinksDe } from "./backlinks.de";
 import { dashboardDe } from "./dashboard.de";
 import { integrationsDe } from "./integrations.de";
-import { aiVisibilityDe } from "./aiVisibility.de";
 import { searchPerformanceDe } from "./searchPerformance.de";
-import { contextDe } from "./context.de";
-import { samDe } from "./sam.de";
-import { keywordsDe } from "./keywords.de";
+import { localSeoDe } from "./localSeo.de";
 import { projectsDe } from "./projects.de";
 import { projectSettingsDe } from "./projectSettings.de";
-import { teamDe } from "./team.de";
+import { savedKeywordsDe } from "./savedKeywords.de";
 export const de: TranslationDict = {
   ui: uiDe,
   auth: authDe,
@@ -34,11 +38,13 @@ export const de: TranslationDict = {
     system: "System",
     light: "Hell",
     dark: "Dunkel",
-    close: "Schließen",
-    status: "Status",
     cancel: "Abbrechen",
+    close: "Schließen",
+    date: "Datum",
     save: "Speichern",
     saved: "Gespeichert",
+    status: "Status",
+    all: "Alle",
   },
   domain: domainDe,
   shell: shellDe,
@@ -66,19 +72,23 @@ export const de: TranslationDict = {
     context: "Projekt-Kontext",
     agent_setup: "Agenten-Einrichtung",
   },
+  sam: samDe,
   ranks: ranksDe,
   ai: aiDe,
+  brand_lookup: brandLookupDe,
+  ai_visibility: aiVisibilityDe,
+  context: contextDe,
+  team: teamDe,
+  reports: reportsDe,
+  keywords: keywordsDe,
   audit: auditDe,
   billing: billingDe,
   backlinks: backlinksDe,
   dashboard: dashboardDe,
   integrations: integrationsDe,
-  ai_visibility: aiVisibilityDe,
   search_performance: searchPerformanceDe,
-  context: contextDe,
-  sam: samDe,
-  keywords: keywordsDe,
+  local_seo: localSeoDe,
   projects: projectsDe,
   project_settings: projectSettingsDe,
-  team: teamDe,
+  saved_keywords: savedKeywordsDe,
 };

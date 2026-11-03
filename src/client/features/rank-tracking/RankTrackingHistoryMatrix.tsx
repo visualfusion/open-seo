@@ -18,6 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/client/components/ui/tooltip";
+import { useLocale } from "@/client/lib/i18n";
 
 /**
  * "By date" view: keyword rows × recent check columns, each cell the position
@@ -33,6 +34,7 @@ export function RankTrackingHistoryMatrix({
   keywords: { trackingKeywordId: string; keyword: string }[];
   onClearFilters: () => void;
 }) {
+  const { t, locale } = useLocale();
   const { runs, cellByKeyword } = useMemo(() => buildMatrix(cells), [cells]);
 
   // The History view is only offered once the matrix has loaded at least two
@@ -41,11 +43,11 @@ export function RankTrackingHistoryMatrix({
     return (
       <EmptyState
         kind="filtered"
-        title="No keywords match these filters"
-        description="Change or clear the filters to see more keywords."
+        title={t("ui.table.no_results_filtered")}
+        description={t("ui.table.no_results_filtered_desc")}
         action={
           <Button variant="outline" size="sm" onClick={onClearFilters}>
-            Clear filters
+            {t("ui.table.clear_filters")}
           </Button>
         }
       />
@@ -60,11 +62,11 @@ export function RankTrackingHistoryMatrix({
             {/* Unconstrained keyword column absorbs the slack when only a few
                 check columns exist, so sparse history doesn't stretch oddly. */}
             <TableHead className="sticky left-0 z-10 w-full bg-card">
-              Keyword
+              {t("ranks.keyword")}
             </TableHead>
             {runs.map((r) => (
               <TableHead key={r.runId} className="w-24 text-right">
-                {formatDate(r.checkedAt)}
+                {formatDate(r.checkedAt, locale)}
               </TableHead>
             ))}
           </TableRow>
@@ -107,13 +109,14 @@ export function RankTrackingHistoryMatrix({
 }
 
 function NotCheckedCell() {
+  const { t } = useLocale();
   return (
     <Tooltip>
       <TooltipTrigger
         render={
           // An icon fits the numeric column.
           <span
-            aria-label="Not checked"
+            aria-label={t("ranks.overview.not_checked")}
             className="inline-flex cursor-help align-middle text-muted-foreground"
           />
         }
@@ -121,7 +124,7 @@ function NotCheckedCell() {
         <CircleSlash className="size-3.5" aria-hidden />
       </TooltipTrigger>
       <TooltipContent>
-        Not checked: check failed, no position recorded.
+        {t("ranks.table_ext.not_checked_tooltip")}
       </TooltipContent>
     </Tooltip>
   );
@@ -186,9 +189,12 @@ function buildMatrix(cells: RankPositionMatrixCell[]): {
   return { runs, cellByKeyword };
 }
 
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+function formatDate(value: string, locale: string): string {
+  return new Date(value).toLocaleDateString(
+    locale === "de" ? "de-DE" : "en-US",
+    {
+      month: "short",
+      day: "numeric",
+    },
+  );
 }

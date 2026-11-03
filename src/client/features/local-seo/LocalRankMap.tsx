@@ -7,6 +7,7 @@ import {
 } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
 import { LocalPointStatus } from "@/shared/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 import { GoogleMapsTiles } from "./GoogleMapsTiles";
 import type { LocalGridDisplayPoint } from "./LocalRankGrid";
 
@@ -32,6 +33,7 @@ export default function LocalRankMap({
   onSelect: (id: string) => void;
   preview: boolean;
 }) {
+  const { t } = useLocale();
   const bounds: LatLngBoundsExpression = points.map((point) => [
     point.latitude,
     point.longitude,
@@ -50,7 +52,7 @@ export default function LocalRankMap({
       keyboard={false}
       attributionControl={false}
       className="z-0 h-full w-full"
-      aria-label="Local search ranking grid on a Google Maps basemap"
+      aria-label={t("local_seo.map.aria_label")}
     >
       <FitGridOnResize bounds={bounds} />
       <GoogleMapsTiles projectId={projectId} />

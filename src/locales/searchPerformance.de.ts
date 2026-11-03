@@ -5,12 +5,6 @@ export const searchPerformanceDe = {
     queries: "Suchanfragen",
     pages: "Seiten",
   },
-  failed_to_load: "Search-Console-Daten konnten nicht geladen werden",
-  export_failed: "Export fehlgeschlagen",
-  title: "GSC Insights",
-  description:
-    "Sieh dir Klicks, Impressionen, CTR und die durchschnittliche Position deiner Website aus der Google Search Console an.",
-  change_property: "Property wechseln",
   filters: {
     toggle_title: "Tabellenfilter umschalten",
     toggle: "Filter",
@@ -32,6 +26,12 @@ export const searchPerformanceDe = {
     cancel: "Abbrechen",
     apply: "Filter anwenden",
   },
+  failed_to_load: "Search-Console-Daten konnten nicht geladen werden",
+  export_failed: "Export fehlgeschlagen",
+  title: "GSC Insights",
+  description:
+    "Sieh dir Klicks, Impressionen, CTR und die durchschnittliche Position deiner Website aus der Google Search Console an.",
+  change_property: "Property wechseln",
   loading_matching: "Passende Ergebnisse werden geladen…",
   columns: {
     query: "Suchanfrage",

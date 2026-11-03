@@ -11,6 +11,7 @@ import {
   isLocalScanActive,
   LocalPointStatus,
 } from "@/shared/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 import { LocalRankGrid, type LocalGridDisplayPoint } from "./LocalRankGrid";
 import { LocalPointResults } from "./LocalPointResults";
 import type { LocalSeoSearch } from "@/types/schemas/local-seo-search";
@@ -34,6 +35,7 @@ export function LocalKeywordMap({
   search: LocalSeoSearch;
   onSearchChange: (search: LocalSeoSearch) => void;
 }) {
+  const { locale, t } = useLocale();
   const query = useQuery({
     queryKey: ["localSeo", projectId, "scan", selectedScan?.id],
     queryFn: () =>
@@ -66,8 +68,8 @@ export function LocalKeywordMap({
           <h3 className="text-sm font-semibold">{keyword.keyword}</h3>
           <p className="text-xs text-muted-foreground">
             {selectedScan
-              ? `${historical ? "Saved check" : "Latest check"} · ${new Date(selectedScan.createdAt).toLocaleString()}`
-              : "Not checked yet"}
+              ? `${historical ? t("local_seo.map.saved_check") : t("local_seo.map.latest_check")} · ${new Date(selectedScan.createdAt).toLocaleString(locale === "de" ? "de-DE" : "en-US")}`
+              : t("local_seo.map.not_checked_yet")}
           </p>
         </div>
         {historical && (
@@ -76,7 +78,7 @@ export function LocalKeywordMap({
             variant="ghost"
             onClick={() => onSearchChange({ keyword: keyword.id })}
           >
-            Back to latest
+            {t("local_seo.map.back_to_latest")}
           </Button>
         )}
       </div>
@@ -84,7 +86,7 @@ export function LocalKeywordMap({
       {query.isError && (
         <QueryError
           error={query.error}
-          fallback="Failed to load ranking results."
+          fallback={t("local_seo.map.failed_load_results")}
           onRetry={() => void query.refetch()}
         />
       )}
@@ -118,7 +120,7 @@ export function LocalKeywordMap({
         ) : (
           <Card className="justify-center px-6 py-0 shadow-none">
             <p className="text-center text-sm text-muted-foreground">
-              Run a check to see where this business ranks across the area.
+              {t("local_seo.map.run_check_prompt")}
             </p>
           </Card>
         )}

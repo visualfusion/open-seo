@@ -8,6 +8,7 @@ import {
 } from "@/client/components/SkeletonPresets";
 import { Card, CardContent } from "@/client/components/ui/card";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import {
   PaidPlanGate,
   type PaidPlanGateCopy,
@@ -79,6 +80,7 @@ export function ResearchPageShell<TData>({
     onSuccessRef.current();
   }, [hasActiveQuery, query.isSuccess, historyKey]);
 
+  const { t } = useLocale();
   const isLoading = hasActiveQuery && query.isPending;
   const errorMessage =
     hasActiveQuery && query.isError
@@ -111,7 +113,9 @@ export function ResearchPageShell<TData>({
               cause={query.error}
               fallback={
                 resultData
-                  ? `${errorMessage} Showing earlier results.`
+                  ? t("brand_lookup.showing_earlier_results", {
+                      error: errorMessage,
+                    })
                   : errorMessage
               }
               onRetry={() => void query.refetch()}

@@ -8,6 +8,7 @@ import { SortableHeader } from "@/client/components/table/SortableHeader";
 import { RANK_TRACKING_HEADER_CLASS } from "@/client/features/rank-tracking/RankTrackingColumns";
 import { isLocalScanActive, LocalScanStatus } from "@/shared/local-seo";
 import type { getLocalTracker } from "@/serverFunctions/local-seo";
+import { useLocale } from "@/client/lib/i18n";
 
 type TrackerData = Awaited<ReturnType<typeof getLocalTracker>>;
 type KeywordRow = TrackerData["keywords"][number] & {
@@ -43,6 +44,7 @@ export function LocalKeywordsTable({
   onSelect: (keywordId: string, scanId?: string) => void;
   onManage: () => void;
 }) {
+  const { locale, t } = useLocale();
   const { keywords, scans, checks } = data;
   const [sorting, setSorting] = useState<SortingState>([
     { id: "keyword", desc: false },
@@ -61,11 +63,11 @@ export function LocalKeywordsTable({
       accessorKey: "keyword",
       header: ({ column }) =>
         history ? (
-          "Keyword"
+          t("local_seo.keywords_table.keyword")
         ) : (
           <SortableHeader
             column={column}
-            label="Keyword"
+            label={t("local_seo.keywords_table.keyword")}
             className={RANK_TRACKING_HEADER_CLASS}
           />
         ),
@@ -75,7 +77,7 @@ export function LocalKeywordsTable({
           type="button"
           className="text-left font-medium decoration-dotted underline-offset-2 hover:underline"
           aria-pressed={row.id === selectedKeywordId}
-          title="View ranking map"
+          title={t("local_seo.keywords_table.view_map")}
           onClick={(event) => {
             event.stopPropagation();
             onSelect(row.id);
@@ -95,13 +97,20 @@ export function LocalKeywordsTable({
           (check): ColumnDef<KeywordRow> => ({
             id: check.id,
             header: () => (
-              <span title={new Date(check.createdAt).toLocaleString()}>
-                {new Date(check.createdAt).toLocaleString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
+              <span
+                title={new Date(check.createdAt).toLocaleString(
+                  locale === "de" ? "de-DE" : "en-US",
+                )}
+              >
+                {new Date(check.createdAt).toLocaleString(
+                  locale === "de" ? "de-DE" : "en-US",
+                  {
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  },
+                )}
               </span>
             ),
             meta: {
@@ -121,14 +130,19 @@ export function LocalKeywordsTable({
                   type="button"
                   className="font-mono text-xs decoration-dotted underline-offset-2 hover:underline aria-pressed:text-primary"
                   aria-pressed={scan.id === selectedScanId}
-                  title={`View map for ${row.original.keyword}, ${new Date(check.createdAt).toLocaleString()}`}
+                  title={t("local_seo.keywords_table.view_map_for", {
+                    keyword: row.original.keyword,
+                    date: new Date(check.createdAt).toLocaleString(
+                      locale === "de" ? "de-DE" : "en-US",
+                    ),
+                  })}
                   onClick={(event) => {
                     event.stopPropagation();
                     onSelect(row.id, scan.id);
                   }}
                 >
                   {scan.status === LocalScanStatus.Failed
-                    ? "Failed"
+                    ? t("local_seo.keywords_table.failed")
                     : (scan.summary?.averageRank ?? "—")}
                 </button>
               );
@@ -144,7 +158,7 @@ export function LocalKeywordsTable({
         header: ({ column }) => (
           <SortableHeader
             column={column}
-            label="Avg. rank"
+            label={t("local_seo.keywords_table.avg_rank")}
             className={RANK_TRACKING_HEADER_CLASS}
           />
         ),
@@ -158,7 +172,7 @@ export function LocalKeywordsTable({
         header: ({ column }) => (
           <SortableHeader
             column={column}
-            label="Top-3 coverage"
+            label={t("local_seo.keywords_table.top3_coverage")}
             className={RANK_TRACKING_HEADER_CLASS}
           />
         ),
@@ -175,7 +189,7 @@ export function LocalKeywordsTable({
         header: ({ column }) => (
           <SortableHeader
             column={column}
-            label="Points found"
+            label={t("local_seo.keywords_table.points_found")}
             className={RANK_TRACKING_HEADER_CLASS}
           />
         ),
@@ -192,7 +206,7 @@ export function LocalKeywordsTable({
         header: ({ column }) => (
           <SortableHeader
             column={column}
-            label="Last checked"
+            label={t("local_seo.keywords_table.last_checked")}
             className={RANK_TRACKING_HEADER_CLASS}
           />
         ),
@@ -201,7 +215,16 @@ export function LocalKeywordsTable({
         sortUndefined: "last",
       },
     ];
-  }, [history, checks, scans, onSelect, selectedKeywordId, selectedScanId]);
+  }, [
+    history,
+    checks,
+    scans,
+    onSelect,
+    selectedKeywordId,
+    selectedScanId,
+    locale,
+    t,
+  ]);
   const table = useDataTable({
     data: rows,
     columns,
@@ -217,12 +240,11 @@ export function LocalKeywordsTable({
       activeRowId={selectedKeywordId}
       onRowClick={(row) => onSelect(row.id)}
       empty={{
-        title: "Add keywords to start tracking",
-        description:
-          "Enter the searches customers use to find this business. Then check its rankings across the map.",
+        title: t("local_seo.keywords_table.empty_title"),
+        description: t("local_seo.keywords_table.empty_desc"),
         action: (
           <Button size="sm" onClick={onManage}>
-            Add keywords
+            {t("local_seo.keywords_table.add_keywords")}
           </Button>
         ),
       }}
@@ -231,17 +253,24 @@ export function LocalKeywordsTable({
 }
 
 function LastChecked({ scan }: { scan: KeywordRow["latest"] }) {
-  if (!scan) return "Not checked";
+  const { locale, t } = useLocale();
+  if (!scan) return t("local_seo.keywords_table.not_checked");
   return (
     <span className="flex flex-wrap items-center gap-2">
-      {new Date(scan.createdAt).toLocaleString()}
+      {new Date(scan.createdAt).toLocaleString(
+        locale === "de" ? "de-DE" : "en-US",
+      )}
       {scan.status !== LocalScanStatus.Completed && (
         <Badge
           variant={
             scan.status === LocalScanStatus.Failed ? "destructive" : "secondary"
           }
         >
-          {scan.status === LocalScanStatus.Running ? "Checking" : scan.status}
+          {scan.status === LocalScanStatus.Running
+            ? t("local_seo.keywords_table.checking")
+            : scan.status === LocalScanStatus.Failed
+              ? t("local_seo.keywords_table.failed")
+              : scan.status}
         </Badge>
       )}
     </span>

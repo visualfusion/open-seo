@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Monitor, Plus, Settings, Smartphone } from "lucide-react";
 import { SegmentedToggle } from "@/client/components/SegmentedToggle";
 import { Button } from "@/client/components/ui/button";
@@ -17,18 +18,12 @@ import { LOCATIONS } from "@/client/features/keywords/locations";
 import { devicesLabel, scheduleLabel } from "@/shared/rank-tracking";
 import { formatNextCheck } from "./scheduleTime";
 import { formatLocationLabel } from "@/shared/keyword-locations";
+import { useLocale } from "@/client/lib/i18n";
 import type { RankTrackingConfig } from "@/types/schemas/rank-tracking";
 import {
   comparePeriodSchema,
   type ComparePeriod,
 } from "@/types/schemas/rank-tracking-search";
-
-const COMPARE_ITEMS: { value: ComparePeriod; label: string }[] = [
-  { value: "1d", label: "vs yesterday" },
-  { value: "7d", label: "vs last week" },
-  { value: "30d", label: "vs last month" },
-  { value: "90d", label: "vs 90 days ago" },
-];
 
 export function RankTrackingDetailHeader({
   config,
@@ -53,6 +48,17 @@ export function RankTrackingDetailHeader({
   onEdit: () => void;
   onToggleAddKeywords: () => void;
 }) {
+  const { t } = useLocale();
+  const compareItems: { value: ComparePeriod; label: string }[] = useMemo(
+    () => [
+      { value: "1d", label: t("ranks.vs_yesterday") },
+      { value: "7d", label: t("ranks.vs_last_week") },
+      { value: "30d", label: t("ranks.vs_last_month") },
+      { value: "90d", label: t("ranks.vs_90_days") },
+    ],
+    [t],
+  );
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 px-4 pt-4 pb-3">
       <div>
@@ -74,24 +80,36 @@ export function RankTrackingDetailHeader({
               >
                 {devicesLabel(config.devices)}
               </TooltipTrigger>
-              <TooltipContent>
-                Mobile results often differ from desktop. Search Console
-                averages both, so its positions may not match.
-              </TooltipContent>
+              <TooltipContent>{t("ranks.mobile_tooltip")}</TooltipContent>
             </Tooltip>
           )}{" "}
           &middot; {scheduleLabel(config.scheduleInterval)}
           {config.scheduleInterval !== "manual" && config.nextCheckAt && (
-            <> &middot; Next: {formatNextCheck(config.nextCheckAt)}</>
+            <>
+              {" "}
+              &middot;{" "}
+              {t("ranks.next_check", {
+                time: formatNextCheck(config.nextCheckAt),
+              })}
+            </>
           )}
           {run?.lastCheckedAt && (
             <>
               {" "}
-              &middot; Last: {new Date(run.lastCheckedAt).toLocaleDateString()}
+              &middot;{" "}
+              {t("ranks.last_check", {
+                date: new Date(run.lastCheckedAt).toLocaleDateString(),
+              })}
             </>
           )}
           {costEstimate && costEstimate.keywordCount > 0 && (
-            <> &middot; up to ${costEstimate.costUsd.toFixed(2)}/check</>
+            <>
+              {" "}
+              &middot;{" "}
+              {t("ranks.estimated_cost", {
+                cost: costEstimate.costUsd.toFixed(2),
+              })}
+            </>
           )}
         </p>
       </div>
@@ -102,12 +120,12 @@ export function RankTrackingDetailHeader({
               {
                 value: "desktop" as const,
                 icon: <Monitor className="size-3.5" />,
-                label: "Desktop",
+                label: t("ranks.desktop"),
               },
               {
                 value: "mobile" as const,
                 icon: <Smartphone className="size-3.5" />,
-                label: "Mobile",
+                label: t("ranks.mobile"),
               },
             ]}
             value={activeDevice}
@@ -115,7 +133,7 @@ export function RankTrackingDetailHeader({
           />
         )}
         <Select
-          items={COMPARE_ITEMS}
+          items={compareItems}
           value={comparePeriod}
           onValueChange={(value) => {
             const parsed = comparePeriodSchema.safeParse(value);
@@ -124,14 +142,14 @@ export function RankTrackingDetailHeader({
         >
           <SelectTrigger
             size="sm"
-            aria-label="Comparison period"
-            title="Comparison period"
+            aria-label={t("ranks.comparison_period")}
+            title={t("ranks.comparison_period")}
             className="text-xs"
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {COMPARE_ITEMS.map((item) => (
+            {compareItems.map((item) => (
               <SelectItem key={item.value} value={item.value}>
                 {item.label}
               </SelectItem>
@@ -141,11 +159,11 @@ export function RankTrackingDetailHeader({
         <div className="hidden h-6 w-px bg-border sm:block" />
         <Button variant="outline" size="sm" onClick={onEdit}>
           <Settings data-icon="inline-start" />
-          Configure
+          {t("ranks.configure")}
         </Button>
         <Button size="sm" onClick={onToggleAddKeywords}>
           <Plus data-icon="inline-start" />
-          Add Keywords
+          {t("ranks.add_keywords")}
         </Button>
       </div>
     </div>

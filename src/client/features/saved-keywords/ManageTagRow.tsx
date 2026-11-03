@@ -9,6 +9,7 @@ import {
   tagSwatchClass,
   type TagColorKey,
 } from "@/shared/tag-colors";
+import { useLocale } from "@/client/lib/i18n";
 import type { SavedKeywordTagSummary } from "@/types/keywords";
 
 export function ManageTagRow({
@@ -24,6 +25,7 @@ export function ManageTagRow({
   onDelete: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useLocale();
   const nameId = useId();
   const [name, setName] = useState(tag.name);
   const currentColor = resolveTagColor(tag);
@@ -35,7 +37,7 @@ export function ManageTagRow({
   return (
     <div className="space-y-3 border-y border-border bg-muted/40 px-4 py-3">
       <div className="space-y-1.5">
-        <Label htmlFor={nameId}>Name</Label>
+        <Label htmlFor={nameId}>{t("saved_keywords.manage_tag.name")}</Label>
         <Input
           id={nameId}
           value={name}
@@ -44,7 +46,9 @@ export function ManageTagRow({
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-sm leading-none font-medium">Color</p>
+        <p className="text-sm leading-none font-medium">
+          {t("saved_keywords.manage_tag.color")}
+        </p>
         <div className="flex flex-wrap items-center gap-1.5">
           {TAG_COLOR_KEYS.map((key) => (
             <button
@@ -72,11 +76,11 @@ export function ManageTagRow({
           disabled={isBusy}
         >
           <Trash2 data-icon="inline-start" />
-          Delete
+          {t("saved_keywords.manage_tag.delete")}
         </Button>
         <div className="flex items-center gap-1.5">
           <Button variant="ghost" size="xs" onClick={onCancel}>
-            Cancel
+            {t("saved_keywords.manage_tag.cancel")}
           </Button>
           <Button
             size="xs"
@@ -88,7 +92,7 @@ export function ManageTagRow({
               })
             }
           >
-            Save
+            {t("saved_keywords.manage_tag.save")}
           </Button>
         </div>
       </div>

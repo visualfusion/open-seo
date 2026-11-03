@@ -1,42 +1,29 @@
 export const keywordsEn = {
-  intents: {
-    informational: {
-      short: "Info",
-      label: "Informational",
-      description:
-        "The searcher wants information or answers. Use this for educational content, guides, and comparison-light explainers.",
-    },
-    commercial: {
-      short: "Comm",
-      label: "Commercial",
-      description:
-        "The searcher is researching options before a purchase. Treat this as buying intent for comparisons, alternatives, and product-led pages.",
-    },
-    transactional: {
-      short: "Trans",
-      label: "Transactional",
-      description:
-        "The searcher is ready to complete an action, often a purchase. Prioritize clear offers, pricing, trials, or conversion paths.",
-    },
-    navigational: {
-      short: "Nav",
-      label: "Navigational",
-      description:
-        "The searcher is looking for a specific site, brand, or page. These queries usually reward matching the expected destination.",
-    },
-    unknown: {
-      short: "?",
-      label: "Unknown",
-      description:
-        "Intent was not available for this keyword, so avoid making content strategy decisions from this badge alone.",
-    },
-  },
-  overview: {
-    vol: "Vol",
-    cpc: "CPC",
-    comp: "Comp",
+  search_bar: {
+    placeholder: "Enter a keyword",
+    validation_required: "Please enter at least one keyword.",
+    validation_max: "Please enter no more than {max} keywords (one per line).",
+    city_tooltip:
+      "Get search volume for one city, county, or region. Leave empty for the whole country.",
+    city_placeholder: "City (optional)",
+    local_volume_cost: "Local volume adds ~${cost} per search.",
+    aria_label: "Keywords",
+    search_button: "Search",
+    google_ads_notice:
+      "Keyword data for this country comes from Google Ads — search volume, CPC, and trends are available, but difficulty and intent are not.",
+    options_button: "Options",
   },
   results: {
+    filters: {
+      search_volume: "Search Volume",
+      include_terms: "Include Terms",
+      include_placeholder: "audit, checker, template",
+      exclude_terms: "Exclude Terms",
+      exclude_placeholder: "jobs, salary, course",
+      cpc_usd: "CPC (USD)",
+      difficulty: "Difficulty",
+      intent: "Intent",
+    },
     serp: {
       page_header: "Page",
       show_top_20: "Show top 20",
@@ -78,31 +65,44 @@ export const keywordsEn = {
         "{keyword}: matching reported volume with {parent}. Shared volumes may overlap.",
       no_keywords: "No keywords",
     },
-    filters: {
-      include_terms: "Include Terms",
-      include_placeholder: "audit, checker, template",
-      exclude_terms: "Exclude Terms",
-      exclude_placeholder: "jobs, salary, course",
-      search_volume: "Search Volume",
-      cpc_usd: "CPC (USD)",
-      difficulty: "Difficulty",
-      intent: "Intent",
-    },
     search_trends: "Search Trends",
   },
-  search_bar: {
-    validation_required: "Please enter at least one keyword.",
-    validation_max: "Please enter no more than {max} keywords (one per line).",
-    city_tooltip:
-      "Get search volume for one city, county, or region. Leave empty for the whole country.",
-    city_placeholder: "City (optional)",
-    local_volume_cost: "Local volume adds ~${cost} per search.",
-    placeholder: "Enter a keyword",
-    aria_label: "Keywords",
-    search_button: "Search",
-    google_ads_notice:
-      "Keyword data for this country comes from Google Ads — search volume, CPC, and trends are available, but difficulty and intent are not.",
-    options_button: "Options",
+  intents: {
+    informational: {
+      short: "Info",
+      label: "Informational",
+      description:
+        "The searcher wants information or answers. Use this for educational content, guides, and comparison-light explainers.",
+    },
+    commercial: {
+      short: "Comm",
+      label: "Commercial",
+      description:
+        "The searcher is researching options before a purchase. Treat this as buying intent for comparisons, alternatives, and product-led pages.",
+    },
+    transactional: {
+      short: "Trans",
+      label: "Transactional",
+      description:
+        "The searcher is ready to complete an action, often a purchase. Prioritize clear offers, pricing, trials, or conversion paths.",
+    },
+    navigational: {
+      short: "Nav",
+      label: "Navigational",
+      description:
+        "The searcher is looking for a specific site, brand, or page. These queries usually reward matching the expected destination.",
+    },
+    unknown: {
+      short: "?",
+      label: "Unknown",
+      description:
+        "Intent was not available for this keyword, so avoid making content strategy decisions from this badge alone.",
+    },
+  },
+  overview: {
+    vol: "Vol",
+    cpc: "CPC",
+    comp: "Comp",
   },
   empty: {
     no_results_title: "Not enough keyword data for this query yet",

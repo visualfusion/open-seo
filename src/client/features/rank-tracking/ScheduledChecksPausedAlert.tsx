@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { useHostedPlanGate } from "@/client/features/billing/HostedPlanGate";
+import { useLocale } from "@/client/lib/i18n";
 import { getScheduledRankChecksPaused } from "@/serverFunctions/rank-tracking";
 
 /**
@@ -13,6 +14,7 @@ export function ScheduledChecksPausedAlert({
 }: {
   hasScheduledCheck: boolean;
 }) {
+  const { t } = useLocale();
   const affected = useHostedPlanGate() === "paid" && hasScheduledCheck;
   const { data: paused } = useQuery({
     queryKey: ["scheduledRankChecksPaused"],
@@ -27,9 +29,8 @@ export function ScheduledChecksPausedAlert({
       <AlertTriangle />
       <AlertDescription className="text-foreground">
         <p>
-          <span className="font-medium">Scheduled checks are paused</span> while
-          our rankings data provider recovers from an outage. They'll catch up
-          automatically once it's back.
+          <span className="font-medium">{t("ranks.alerts.paused_bold")}</span>
+          {t("ranks.alerts.paused_desc")}
         </p>
       </AlertDescription>
     </Alert>

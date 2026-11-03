@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { KeyRound } from "lucide-react";
@@ -19,6 +20,7 @@ export function OpenRouterKeyGate({
   projectId: string;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   const access = useSamAccess(projectId);
   if (access.status === "ready") return children;
   if (access.status === "checking") return <SkeletonPageContent />;
@@ -26,7 +28,9 @@ export function OpenRouterKeyGate({
     return (
       <QueryError
         error={access.error}
-        fallback="Could not check the OpenRouter API key."
+        fallback={t(
+          "ai_visibility.details.could_not_check_the_openrouter_api_key",
+        )}
         onRetry={access.onRetry}
         isRetrying={access.isRetrying}
       />
@@ -37,26 +41,27 @@ export function OpenRouterKeyGate({
         className="max-w-2xl"
         icon={KeyRound}
         tone="warning"
-        title="Add an OpenRouter API key"
+        title={t("ai_visibility.details.add_an_openrouter_api_key")}
         description={
           <>
             <p>
-              AI visibility uses OpenRouter to research your brand and suggest
-              the prompts worth tracking, so you don&apos;t have to write them
-              yourself. The tracking results, what ChatGPT and other AI engines
-              actually answer, come from your DataForSEO account.
+              {t(
+                "ai_visibility.details.ai_visibility_uses_openrouter_and_suggest",
+              )}
             </p>
             <p>
-              Create a key on OpenRouter, set it as{" "}
-              <code>OPENROUTER_API_KEY</code>, restart OpenSEO, then confirm
-              here. The{" "}
+              {t("ai_visibility.details.create_a_key_on_it_as")}{" "}
+              <code>OPENROUTER_API_KEY</code>
+              {t(
+                "ai_visibility.details.restart_openseo_then_confirm_here_the",
+              )}{" "}
               <Link
                 className="underline underline-offset-2 hover:text-foreground"
                 to="/help/openrouter-api-key"
               >
-                OpenRouter API key setup guide
+                {t("sam.setup_gate.guide_link")}
               </Link>{" "}
-              has the steps for each deployment.
+              {t("ai_visibility.details.has_the_steps_for_each_deployment")}
             </p>
           </>
         }
@@ -67,7 +72,7 @@ export function OpenRouterKeyGate({
               pending={access.isRefetching}
               onClick={access.onRetry}
             >
-              Confirm API Key
+              {t("sam.setup_gate.confirm_key")}
             </Button>
             <Button
               size="lg"
@@ -81,7 +86,7 @@ export function OpenRouterKeyGate({
                 />
               }
             >
-              Open OpenRouter Keys
+              {t("sam.setup_gate.open_keys")}
             </Button>
           </>
         }

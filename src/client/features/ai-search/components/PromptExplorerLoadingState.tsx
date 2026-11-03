@@ -1,6 +1,7 @@
 import { cn } from "cn";
 import { Skeleton } from "@/client/components/ui/skeleton";
 import { getModelAccent } from "@/client/features/ai-search/platformLabels";
+import { useLocale } from "@/client/lib/i18n";
 import { formatModelLabel } from "@/shared/prompt-explorer-labels";
 import type { PromptExplorerModel } from "@/types/schemas/ai-search";
 
@@ -11,8 +12,13 @@ export function PromptExplorerLoadingState({
 }: {
   models: PromptExplorerModel[];
 }) {
+  const { t } = useLocale();
   return (
-    <div className="space-y-5" aria-busy="true" aria-label="Loading answers">
+    <div
+      className="space-y-5"
+      aria-busy="true"
+      aria-label={t("brand_lookup.prompt_explorer.loading_aria")}
+    >
       {models.map((model) => (
         <article
           key={model}

@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { Minus, Plus, X } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
 import {
@@ -17,36 +18,37 @@ export function SavedKeywordsFilterPanel({
   activeFilterCount: number;
   onReset: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <DataTableFilterPanel activeCount={activeFilterCount} onReset={onReset}>
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         <TermsTokenInput
           form={form}
           name="include"
-          label="Include"
+          label={t("ranks.filters.include")}
           variant="include"
-          placeholder="Must contain… e.g. audit"
+          placeholder={t("saved_keywords.details.must_contain_e_g_audit")}
         />
         <TermsTokenInput
           form={form}
           name="exclude"
-          label="Exclude"
+          label={t("ranks.filters.exclude")}
           variant="exclude"
-          placeholder="Must not contain… e.g. jobs"
+          placeholder={t("saved_keywords.details.must_not_contain_e_g_jobs")}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
         <FilterRangeInputs
           form={form}
-          title="Search Volume"
+          title={t("ranks.search_volume")}
           minName="minVol"
           maxName="maxVol"
           min={0}
         />
         <FilterRangeInputs
           form={form}
-          title="CPC (USD)"
+          title={t("domain.keywords_tab.cpc")}
           minName="minCpc"
           maxName="maxCpc"
           step="0.01"
@@ -54,7 +56,7 @@ export function SavedKeywordsFilterPanel({
         />
         <FilterRangeInputs
           form={form}
-          title="Difficulty"
+          title={t("keywords.results.filters.difficulty")}
           minName="minKd"
           maxName="maxKd"
           min={0}
@@ -158,7 +160,11 @@ function TermsTokenInput({
                   <button
                     type="button"
                     className="opacity-70 hover:opacity-100"
-                    aria-label={`Remove ${term}`}
+                    aria-label={getTranslation(
+                      "saved_keywords.details.remove_value",
+                      undefined,
+                      { v1: term },
+                    )}
                     onClick={() =>
                       commit(terms.filter((existing) => existing !== term))
                     }

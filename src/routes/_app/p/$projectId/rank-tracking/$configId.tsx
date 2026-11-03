@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ export const Route = createFileRoute(
 });
 
 function RankTrackingConfigRoute() {
+  const { t } = useLocale();
   const { projectId, configId } = Route.useParams();
   const navigate = useNavigate();
   const search = Route.useSearch();
@@ -55,7 +57,7 @@ function RankTrackingConfigRoute() {
     return (
       <QueryError
         error={configsQuery.error}
-        fallback="Failed to load domain configuration"
+        fallback={t("ranks.details.failed_to_load_domain_configuration")}
         onRetry={() => void configsQuery.refetch()}
         isRetrying={configsQuery.isFetching}
       />
@@ -66,11 +68,11 @@ function RankTrackingConfigRoute() {
     return (
       <EmptyState
         kind="no-data"
-        title="Domain configuration not found"
-        description="This domain was archived or does not exist in this project."
+        title={t("ranks.details.domain_configuration_not_found")}
+        description={t("ranks.details.this_domain_was_archived_in_this")}
         action={
           <Button variant="outline" size="sm" onClick={handleBack}>
-            Back to domains
+            {t("ranks.details.back_to_domains")}
           </Button>
         }
       />
