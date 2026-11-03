@@ -1,5 +1,6 @@
 import { Info, Search } from "lucide-react";
 import { getFieldError } from "@/client/lib/forms";
+import { useLocale } from "@/client/lib/i18n";
 import { MAX_KEYWORDS_PER_SUBMIT } from "@/client/features/keywords/keywordResearchTypes";
 import { isLabsLocationCode } from "@/client/features/keywords/locations";
 import { LocationSelect } from "@/client/components/LocationSelect";
@@ -26,6 +27,7 @@ function getTextareaRows(value: string): number {
 }
 
 export function KeywordResearchSearchBar({ controller }: Props) {
+  const { t } = useLocale();
   const { controlsForm, handleSearchSubmit } = controller;
 
   return (
@@ -54,8 +56,8 @@ export function KeywordResearchSearchBar({ controller }: Props) {
                   <InputGroupTextarea
                     className="min-h-0 py-[7px] leading-6 field-sizing-fixed"
                     rows={rows}
-                    placeholder="Enter a keyword"
-                    aria-label="Keywords"
+                    placeholder={t("keywords.search_bar.placeholder")}
+                    aria-label={t("keywords.search_bar.aria_label")}
                     aria-invalid={keywordError ? true : undefined}
                     value={field.state.value}
                     onChange={(event) => field.handleChange(event.target.value)}
@@ -108,7 +110,7 @@ export function KeywordResearchSearchBar({ controller }: Props) {
             <KeywordSearchOptions controller={controller} />
 
             <Button type="submit" className="w-full px-6 lg:w-auto lg:shrink-0">
-              Search
+              {t("keywords.search_bar.search_button")}
             </Button>
           </div>
         </form>
@@ -134,9 +136,7 @@ export function KeywordResearchSearchBar({ controller }: Props) {
                 <Alert variant="info" role="status">
                   <Info />
                   <AlertDescription>
-                    Keyword data for this country comes from Google Ads — search
-                    volume, CPC, and trends are available, but difficulty and
-                    intent are not.
+                    {t("keywords.search_bar.google_ads_notice")}
                   </AlertDescription>
                 </Alert>
               )}

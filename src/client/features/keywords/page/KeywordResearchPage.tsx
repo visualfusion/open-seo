@@ -5,6 +5,7 @@ import { BackButton, PageHeader } from "@/client/components/PageHeader";
 import { Button } from "@/client/components/ui/button";
 import { InsufficientCreditsError } from "@/client/features/billing/InsufficientCreditsError";
 import { getErrorCode } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import { formatLocationLabel } from "@/shared/keyword-locations";
 import { useKeywordResearchController } from "@/client/features/keywords/state/useKeywordResearchController";
 import type {
@@ -194,20 +195,21 @@ export function KeywordResearchPage(input: Props) {
     ...controllerInput,
     onFormSubmit,
   });
+  const { t } = useLocale();
 
   return (
     <div className="px-4 py-4 md:px-6 md:py-6 pb-24 md:pb-8 overflow-auto">
       <div className="mx-auto flex max-w-7xl flex-col gap-4">
         <PageHeader
-          title="Keyword Research"
-          description="Discover keyword ideas, search demand, and ranking opportunities."
+          title={t("keywords.title")}
+          description={t("keywords.description")}
           backLink={
             controller.hasSearched ? (
               <BackButton
                 data-testid="keyword-research-recent-searches"
                 onClick={showRecentSearches}
               >
-                Recent searches
+                {t("keywords.recent_searches")}
               </BackButton>
             ) : undefined
           }
@@ -305,11 +307,18 @@ function KeywordSaveDialog({
 }: {
   controller: KeywordResearchControllerState;
 }) {
+  const { t } = useLocale();
   if (!controller.showSaveDialog) return null;
+
+  const count = controller.selectedKeywordRows.length;
+  const title =
+    count === 1
+      ? t("keywords.dialog.title_singular")
+      : t("keywords.dialog.title_plural", { count });
 
   return (
     <FormDialog
-      title={`Save ${controller.selectedKeywordRows.length} Keywords`}
+      title={title}
       onClose={() => controller.setShowSaveDialog(false)}
       actions={
         <>
@@ -317,23 +326,24 @@ function KeywordSaveDialog({
             variant="outline"
             onClick={() => controller.setShowSaveDialog(false)}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             pending={controller.savePending}
             onClick={controller.confirmSave}
           >
-            Save
+            {t("common.save")}
           </Button>
         </>
       }
     >
       <div className="space-y-2 text-sm text-muted-foreground">
-        <p>These keywords will be saved to your current project.</p>
+        <p>{t("keywords.dialog.info")}</p>
         {controller.locationName ? (
           <p>
-            Saved keywords show national metrics. The local volume for{" "}
-            {formatLocationLabel(controller.locationName)} is not saved.
+            {t("keywords.dialog.local_note", {
+              location: formatLocationLabel(controller.locationName),
+            })}
           </p>
         ) : null}
       </div>

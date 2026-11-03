@@ -1,5 +1,6 @@
 import { MetricsTable } from "@/client/components/MetricsTable";
 import { Info } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Badge } from "@/client/components/ui/badge";
 import { RESEARCH_SCOPE_LABELS } from "@/shared/researchScope";
@@ -13,20 +14,17 @@ import { formatRelativeTimestamp } from "./backlinksPageUtils";
 
 type SummaryStat = { label: string; value: string; description: string };
 
-const SCOPE_NOTES: Partial<Record<BacklinksOverviewData["scope"], string>> = {
-  exact_url:
-    "Showing backlinks for this exact page. Switch the scope to Domain or Subdomains for site-wide results — trend charts need one of those.",
-  subfolder:
-    "Showing backlinks pointing into this subfolder. Counts come from filtered backlink totals; rank, trends, and the referring-domains breakdown need Domain or Subdomains scope.",
-};
-
 export function BacklinksScopeAlert({
   scope,
 }: {
   scope: BacklinksOverviewData["scope"];
 }) {
-  const note = SCOPE_NOTES[scope];
-  if (!note) return null;
+  const { t } = useLocale();
+  if (scope !== "exact_url" && scope !== "subfolder") return null;
+  const note =
+    scope === "exact_url"
+      ? t("backlinks.scope_alert.exact_url")
+      : t("backlinks.scope_alert.subfolder");
   return (
     <Alert variant="info">
       <Info />
@@ -43,6 +41,7 @@ export function BacklinksOverviewPanels({
   data: BacklinksOverviewData;
   summaryStats: SummaryStat[];
 }) {
+  const { t } = useLocale();
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 pb-3">
@@ -50,10 +49,15 @@ export function BacklinksOverviewPanels({
           <h2 className="text-lg font-semibold break-all">
             {data.displayTarget}
           </h2>
-          <Badge variant="outline">{RESEARCH_SCOPE_LABELS[data.scope]}</Badge>
+          <Badge variant="outline">
+            {t(`domain.scopes.${data.scope}`) ||
+              RESEARCH_SCOPE_LABELS[data.scope]}
+          </Badge>
         </div>
         <p className="ml-auto text-xs text-muted-foreground">
-          Updated {formatRelativeTimestamp(data.fetchedAt)}
+          {t("backlinks.overview.updated", {
+            time: formatRelativeTimestamp(data.fetchedAt),
+          })}
         </p>
       </div>
       <div className="px-4 pb-4">
@@ -70,6 +74,7 @@ function OverviewGrid({
   data: BacklinksOverviewData;
   summaryStats: SummaryStat[];
 }) {
+  const { t } = useLocale();
   // Trend charts need history/live, which only takes a whole hostname.
   const domainScope = data.scope === "domain" || data.scope === "subdomains";
 
@@ -90,18 +95,18 @@ function OverviewGrid({
       {domainScope ? (
         <>
           <TrendPanel
-            title="Backlink growth"
+            title={t("backlinks.overview.backlink_growth")}
             description={
               data.scope === "domain"
-                ? "Last year · Includes subdomains"
-                : "Backlinks and referring domains over the last year"
+                ? t("backlinks.overview.growth_desc_domain")
+                : t("backlinks.overview.growth_desc_subdomains")
             }
           >
             <BacklinksTrendChart data={data.trends} />
           </TrendPanel>
           <TrendPanel
-            title="New vs lost"
-            description="Backlink acquisition and attrition"
+            title={t("backlinks.overview.new_vs_lost")}
+            description={t("backlinks.overview.new_vs_lost_desc")}
           >
             <BacklinksNewLostChart data={data.newLostTrends} />
           </TrendPanel>

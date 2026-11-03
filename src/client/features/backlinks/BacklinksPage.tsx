@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 import type { SortingState, Updater } from "@tanstack/react-table";
+import { useLocale } from "@/client/lib/i18n";
 import { BackLink, PageHeader } from "@/client/components/PageHeader";
 import { BacklinksSearchCard } from "./BacklinksSearchCard";
 import { BacklinksBody } from "./BacklinksPageContent";
@@ -23,6 +24,7 @@ export function BacklinksPage({
   searchState,
   navigate,
 }: BacklinksPageProps) {
+  const { t } = useLocale();
   const filters = useBacklinksFilters();
 
   // Sort lives in the URL so sort changes and the page reset commit in one
@@ -106,8 +108,8 @@ export function BacklinksPage({
     <div className="px-4 py-4 pb-24 overflow-auto md:px-6 md:py-6 md:pb-8">
       <div className="mx-auto max-w-7xl space-y-4">
         <PageHeader
-          title="Backlinks"
-          description="Understand who links to a site, what changed recently, and which pages attract links."
+          title={t("backlinks.title")}
+          description={t("backlinks.description")}
           backLink={
             searchState.target ? (
               <BackLink
@@ -124,7 +126,7 @@ export function BacklinksPage({
                 }}
                 replace
               >
-                Recent searches
+                {t("backlinks.recent_searches")}
               </BackLink>
             ) : undefined
           }

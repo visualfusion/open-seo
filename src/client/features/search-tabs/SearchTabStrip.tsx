@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
@@ -42,13 +43,14 @@ export function SearchTabStrip({
   onClose,
   onViewed,
 }: Props) {
+  const { t } = useLocale();
   if (tabs.length === 0) return null;
 
   return (
     <div className="rounded-xl border border-border bg-card p-1">
       <div
         role="tablist"
-        aria-label="Search tabs"
+        aria-label={t("ui.details.search_tabs")}
         className="flex min-w-0 items-stretch gap-1 overflow-x-auto"
       >
         {tabs.map((tab) => {
@@ -89,7 +91,7 @@ export function SearchTabStrip({
                 data-search-tab-id={tab.id}
                 className="flex items-center px-1.5 text-muted-foreground opacity-60 transition hover:bg-foreground/10 hover:text-foreground hover:opacity-100 group-hover:opacity-100"
                 onClick={() => onClose(tab.id)}
-                aria-label={`Close ${tab.label} tab`}
+                aria-label={t("ui.details.close_value_tab", { v1: tab.label })}
               >
                 <X className="size-3.5" />
               </button>

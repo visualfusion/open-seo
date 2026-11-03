@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, type FormEvent } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { Globe, Info } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import { BackButton, PageHeader } from "@/client/components/PageHeader";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Badge } from "@/client/components/ui/badge";
@@ -442,6 +443,7 @@ export function DomainOverviewPage({
   navigate,
   onShowRecentSearches,
 }: Props) {
+  const { t } = useLocale();
   const state = useDomainOverviewState({
     navigate,
     routeState,
@@ -509,7 +511,7 @@ export function DomainOverviewPage({
   // hostname plus subdomains, so anything narrower needs a label.
   const overviewMetricsHint =
     state.overview && state.overview.scope !== "subdomains"
-      ? "Whole domain incl. subdomains"
+      ? t("domain.whole_domain_hint")
       : undefined;
 
   const tabs = (
@@ -519,8 +521,8 @@ export function DomainOverviewPage({
         state.handleTabChange(value === "pages" ? "pages" : "keywords")
       }
     >
-      <TabsTrigger value="keywords">Top Keywords</TabsTrigger>
-      <TabsTrigger value="pages">Top Pages</TabsTrigger>
+      <TabsTrigger value="keywords">{t("domain.tabs.keywords")}</TabsTrigger>
+      <TabsTrigger value="pages">{t("domain.tabs.pages")}</TabsTrigger>
     </DataTableTabs>
   );
 
@@ -529,7 +531,7 @@ export function DomainOverviewPage({
   const overviewError = state.overviewQuery.isError ? (
     <QueryError
       error={state.overviewQuery.error}
-      fallback="Lookup failed."
+      fallback={t("domain.lookup_failed")}
       onRetry={() => void state.overviewQuery.refetch()}
       isRetrying={state.overviewQuery.isFetching}
     />
@@ -550,8 +552,8 @@ export function DomainOverviewPage({
     <div className="px-4 py-4 md:px-6 md:py-6 pb-24 md:pb-8 overflow-auto">
       <div className="mx-auto max-w-7xl space-y-4">
         <PageHeader
-          title="Domain Overview"
-          description="Analyze any domain's SEO profile: traffic, keywords, and backlinks."
+          title={t("domain.title")}
+          description={t("domain.description")}
           backLink={
             routeState.domain ? (
               <BackButton
@@ -560,7 +562,7 @@ export function DomainOverviewPage({
                   onShowRecentSearches();
                 }}
               >
-                Recent searches
+                {t("domain.recent_searches")}
               </BackButton>
             ) : undefined
           }
@@ -597,9 +599,12 @@ export function DomainOverviewPage({
               loaded={state.historyLoaded}
               onRemove={state.removeHistoryItem}
               emptyIcon={Globe}
-              emptyTitle="Enter a domain to get started"
+              emptyTitle={t("domain.enter_domain_to_start")}
               getTitle={(item) => item.domain}
-              getSubtitle={(item) => RESEARCH_SCOPE_LABELS[item.scope]}
+              getSubtitle={(item) =>
+                t(`domain.scopes.${item.scope}`) ||
+                RESEARCH_SCOPE_LABELS[item.scope]
+              }
               renderLink={(item, props) => (
                 <button
                   type="button"
@@ -617,8 +622,7 @@ export function DomainOverviewPage({
               <Alert variant="info">
                 <Info />
                 <AlertDescription className="text-foreground">
-                  Not enough data for this scope yet. Try another domain or a
-                  broader scope.
+                  {t("domain.not_enough_data")}
                 </AlertDescription>
               </Alert>
             ) : null}
@@ -629,7 +633,8 @@ export function DomainOverviewPage({
                   {state.overview.displayTarget}
                 </h2>
                 <Badge variant="outline">
-                  {RESEARCH_SCOPE_LABELS[state.overview.scope]}
+                  {t(`domain.scopes.${state.overview.scope}`) ||
+                    RESEARCH_SCOPE_LABELS[state.overview.scope]}
                 </Badge>
               </div>
               <div className="px-4 pb-4">
@@ -639,11 +644,11 @@ export function DomainOverviewPage({
                       {
                         label: overviewMetricsHint ? (
                           <HelpLabel
-                            label="Estimated organic traffic"
+                            label={t("domain.estimated_organic_traffic")}
                             helpText={overviewMetricsHint}
                           />
                         ) : (
-                          "Estimated organic traffic"
+                          t("domain.estimated_organic_traffic")
                         ),
                         value: formatMetric(
                           state.overview.organicTraffic,
@@ -653,11 +658,11 @@ export function DomainOverviewPage({
                       {
                         label: overviewMetricsHint ? (
                           <HelpLabel
-                            label="Organic keywords"
+                            label={t("domain.organic_keywords")}
                             helpText={overviewMetricsHint}
                           />
                         ) : (
-                          "Organic keywords"
+                          t("domain.organic_keywords")
                         ),
                         value: formatMetric(
                           state.overview.organicKeywords,

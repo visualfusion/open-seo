@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { CsvValue } from "@/client/lib/csv";
 import { exportRows } from "@/client/lib/exportRows";
 import { captureClientEvent } from "@/client/lib/posthog";
+import { getTranslation } from "@/client/lib/i18n";
 import type { KeywordResearchRow } from "@/types/keywords";
 import type { SaveKeywordsInput } from "@/types/schemas/keywords";
 import type { SortDir, SortField } from "@/client/features/keywords/components";
@@ -147,7 +148,13 @@ export function useSaveAndExportActions(params: SaveExportActionParams) {
             source_feature: "keyword_research",
             keyword_count: count,
           });
-          toast.success(`Saved ${count} keywords`);
+          const message =
+            count === 1
+              ? getTranslation("keywords.dialog.saved_singular")
+              : getTranslation("keywords.dialog.saved_plural", undefined, {
+                  count,
+                });
+          toast.success(message);
           setShowSaveDialog(false);
         },
       },

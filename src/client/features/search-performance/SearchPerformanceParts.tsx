@@ -30,85 +30,13 @@ import {
   type Report,
   type SearchPerformanceTableRow,
 } from "@/client/features/search-performance/SearchPerformanceColumns";
-import { normalizeExportValue, type CsvValue } from "@/client/lib/csv";
-import { exportRows } from "@/client/lib/exportRows";
+import { normalizeExportValue } from "@/client/lib/csv";
 import { captureClientEvent } from "@/client/lib/posthog";
-import {
-  SEARCH_PERFORMANCE_PAGE_SIZES,
-  type SearchPerformanceTableDimension,
-} from "@/types/schemas/search-performance";
+import { SEARCH_PERFORMANCE_PAGE_SIZES } from "@/types/schemas/search-performance";
 import { saveKeywords } from "@/serverFunctions/keywords";
+import { useLocale } from "@/client/lib/i18n";
 
-export type ExportTarget = "csv" | "sheets";
-
-type ExportTable = { filename: string; headers: string[]; rows: CsvValue[][] };
-
-function strikingExportTable(report: Report): ExportTable {
-  const stamp = `${report.range.startDate}-to-${report.range.endDate}`;
-  return {
-    filename: `search-performance-striking-distance-${stamp}`,
-    headers: ["Query", "Page", "Impressions", "Clicks", "Position"],
-    rows: report.strikingDistance.map((row) => [
-      row.query,
-      row.page,
-      row.impressions,
-      row.clicks,
-      row.position,
-    ]),
-  };
-}
-
-function dimensionExportTable(
-  dimension: SearchPerformanceTableDimension,
-  rows: SearchPerformanceTableRow[],
-  stamp: string,
-): ExportTable {
-  const isPage = dimension === "page";
-  return {
-    filename: `search-performance-${isPage ? "pages" : "queries"}-${stamp}`,
-    headers: [
-      isPage ? "Page" : "Query",
-      "Clicks",
-      "Impressions",
-      "CTR",
-      "Position",
-    ],
-    rows: rows.map((row) => [
-      row.key,
-      row.clicks,
-      row.impressions,
-      row.ctr,
-      row.position,
-    ]),
-  };
-}
-
-function runExport(table: ExportTable, target: ExportTarget): Promise<void> {
-  return exportRows({
-    format: target,
-    feature: "search_performance",
-    ...table,
-  });
-}
-
-export function exportStriking(
-  report: Report,
-  target: ExportTarget,
-): Promise<void> {
-  return runExport(strikingExportTable(report), target);
-}
-
-/** Export the full queries/pages dataset (fetched separately, not the visible
- *  page) so pagination never truncates a download. */
-export function exportDimensionRows(
-  dimension: SearchPerformanceTableDimension,
-  rows: SearchPerformanceTableRow[],
-  range: Report["range"],
-  target: ExportTarget,
-): Promise<void> {
-  const stamp = `${range.startDate}-to-${range.endDate}`;
-  return runExport(dimensionExportTable(dimension, rows, stamp), target);
-}
+export * from "./searchPerformanceExport";
 
 type Delta = { text: string; improved: boolean } | null;
 
@@ -130,26 +58,30 @@ function positionDelta(current: number, previous: number): Delta {
 }
 
 export function TotalsTable({ report }: { report: Report }) {
+  const { t } = useLocale();
   const { totals, prevTotals, range } = report;
-  const deltaTitle = `Compared with ${range.prevStartDate} to ${range.prevEndDate}`;
+  const deltaTitle = t("search_performance.totals.compared_with", {
+    start: range.prevStartDate,
+    end: range.prevEndDate,
+  });
   const metrics = [
     {
-      label: "Clicks",
+      label: t("search_performance.totals.clicks"),
       value: formatCount(totals.clicks),
       delta: percentDelta(totals.clicks, prevTotals.clicks),
     },
     {
-      label: "Impressions",
+      label: t("search_performance.totals.impressions"),
       value: formatCount(totals.impressions),
       delta: percentDelta(totals.impressions, prevTotals.impressions),
     },
     {
-      label: "Click-through rate",
+      label: t("search_performance.totals.ctr"),
       value: formatCtr(totals.ctr),
       delta: percentDelta(totals.ctr, prevTotals.ctr),
     },
     {
-      label: "Average position",
+      label: t("search_performance.totals.position"),
       value: formatPosition(totals.position),
       delta: positionDelta(totals.position, prevTotals.position),
     },
@@ -159,10 +91,14 @@ export function TotalsTable({ report }: { report: Report }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-full">Metric</TableHead>
-            <TableHead className="min-w-32 text-right">Value</TableHead>
+            <TableHead className="w-full">
+              {t("search_performance.totals.metric")}
+            </TableHead>
+            <TableHead className="min-w-32 text-right">
+              {t("search_performance.totals.value")}
+            </TableHead>
             <TableHead className="min-w-32 text-right" title={deltaTitle}>
-              Change
+              {t("search_performance.totals.change")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -200,7 +136,22 @@ export function DimensionTable({
   onClearFilters: () => void;
   onFirstPage: () => void;
 }) {
-  const columns = useMemo(() => buildDimensionColumns(keyLabel), [keyLabel]);
+  const { t } = useLocale();
+  const columnLabels = useMemo(
+    () => ({
+      clicks: t("search_performance.columns.clicks"),
+      impressions: t("search_performance.columns.impressions"),
+      ctr: t("search_performance.columns.ctr"),
+      position: t("search_performance.columns.position"),
+      query: t("search_performance.columns.query"),
+      page: t("search_performance.columns.page"),
+    }),
+    [t],
+  );
+  const columns = useMemo(
+    () => buildDimensionColumns(keyLabel, columnLabels),
+    [keyLabel, columnLabels],
+  );
   const table = useDataTable({
     data: rows,
     columns,
@@ -215,17 +166,19 @@ export function DimensionTable({
       empty={
         isPastEnd
           ? {
-              title: "No rows on this page",
-              description: "This page is past the end of the results.",
+              title: t("search_performance.dimension.past_end_title"),
+              description: t(
+                "search_performance.dimension.past_end_description",
+              ),
               action: (
                 <Button variant="outline" size="sm" onClick={onFirstPage}>
-                  Go to first page
+                  {t("search_performance.dimension.go_first_page")}
                 </Button>
               ),
             }
           : {
-              title: "No Search Console data yet",
-              description: "Search Console data can take a few days to appear.",
+              title: t("search_performance.dimension.empty_title"),
+              description: t("search_performance.dimension.empty_description"),
             }
       }
     />
@@ -251,10 +204,25 @@ export function StrikingDistanceTable({
   isFiltered: boolean;
   onClearFilters: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const anchorRef = useSelectionAnchor();
   const [rowSelection, setRowSelection] = useState({});
-  const columns = useMemo(() => buildStrikingColumns(anchorRef), [anchorRef]);
+  const columnLabels = useMemo(
+    () => ({
+      clicks: t("search_performance.columns.clicks"),
+      impressions: t("search_performance.columns.impressions"),
+      ctr: t("search_performance.columns.ctr"),
+      position: t("search_performance.columns.position"),
+      query: t("search_performance.columns.query"),
+      page: t("search_performance.columns.page"),
+    }),
+    [t],
+  );
+  const columns = useMemo(
+    () => buildStrikingColumns(anchorRef, columnLabels),
+    [anchorRef, columnLabels],
+  );
   const table = useDataTable({
     data: rows,
     columns,
@@ -283,11 +251,14 @@ export function StrikingDistanceTable({
         .map((query) => normalizeExportValue(query))
         .join("\n");
       await navigator.clipboard.writeText(text);
+      const count = selectedQueries.length;
       toast.success(
-        `Copied ${selectedQueries.length} ${selectedQueries.length === 1 ? "keyword" : "keywords"}`,
+        count === 1
+          ? t("search_performance.striking.copied_singular")
+          : t("search_performance.striking.copied_plural", { count }),
       );
     } catch {
-      toast.error("Couldn't copy to clipboard");
+      toast.error(t("search_performance.striking.copy_failed"));
     }
   };
 
@@ -302,8 +273,11 @@ export function StrikingDistanceTable({
       void queryClient.invalidateQueries({
         queryKey: ["savedKeywords", projectId],
       });
+      const count = keywords.length;
       toast.success(
-        `Saved ${keywords.length} ${keywords.length === 1 ? "keyword" : "keywords"}`,
+        count === 1
+          ? t("search_performance.striking.saved_singular")
+          : t("search_performance.striking.saved_plural", { count }),
       );
       setRowSelection({});
     },
@@ -313,8 +287,7 @@ export function StrikingDistanceTable({
     <>
       <div className="p-4">
         <p className="mb-3 text-sm text-muted-foreground">
-          Queries ranking at positions 5 to 20, sorted by impressions. Improve
-          the listed page to move them into the top results.
+          {t("search_performance.striking.description")}
         </p>
         <DataTable
           table={table}
@@ -323,22 +296,25 @@ export function StrikingDistanceTable({
           empty={
             isPastEnd
               ? {
-                  title: "No rows on this page",
-                  description: "This page is past the end of the results.",
+                  title: t("search_performance.dimension.past_end_title"),
+                  description: t(
+                    "search_performance.dimension.past_end_description",
+                  ),
                   action: (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => onPageChange(1)}
                     >
-                      Go to first page
+                      {t("search_performance.dimension.go_first_page")}
                     </Button>
                   ),
                 }
               : {
-                  title: "No striking-distance queries",
-                  description:
-                    "Queries ranking at positions 5 to 20 will appear here.",
+                  title: t("search_performance.striking.empty_title"),
+                  description: t(
+                    "search_performance.striking.empty_description",
+                  ),
                 }
           }
         />
@@ -357,7 +333,11 @@ export function StrikingDistanceTable({
       )}
       <TableBulkActionBar
         selectedCount={selectedQueries.length}
-        selectedLabel={selectedQueries.length === 1 ? "query" : "queries"}
+        selectedLabel={
+          selectedQueries.length === 1
+            ? t("search_performance.striking.query_label_singular")
+            : t("search_performance.striking.query_label_plural")
+        }
         onClear={() => setRowSelection({})}
         actions={
           <div className="flex items-center gap-1 px-1.5">
@@ -365,7 +345,7 @@ export function StrikingDistanceTable({
               icon={<Copy className="size-3.5" />}
               onClick={() => void copyKeywords()}
             >
-              Copy keywords
+              {t("search_performance.striking.copy_keywords")}
             </TableBulkActionButton>
             <TableBulkActionButton
               icon={
@@ -378,7 +358,7 @@ export function StrikingDistanceTable({
               onClick={() => save.mutate(selectedQueries)}
               disabled={save.isPending}
             >
-              Save as keywords
+              {t("search_performance.striking.save_as_keywords")}
             </TableBulkActionButton>
           </div>
         }

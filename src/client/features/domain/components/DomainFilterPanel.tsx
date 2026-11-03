@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { AlertTriangle } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import {
   DataTableFilterGroup,
   DataTableFilterPanel,
@@ -62,6 +63,7 @@ export function DomainFilterPanel<TValues extends FilterValues>({
   onClear,
   renderExtra,
 }: Props<TValues>) {
+  const { t } = useLocale();
   const appliedKey = useMemo(
     () => fields.map((key) => appliedFilters[key]).join("|"),
     [appliedFilters, fields],
@@ -162,19 +164,26 @@ export function DomainFilterPanel<TValues extends FilterValues>({
           <Alert variant="warning">
             <AlertTriangle />
             <AlertDescription className="text-foreground">
-              Too many filter conditions ({meta.conditionCount} of{" "}
-              {maxConditions} max). Remove some terms or ranges before applying.
+              {t("domain.filter_panel.too_many_conditions", {
+                conditionCount: meta.conditionCount,
+                maxConditions,
+              })}
             </AlertDescription>
           </Alert>
         ) : null}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground tabular-nums">
-              {meta.conditionCount} / {maxConditions} conditions
+              {t("domain.filter_panel.conditions_count", {
+                conditionCount: meta.conditionCount,
+                maxConditions,
+              })}
             </span>
             {meta.dirtyCount > 0 ? (
               <Badge size="sm" variant="warning">
-                {meta.dirtyCount} unapplied
+                {t("domain.filter_panel.unapplied", {
+                  dirtyCount: meta.dirtyCount,
+                })}
               </Badge>
             ) : null}
           </div>
@@ -185,7 +194,7 @@ export function DomainFilterPanel<TValues extends FilterValues>({
               onClick={cancelFilterEdits}
               disabled={!meta.isDirty}
             >
-              Cancel
+              {t("domain.filter_panel.cancel")}
             </Button>
             <Button
               size="sm"
@@ -193,11 +202,11 @@ export function DomainFilterPanel<TValues extends FilterValues>({
               disabled={!meta.isDirty || meta.overLimit}
               title={
                 meta.overLimit
-                  ? `This scope leaves room for at most ${maxConditions} filter conditions per request`
+                  ? t("domain.filter_panel.over_limit_title", { maxConditions })
                   : undefined
               }
             >
-              Apply filters
+              {t("domain.filter_panel.apply_filters")}
               {meta.isDirty ? (
                 <Badge size="sm" variant="secondary">
                   {meta.dirtyCount}

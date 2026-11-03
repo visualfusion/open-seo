@@ -19,6 +19,7 @@ export const uiDetailsEn = {
   change_or_clear_the_more_rows:
     "Change or clear the filters to see more rows.",
   change: "Change",
+  change_project_connection: "change this project's connection",
   the_page_you_are_not_exist: "The page you are looking for does not exist.",
   ask_an_organization_owner_or_admin_to:
     "Ask an organization owner or admin to",
@@ -44,8 +45,18 @@ export const uiDetailsEn = {
   displays_the_mobile_sidebar: "Displays the mobile sidebar.",
   toggle_sidebar: "Toggle Sidebar",
   loading: "Loading",
+  spam_score_unknown: "Spam score unknown",
+  last_value: "Last {v1}",
+  these_filters_exceed_the_this_view:
+    "These filters exceed the {v1}-condition limit for this view. Remove conditions in Filters{v2}. Your filters have been kept.",
+  filter_recovery: " or choose All links (spammy included) from Best links",
   an_admin_sets: "An admin sets",
   with: "with",
+  help_with_step: "help with this step",
+  saved_value_keywords: "Saved {v1} keywords",
+  search_tabs: "Search tabs",
+  close_value_tab: "Close {v1} tab",
+  unknown_backlinks_scope: "Unknown backlinks scope",
   could_not_copy_to_clipboard: "Could not copy to clipboard",
   error_unexpected_hosted:
     "Something went wrong on our end. Please try again, and contact support if it keeps happening.",
@@ -100,6 +111,4 @@ export const uiDetailsEn = {
   redirecting_you_to_billing_a_hosted:
     "Redirecting you to billing so you can start a hosted subscription.",
   not_available: "Not available",
-  change_project_connection: "change this project's connection",
-  help_with_step: "help with this step",
 };

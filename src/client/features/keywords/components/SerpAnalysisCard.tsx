@@ -9,52 +9,11 @@ import { DataTable, useDataTable } from "@/client/components/table/DataTable";
 import { DataTableToolbar } from "@/client/components/table/DataTableToolbar";
 import { TablePagination } from "@/client/components/table/TablePagination";
 import { exportRows } from "@/client/lib/exportRows";
+import { useLocale } from "@/client/lib/i18n";
 import type { SerpResultItem } from "@/types/keywords";
 import { safeHttpUrl } from "@/shared/safe-url";
 
 const columnHelper = createColumnHelper<SerpResultItem>();
-
-const columns = [
-  columnHelper.accessor("rank", {
-    header: "#",
-    cell: ({ getValue }) => getValue(),
-    meta: {
-      headerClassName: "w-8",
-      cellClassName: "font-mono text-xs text-muted-foreground",
-    },
-  }),
-  columnHelper.display({
-    id: "page",
-    header: "Page",
-    cell: ({ row }) => {
-      const label = row.original.title || row.original.url;
-      // Provider URLs are untrusted: only http(s) links become clickable.
-      const safeUrl = safeHttpUrl(row.original.url);
-      return (
-        <div className="flex flex-col gap-0.5">
-          {safeUrl ? (
-            <a
-              href={safeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 font-medium text-primary hover:underline"
-              title={row.original.title}
-            >
-              <span className="truncate">{label}</span>
-              <ExternalLink className="size-3 shrink-0 opacity-40" />
-            </a>
-          ) : (
-            <span className="truncate font-medium">{label}</span>
-          )}
-          <span className="truncate text-xs text-muted-foreground">
-            {row.original.domain}
-          </span>
-        </div>
-      );
-    },
-    meta: { cellClassName: "min-w-0 max-w-0" },
-  }),
-];
 
 export function SerpAnalysisCard({
   items,
@@ -88,6 +47,53 @@ export function SerpAnalysisCard({
   pageSize: number;
   onPageChange: (p: number) => void;
 }) {
+  const { t } = useLocale();
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("rank", {
+        header: "#",
+        cell: ({ getValue }) => getValue(),
+        meta: {
+          headerClassName: "w-8",
+          cellClassName: "font-mono text-xs text-muted-foreground",
+        },
+      }),
+      columnHelper.display({
+        id: "page",
+        header: t("keywords.results.serp.page_header"),
+        cell: ({ row }) => {
+          const label = row.original.title || row.original.url;
+          // Provider URLs are untrusted: only http(s) links become clickable.
+          const safeUrl = safeHttpUrl(row.original.url);
+          return (
+            <div className="flex flex-col gap-0.5">
+              {safeUrl ? (
+                <a
+                  href={safeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 font-medium text-primary hover:underline"
+                  title={row.original.title}
+                >
+                  <span className="truncate">{label}</span>
+                  <ExternalLink className="size-3 shrink-0 opacity-40" />
+                </a>
+              ) : (
+                <span className="truncate font-medium">{label}</span>
+              )}
+              <span className="truncate text-xs text-muted-foreground">
+                {row.original.domain}
+              </span>
+            </div>
+          );
+        },
+        meta: { cellClassName: "min-w-0 max-w-0" },
+      }),
+    ],
+    [t],
+  );
+
   const totalPages = Math.ceil(items.length / pageSize);
   const pageItems = useMemo(
     () => items.slice(page * pageSize, (page + 1) * pageSize),
@@ -108,7 +114,9 @@ export function SerpAnalysisCard({
           pending={retrying}
           onClick={onRetry}
         >
-          {deepFetchFailed ? "Show top 20" : "Retry"}
+          {deepFetchFailed
+            ? t("keywords.results.serp.show_top_20")
+            : t("keywords.results.serp.retry")}
         </Button>
       )}
     </>
@@ -146,7 +154,7 @@ export function SerpAnalysisCard({
             <div className="flex min-w-0 flex-col">
               <h3 className="flex min-w-0 items-center gap-1.5 text-sm font-semibold">
                 <Globe className="size-3.5 shrink-0" />
-                SERP Analysis
+                {t("keywords.results.serp.title")}
                 {keyword ? (
                   <span className="truncate font-normal text-muted-foreground">
                     : {keyword}
@@ -155,7 +163,9 @@ export function SerpAnalysisCard({
               </h3>
               {hasItems ? (
                 <span className="text-xs text-muted-foreground">
-                  {items.length} organic results
+                  {t("keywords.results.serp.organic_results", {
+                    count: items.length,
+                  })}
                 </span>
               ) : null}
             </div>
@@ -175,9 +185,9 @@ export function SerpAnalysisCard({
         error
           ? { kind: "error", title: error, action: errorAction }
           : {
-              title: "No SERP details available for this keyword yet.",
+              title: t("keywords.results.serp.no_serp_title"),
               description: keyword
-                ? "Try clicking another keyword to load data."
+                ? t("keywords.results.serp.no_serp_desc")
                 : undefined,
             }
       }
@@ -190,7 +200,9 @@ export function SerpAnalysisCard({
             isLoading={loadingMore}
             // Past the loaded results, "Next" buys a deeper crawl. The button
             // says so rather than spending silently.
-            loadMoreLabel={canLoadMore ? "Load top 100" : undefined}
+            loadMoreLabel={
+              canLoadMore ? t("keywords.results.serp.load_top_100") : undefined
+            }
             onPageChange={(nextPage) => onPageChange(nextPage - 1)}
           />
         ) : null

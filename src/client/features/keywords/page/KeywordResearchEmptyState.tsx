@@ -3,6 +3,7 @@ import { Globe, Search } from "lucide-react";
 import { EmptyState } from "@/client/components/EmptyState";
 import { RecentSearches } from "@/client/components/RecentSearches";
 import { LOCATIONS } from "@/client/features/keywords/utils";
+import { useLocale } from "@/client/lib/i18n";
 import type { KeywordResearchControllerState } from "./types";
 
 type Props = {
@@ -24,27 +25,20 @@ function NoResultsState({
 }: {
   controller: KeywordResearchControllerState;
 }) {
+  const { t } = useLocale();
   const { lastSearchKeyword, lastSearchLocationCode } = controller;
+  const locationLabel = LOCATIONS[lastSearchLocationCode] || "this location";
 
   return (
     <div className="mx-auto w-full max-w-2xl pt-1">
       <EmptyState
         variant="card"
         icon={Globe}
-        title="Not enough keyword data for this query yet"
-        description={
-          <>
-            We could not find keyword opportunities for
-            <span className="font-medium text-foreground">
-              {` "${lastSearchKeyword}" `}
-            </span>
-            in
-            <span className="font-medium text-foreground">
-              {` ${LOCATIONS[lastSearchLocationCode] || "this location"}`}
-            </span>
-            .
-          </>
-        }
+        title={t("keywords.empty.no_results_title")}
+        description={t("keywords.empty.no_results_desc", {
+          keyword: lastSearchKeyword,
+          location: locationLabel,
+        })}
       />
     </div>
   );
@@ -57,6 +51,8 @@ function SearchHistoryState({
   controller: KeywordResearchControllerState;
   projectId: string;
 }) {
+  const { t } = useLocale();
+
   return (
     <div className="pt-1">
       <RecentSearches
@@ -64,8 +60,8 @@ function SearchHistoryState({
         loaded={controller.historyLoaded}
         onRemove={controller.removeHistoryItem}
         emptyIcon={Search}
-        emptyTitle="Enter a keyword to get started"
-        emptyDescription="Search for any keyword to see volume, difficulty, CPC, and related keyword ideas."
+        emptyTitle={t("keywords.empty.start_title")}
+        emptyDescription={t("keywords.empty.start_desc")}
         getTitle={(item) => item.keyword}
         getSubtitle={(item) => item.locationName}
         renderLink={(item, props) => (

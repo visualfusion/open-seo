@@ -4,6 +4,7 @@ import { TablePagination } from "@/client/components/table/TablePagination";
 import { SkeletonTableRows } from "@/client/components/SkeletonPresets";
 import { GoogleConnectionCard } from "@/client/features/integrations/GoogleConnectionCard";
 import { DimensionTable } from "@/client/features/search-performance/SearchPerformanceParts";
+import { useLocale } from "@/client/lib/i18n";
 import type { getSearchPerformanceTable } from "@/serverFunctions/searchPerformance";
 import { SEARCH_PERFORMANCE_PAGE_SIZES } from "@/types/schemas/search-performance";
 
@@ -31,6 +32,8 @@ export function DimensionSection({
   isFiltered: boolean;
   onClearFilters: () => void;
 }) {
+  const { t } = useLocale();
+
   if (tableQuery.isPending) {
     return <SkeletonTableRows className="p-4" />;
   }
@@ -39,7 +42,7 @@ export function DimensionSection({
     <div className="px-4 pt-4">
       <QueryError
         error={tableQuery.error}
-        fallback="Failed to load Search Console data"
+        fallback={t("search_performance.failed_to_load")}
         onRetry={() => void tableQuery.refetch()}
         isRetrying={tableQuery.isFetching}
       />

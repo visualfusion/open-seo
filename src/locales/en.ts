@@ -7,13 +7,14 @@ import { ranksEn } from "./ranks.en";
 import { aiEn } from "./ai.en";
 import { auditEn } from "./audit.en";
 import { billingEn } from "./billing.en";
-import { dashboardEn } from "./dashboard.en";
 import { backlinksEn } from "./backlinks.en";
+import { dashboardEn } from "./dashboard.en";
 import { integrationsEn } from "./integrations.en";
 import { aiVisibilityEn } from "./aiVisibility.en";
 import { searchPerformanceEn } from "./searchPerformance.en";
 import { contextEn } from "./context.en";
 import { samEn } from "./sam.en";
+import { keywordsEn } from "./keywords.en";
 import { projectsEn } from "./projects.en";
 import { projectSettingsEn } from "./projectSettings.en";
 import { teamEn } from "./team.en";
@@ -35,6 +36,8 @@ export const en = {
     close: "Close",
     status: "Status",
     cancel: "Cancel",
+    save: "Save",
+    saved: "Saved",
   },
   domain: domainEn,
   shell: shellEn,
@@ -66,13 +69,14 @@ export const en = {
   ai: aiEn,
   audit: auditEn,
   billing: billingEn,
-  dashboard: dashboardEn,
   backlinks: backlinksEn,
+  dashboard: dashboardEn,
   integrations: integrationsEn,
   ai_visibility: aiVisibilityEn,
   search_performance: searchPerformanceEn,
   context: contextEn,
   sam: samEn,
+  keywords: keywordsEn,
   projects: projectsEn,
   project_settings: projectSettingsEn,
   team: teamEn,

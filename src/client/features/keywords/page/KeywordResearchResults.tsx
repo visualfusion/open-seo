@@ -23,6 +23,7 @@ import {
   DataTableFilterToggle,
   DataTableToolbar,
 } from "@/client/components/table/DataTableToolbar";
+import { useLocale } from "@/client/lib/i18n";
 import type { KeywordResearchControllerState } from "./types";
 import {
   FilterIntentSelect,
@@ -70,6 +71,8 @@ export function KeywordResearchResults({ controller }: Props) {
 }
 
 function MobileTabs({ controller }: Props) {
+  const { t } = useLocale();
+
   return (
     <Tabs
       value={controller.mobileTab}
@@ -78,15 +81,20 @@ function MobileTabs({ controller }: Props) {
     >
       <TabsList variant="line" className="w-full">
         <TabsTrigger value="keywords">
-          Keywords ({controller.filteredRows.length})
+          {t("keywords.results.mobile_tabs.keywords", {
+            count: controller.filteredRows.length,
+          })}
         </TabsTrigger>
-        <TabsTrigger value="serp">SERP Analysis</TabsTrigger>
+        <TabsTrigger value="serp">
+          {t("keywords.results.mobile_tabs.serp")}
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );
 }
 
 function KeywordPanel({ controller }: Props) {
+  const { t } = useLocale();
   const { mobileTab, searchedKeyword, showApproximateMatchNotice } = controller;
 
   return (
@@ -96,9 +104,9 @@ function KeywordPanel({ controller }: Props) {
       {showApproximateMatchNotice ? (
         <Alert variant="warning" role="status">
           <AlertDescription className="text-foreground">
-            No exact match for{" "}
-            <span className="font-medium">"{searchedKeyword}"</span>. Showing
-            closest related keywords instead.
+            {t("keywords.results.approximate_notice", {
+              keyword: searchedKeyword,
+            })}
           </AlertDescription>
         </Alert>
       ) : null}
@@ -113,6 +121,7 @@ function KeywordPanel({ controller }: Props) {
 }
 
 function TableCard({ controller }: Props) {
+  const { t } = useLocale();
   const {
     activeFilterCount,
     filteredRows,
@@ -126,10 +135,15 @@ function TableCard({ controller }: Props) {
 
   const keywordCountLabel =
     selectedKeywordRows.length > 0
-      ? `${selectedKeywordRows.length} selected`
+      ? t("keywords.results.table.selected_count", {
+          count: selectedKeywordRows.length,
+        })
       : activeFilterCount > 0
-        ? `Showing ${keywordCount} of ${rows.length} keywords`
-        : `Showing ${keywordCount} keywords`;
+        ? t("keywords.results.table.showing_filtered", {
+            count: keywordCount,
+            total: rows.length,
+          })
+        : t("keywords.results.table.showing_count", { count: keywordCount });
 
   return (
     <>
@@ -142,17 +156,24 @@ function TableCard({ controller }: Props) {
               icon={<Save className="size-3.5" />}
               onClick={controller.handleSaveKeywords}
             >
-              Save<span className="hidden md:inline"> Keywords</span>
+              {t("keywords.results.table.save")}
+              <span className="hidden md:inline">
+                {" "}
+                {t("keywords.results.table.save_keywords").replace(
+                  t("keywords.results.table.save"),
+                  "",
+                )}
+              </span>
             </TableBulkActionButton>
             <TableBulkExportMenu
               actions={[
                 {
-                  label: "Export to Sheets",
+                  label: t("keywords.results.table.export_sheets"),
                   icon: <Sheet className="size-4" />,
                   onClick: () => controller.exportSelection("sheets"),
                 },
                 {
-                  label: "Export CSV",
+                  label: t("keywords.results.table.export_csv"),
                   icon: <FileDown className="size-4" />,
                   onClick: () => controller.exportSelection("csv"),
                 },
@@ -216,6 +237,7 @@ function TableCard({ controller }: Props) {
 }
 
 function TableFilters({ controller }: Props) {
+  const { t } = useLocale();
   const { activeFilterCount, filtersForm } = controller;
 
   return (
@@ -227,34 +249,34 @@ function TableFilters({ controller }: Props) {
         <FilterTextInput
           form={filtersForm}
           name="include"
-          label="Include Terms"
-          placeholder="audit, checker, template"
+          label={t("keywords.results.filters.include_terms")}
+          placeholder={t("keywords.results.filters.include_placeholder")}
         />
         <FilterTextInput
           form={filtersForm}
           name="exclude"
-          label="Exclude Terms"
-          placeholder="jobs, salary, course"
+          label={t("keywords.results.filters.exclude_terms")}
+          placeholder={t("keywords.results.filters.exclude_placeholder")}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
         <FilterRangeInputs
           form={filtersForm}
-          title="Search Volume"
+          title={t("keywords.results.filters.search_volume")}
           minName="minVol"
           maxName="maxVol"
         />
         <FilterRangeInputs
           form={filtersForm}
-          title="CPC (USD)"
+          title={t("keywords.results.filters.cpc_usd")}
           minName="minCpc"
           maxName="maxCpc"
           step="0.01"
         />
         <FilterRangeInputs
           form={filtersForm}
-          title="Difficulty"
+          title={t("keywords.results.filters.difficulty")}
           minName="minKd"
           maxName="maxKd"
         />
@@ -266,6 +288,7 @@ function TableFilters({ controller }: Props) {
 }
 
 function SerpPanel({ controller }: Props) {
+  const { t } = useLocale();
   const { mobileTab, overviewKeyword } = controller;
 
   return (
@@ -276,7 +299,7 @@ function SerpPanel({ controller }: Props) {
         <Card size="sm" className="hidden shrink-0 md:flex">
           <CardHeader>
             <CardTitle>
-              Search Trends{" "}
+              {t("keywords.results.search_trends")}{" "}
               <span className="font-normal text-muted-foreground">
                 {formatTrendRangeLabel(overviewKeyword.trend)}
               </span>

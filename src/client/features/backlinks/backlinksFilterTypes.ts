@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import type {
   BacklinksRowsFilters,
   ReferringDomainsFilters,
@@ -132,7 +133,14 @@ export function backlinksFilterBudgetError(
 ): string | null {
   const limit = backlinksFilterConditionLimit(scope, hideSpam);
   if (countFilterConditions(values) <= limit) return null;
-  return `These filters exceed the ${limit}-condition limit for this view. Remove conditions in Filters${hideSpam ? " or choose All links (spammy included) from Best links" : ""}. Your filters have been kept.`;
+  return getTranslation(
+    "ui.details.these_filters_exceed_the_this_view",
+    undefined,
+    {
+      v1: limit,
+      v2: hideSpam ? getTranslation("ui.details.filter_recovery") : "",
+    },
+  );
 }
 
 /**

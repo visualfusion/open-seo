@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { toast } from "sonner";
 import { captureClientEvent } from "@/client/lib/posthog";
 import type { KeywordRow } from "@/client/features/domain/types";
@@ -52,7 +53,11 @@ export function saveSelectedKeywords({
           source_feature: "domain_overview",
           keyword_count: selectedKeywords.size,
         });
-        toast.success(`Saved ${selectedKeywords.size} keywords`);
+        toast.success(
+          getTranslation("ui.details.saved_value_keywords", undefined, {
+            v1: selectedKeywords.size,
+          }),
+        );
       },
     },
   );

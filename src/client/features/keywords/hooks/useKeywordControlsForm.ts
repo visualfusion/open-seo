@@ -4,6 +4,7 @@ import {
   createFormValidationErrors,
   shouldValidateFieldOnChange,
 } from "@/client/lib/forms";
+import { useLocale } from "@/client/lib/i18n";
 import {
   MAX_KEYWORDS_PER_SUBMIT,
   type KeywordMode,
@@ -33,6 +34,7 @@ function getKeywordSearchValidationErrors(
   value: KeywordControlsValues,
   shouldValidateUntouchedField: boolean,
   validateEmptyKeyword: boolean,
+  t: (key: string, params?: Record<string, string | number>) => string,
 ) {
   const keywords = parseKeywordInput(value.keyword);
 
@@ -40,7 +42,7 @@ function getKeywordSearchValidationErrors(
     if (!validateEmptyKeyword) return null;
     return createFormValidationErrors({
       fields: {
-        keyword: "Please enter at least one keyword.",
+        keyword: t("keywords.search_bar.validation_required"),
       },
     });
   }
@@ -50,7 +52,9 @@ function getKeywordSearchValidationErrors(
   if (keywords.length > MAX_KEYWORDS_PER_SUBMIT) {
     return createFormValidationErrors({
       fields: {
-        keyword: `Please enter no more than ${MAX_KEYWORDS_PER_SUBMIT} keywords (one per line).`,
+        keyword: t("keywords.search_bar.validation_max", {
+          max: MAX_KEYWORDS_PER_SUBMIT,
+        }),
       },
     });
   }
@@ -62,6 +66,8 @@ export function useKeywordControlsForm(
   input: UseKeywordControlsFormInput,
   onSubmit: (value: KeywordControlsValues) => void,
 ) {
+  const { t } = useLocale();
+
   const form = useAppForm({
     defaultValues: {
       keyword: input.keywordInput,
@@ -77,9 +83,10 @@ export function useKeywordControlsForm(
           value,
           shouldValidateFieldOnChange(formApi, "keyword"),
           false,
+          t,
         ),
       onSubmit: ({ value }) =>
-        getKeywordSearchValidationErrors(value, true, true),
+        getKeywordSearchValidationErrors(value, true, true, t),
     },
     onSubmit: ({ value }) => {
       onSubmit(value);

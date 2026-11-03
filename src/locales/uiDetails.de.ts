@@ -19,6 +19,7 @@ export const uiDetailsDe = {
   change_or_clear_the_more_rows:
     "Ändere oder entferne die Filter, um weitere Zeilen anzuzeigen.",
   change: "Veränderung",
+  change_project_connection: "die Verbindung dieses Projekts ändern",
   the_page_you_are_not_exist: "Die gesuchte Seite existiert nicht.",
   ask_an_organization_owner_or_admin_to:
     "Bitte einen Workspace-Inhaber oder Administrator um Folgendes:",
@@ -45,8 +46,19 @@ export const uiDetailsDe = {
   displays_the_mobile_sidebar: "Zeigt die mobile Seitenleiste an.",
   toggle_sidebar: "Seitenleiste umschalten",
   loading: "Wird geladen",
+  spam_score_unknown: "Spam-Score unbekannt",
+  last_value: "Zuletzt {v1}",
+  these_filters_exceed_the_this_view:
+    "Diese Filter überschreiten das Limit von {v1} Bedingungen für diese Ansicht. Entferne Bedingungen unter Filter{v2}. Deine Filter bleiben erhalten.",
+  filter_recovery:
+    " oder wähle Alle Links (einschließlich Spam) statt Beste Links",
   an_admin_sets: "Ein Administrator hinterlegt",
   with: "mit",
+  help_with_step: "bei diesem Schritt helfen",
+  saved_value_keywords: "{v1} Keywords gespeichert",
+  search_tabs: "Suchtabs",
+  close_value_tab: "Tab {v1} schließen",
+  unknown_backlinks_scope: "Unbekannter Backlink-Umfang",
   could_not_copy_to_clipboard: "Kopieren in die Zwischenablage fehlgeschlagen",
   error_unexpected_hosted:
     "Bei uns ist ein Fehler aufgetreten. Versuche es erneut und kontaktiere bei anhaltenden Problemen den Support.",
@@ -102,6 +114,4 @@ export const uiDetailsDe = {
   redirecting_you_to_billing_a_hosted:
     "Du wirst zur Abrechnung weitergeleitet, um ein gehostetes Abo abzuschließen.",
   not_available: "Nicht verfügbar",
-  change_project_connection: "die Verbindung dieses Projekts ändern",
-  help_with_step: "bei diesem Schritt helfen",
 };

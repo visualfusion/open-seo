@@ -9,14 +9,16 @@ import {
   parseIntentFilter,
   toggleIntentFilter,
 } from "@/client/features/keywords/keywordResearchTypes";
-import { INTENT_LABELS } from "@/client/features/keywords/components/IntentBadge";
+import { useLocale } from "@/client/lib/i18n";
 import type { KeywordResearchControllerState } from "./types";
 
 type FiltersForm = KeywordResearchControllerState["filtersForm"];
 
 export function FilterIntentSelect({ form }: { form: FiltersForm }) {
+  const { t } = useLocale();
+
   return (
-    <DataTableFilterGroup label="Intent">
+    <DataTableFilterGroup label={t("keywords.results.filters.intent")}>
       <form.Field name="intents">
         {(field) => {
           const selected = parseIntentFilter(field.state.value);
@@ -35,7 +37,7 @@ export function FilterIntentSelect({ form }: { form: FiltersForm }) {
                     )
                   }
                 >
-                  {INTENT_LABELS[intent]}
+                  {t(`keywords.intents.${intent}.label`)}
                 </Toggle>
               ))}
             </div>

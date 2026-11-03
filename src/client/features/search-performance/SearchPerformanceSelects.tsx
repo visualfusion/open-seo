@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   GSC_DEVICES,
   SEARCH_PERFORMANCE_RANGES,
@@ -12,30 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/client/components/ui/select";
-
-const RANGE_LABELS: Record<SearchPerformanceDateRange, string> = {
-  last_7_days: "Last 7 days",
-  last_28_days: "Last 28 days",
-  last_3_months: "Last 3 months",
-};
-const RANGE_OPTIONS = SEARCH_PERFORMANCE_RANGES.map((value) => ({
-  value,
-  label: RANGE_LABELS[value],
-}));
-
-const DEVICE_LABELS: Record<SearchPerformanceDevice, string> = {
-  DESKTOP: "Desktop",
-  MOBILE: "Mobile",
-  TABLET: "Tablet",
-};
-const DEVICE_OPTIONS = GSC_DEVICES.map((value) => ({
-  value,
-  label: DEVICE_LABELS[value],
-}));
+import { useLocale } from "@/client/lib/i18n";
 
 // Sentinel for "no filter" in the selects; never written to the URL.
 const ALL = "ALL";
-const DEVICE_ITEMS = [{ value: ALL, label: "All devices" }, ...DEVICE_OPTIONS];
 
 function isDateRange(value: string): value is SearchPerformanceDateRange {
   return SEARCH_PERFORMANCE_RANGES.some((option) => option === value);
@@ -55,23 +36,56 @@ export function SearchPerformanceSelects({
   countries: { key: string }[];
   onSearchChange: (update: Partial<SearchPerformanceSearch>) => void;
 }) {
+  const { t } = useLocale();
+
+  const rangeOptions = useMemo(() => {
+    const labels: Record<SearchPerformanceDateRange, string> = {
+      last_7_days: t("search_performance.ranges.last_7_days"),
+      last_28_days: t("search_performance.ranges.last_28_days"),
+      last_3_months: t("search_performance.ranges.last_3_months"),
+    };
+    return SEARCH_PERFORMANCE_RANGES.map((value) => ({
+      value,
+      label: labels[value],
+    }));
+  }, [t]);
+
+  const deviceItems = useMemo(() => {
+    const labels: Record<SearchPerformanceDevice, string> = {
+      DESKTOP: t("search_performance.devices.desktop"),
+      MOBILE: t("search_performance.devices.mobile"),
+      TABLET: t("search_performance.devices.tablet"),
+    };
+    return [
+      { value: ALL, label: t("search_performance.devices.all") },
+      ...GSC_DEVICES.map((value) => ({
+        value,
+        label: labels[value],
+      })),
+    ];
+  }, [t]);
+
   const device = search.device ?? ALL;
   const country = search.country ?? ALL;
   const range = search.range ?? "last_28_days";
-  const countryItems = [
-    { value: ALL, label: "All countries" },
-    ...(country !== ALL && !countries.some((row) => row.key === country)
-      ? [{ value: country, label: country.toUpperCase() }]
-      : []),
-    ...countries.map((row) => ({
-      value: row.key,
-      label: row.key.toUpperCase(),
-    })),
-  ];
+  const countryItems = useMemo(
+    () => [
+      { value: ALL, label: t("search_performance.countries.all") },
+      ...(country !== ALL && !countries.some((row) => row.key === country)
+        ? [{ value: country, label: country.toUpperCase() }]
+        : []),
+      ...countries.map((row) => ({
+        value: row.key,
+        label: row.key.toUpperCase(),
+      })),
+    ],
+    [countries, country, t],
+  );
+
   return (
     <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
       <Select
-        items={DEVICE_ITEMS}
+        items={deviceItems}
         value={device}
         onValueChange={(value) => {
           if (value == null) return;
@@ -81,11 +95,15 @@ export function SearchPerformanceSelects({
           });
         }}
       >
-        <SelectTrigger size="sm" className="w-36" aria-label="Device filter">
+        <SelectTrigger
+          size="sm"
+          className="w-36"
+          aria-label={t("search_performance.aria.device_filter")}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {DEVICE_ITEMS.map((option) => (
+          {deviceItems.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>
@@ -103,7 +121,11 @@ export function SearchPerformanceSelects({
           });
         }}
       >
-        <SelectTrigger size="sm" className="w-36" aria-label="Country filter">
+        <SelectTrigger
+          size="sm"
+          className="w-36"
+          aria-label={t("search_performance.aria.country_filter")}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -115,7 +137,7 @@ export function SearchPerformanceSelects({
         </SelectContent>
       </Select>
       <Select
-        items={RANGE_OPTIONS}
+        items={rangeOptions}
         value={range}
         onValueChange={(value) => {
           if (value != null && isDateRange(value)) {
@@ -126,11 +148,15 @@ export function SearchPerformanceSelects({
           }
         }}
       >
-        <SelectTrigger size="sm" className="w-36" aria-label="Date range">
+        <SelectTrigger
+          size="sm"
+          className="w-36"
+          aria-label={t("search_performance.aria.date_range")}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {RANGE_OPTIONS.map((option) => (
+          {rangeOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>

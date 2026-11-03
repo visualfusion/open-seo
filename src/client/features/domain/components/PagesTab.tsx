@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useLocale } from "@/client/lib/i18n";
 import { QueryError } from "@/client/components/QueryState";
 import { TablePagination } from "@/client/components/table/TablePagination";
 import { DomainPageLink } from "@/client/features/domain/components/DomainPageLink";
@@ -35,22 +36,6 @@ import {
 type SearchUpdate = Partial<DomainSearchParams>;
 
 const EMPTY_PAGES_ROWS: PageRow[] = [];
-const PAGE_TEXT_FILTERS = [
-  {
-    key: "include",
-    label: "Include Page Terms",
-    placeholder: "pricing, tools, guides",
-  },
-  {
-    key: "exclude",
-    label: "Exclude Page Terms",
-    placeholder: "blog, tag, archive",
-  },
-] as const;
-const PAGE_RANGE_FILTERS = [
-  { title: "Traffic", minKey: "minTraffic", maxKey: "maxTraffic" },
-  { title: "Keywords", minKey: "minVol", maxKey: "maxVol" },
-] as const;
 
 type Props = {
   projectId: string;
@@ -80,7 +65,42 @@ export function PagesTab({
   onPageChange,
   onPageSizeChange,
 }: Props) {
+  const { t } = useLocale();
   const [showFilters, setShowFilters] = useState(false);
+
+  const pageTextFields = useMemo(
+    () =>
+      [
+        {
+          key: "include",
+          label: t("domain.pages_tab.include_label"),
+          placeholder: t("domain.pages_tab.include_placeholder"),
+        },
+        {
+          key: "exclude",
+          label: t("domain.pages_tab.exclude_label"),
+          placeholder: t("domain.pages_tab.exclude_placeholder"),
+        },
+      ] as const,
+    [t],
+  );
+
+  const pageRangeFilters = useMemo(
+    () =>
+      [
+        {
+          title: t("domain.pages_tab.traffic"),
+          minKey: "minTraffic",
+          maxKey: "maxTraffic",
+        },
+        {
+          title: t("domain.pages_tab.keywords"),
+          minKey: "minVol",
+          maxKey: "maxVol",
+        },
+      ] as const,
+    [t],
+  );
   // Scope filters consume part of DataForSEO's fixed filter budget.
   const maxConditions =
     MAX_DATAFORSEO_FILTER_CONDITIONS - RESEARCH_SCOPE_FILTER_SLOTS.pages[scope];
@@ -176,7 +196,7 @@ export function PagesTab({
         query.isError ? (
           <QueryError
             error={query.error}
-            fallback="Failed to load pages."
+            fallback={t("domain.pages_tab.error_fallback")}
             onRetry={() => void query.refetch()}
             isRetrying={isFetching}
           />
@@ -190,7 +210,7 @@ export function PagesTab({
             showFilters={showFilters}
             onToggleFilters={() => setShowFilters((prev) => !prev)}
             activeFilterCount={activeFilterCount}
-            countLabel="pages"
+            countLabel={t("domain.toolbar.pages_count")}
             totalCount={totalCount}
             fallbackCount={rows.length}
             onExport={exportAll}
@@ -199,8 +219,8 @@ export function PagesTab({
                 activeFilterCount={activeFilterCount}
                 appliedFilters={restoredFilters}
                 fields={PAGE_FILTER_FIELDS}
-                textFields={PAGE_TEXT_FILTERS}
-                rangeFields={PAGE_RANGE_FILTERS}
+                textFields={pageTextFields}
+                rangeFields={pageRangeFilters}
                 countConditions={countPageFilterConditions}
                 maxConditions={maxConditions}
                 onApply={applyFilters}

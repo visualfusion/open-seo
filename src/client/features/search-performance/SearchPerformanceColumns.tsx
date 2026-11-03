@@ -1,3 +1,4 @@
+import { getCurrentLocale } from "@/client/lib/i18n";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import type { MutableRefObject } from "react";
 import { makeSelectionColumn } from "@/client/components/table/DataTable";
@@ -20,10 +21,8 @@ export type SearchPerformanceTableRow = Extract<
 type DimensionRow = SearchPerformanceTableRow;
 type StrikingRow = Report["strikingDistance"][number];
 
-const numberFormat = new Intl.NumberFormat("en-US");
-
 export function formatCount(value: number): string {
-  return numberFormat.format(Math.round(value));
+  return new Intl.NumberFormat(getCurrentLocale()).format(Math.round(value));
 }
 
 export function formatCtr(value: number): string {
@@ -41,9 +40,24 @@ const rightAligned = {
 
 const dimensionHelper = createColumnHelper<DimensionRow>();
 
+type SearchPerformanceColumnLabels = {
+  clicks?: string;
+  impressions?: string;
+  ctr?: string;
+  position?: string;
+  query?: string;
+  page?: string;
+};
+
 export function buildDimensionColumns(
   keyLabel: string,
+  labels?: SearchPerformanceColumnLabels,
 ): ColumnDef<DimensionRow>[] {
+  const clicksLabel = labels?.clicks ?? "Clicks";
+  const impressionsLabel = labels?.impressions ?? "Impressions";
+  const ctrLabel = labels?.ctr ?? "CTR";
+  const positionLabel = labels?.position ?? "Position";
+
   return [
     dimensionHelper.accessor("key", {
       enableSorting: false,
@@ -56,28 +70,32 @@ export function buildDimensionColumns(
     }),
     dimensionHelper.accessor("clicks", {
       header: ({ column }) => (
-        <SortableHeader column={column} label="Clicks" align="right" />
+        <SortableHeader column={column} label={clicksLabel} align="right" />
       ),
       cell: ({ getValue }) => formatCount(getValue()),
       meta: rightAligned,
     }),
     dimensionHelper.accessor("impressions", {
       header: ({ column }) => (
-        <SortableHeader column={column} label="Impressions" align="right" />
+        <SortableHeader
+          column={column}
+          label={impressionsLabel}
+          align="right"
+        />
       ),
       cell: ({ getValue }) => formatCount(getValue()),
       meta: rightAligned,
     }),
     dimensionHelper.accessor("ctr", {
       header: ({ column }) => (
-        <SortableHeader column={column} label="CTR" align="right" />
+        <SortableHeader column={column} label={ctrLabel} align="right" />
       ),
       cell: ({ getValue }) => formatCtr(getValue()),
       meta: rightAligned,
     }),
     dimensionHelper.accessor("position", {
       header: ({ column }) => (
-        <SortableHeader column={column} label="Position" align="right" />
+        <SortableHeader column={column} label={positionLabel} align="right" />
       ),
       cell: ({ getValue }) => formatPosition(getValue()),
       meta: rightAligned,
@@ -89,12 +107,19 @@ const strikingHelper = createColumnHelper<StrikingRow>();
 
 export function buildStrikingColumns(
   anchorRef: MutableRefObject<SelectionAnchor | null>,
+  labels?: SearchPerformanceColumnLabels,
 ): ColumnDef<StrikingRow>[] {
+  const queryLabel = labels?.query ?? "Query";
+  const pageLabel = labels?.page ?? "Page";
+  const clicksLabel = labels?.clicks ?? "Clicks";
+  const impressionsLabel = labels?.impressions ?? "Impressions";
+  const positionLabel = labels?.position ?? "Position";
+
   return [
     makeSelectionColumn<StrikingRow>(anchorRef),
     strikingHelper.accessor("query", {
       enableSorting: false,
-      header: () => "Query",
+      header: () => queryLabel,
       cell: ({ getValue }) => (
         <span className="block max-w-xs truncate" title={getValue()}>
           {getValue()}
@@ -103,7 +128,7 @@ export function buildStrikingColumns(
     }),
     strikingHelper.accessor("page", {
       enableSorting: false,
-      header: () => "Page",
+      header: () => pageLabel,
       // GSC page keys are canonical http(s) URLs of the verified property;
       // the scheme check is defense-in-depth before rendering an href.
       cell: ({ getValue }) => (
@@ -120,21 +145,25 @@ export function buildStrikingColumns(
     }),
     strikingHelper.accessor("impressions", {
       header: ({ column }) => (
-        <SortableHeader column={column} label="Impressions" align="right" />
+        <SortableHeader
+          column={column}
+          label={impressionsLabel}
+          align="right"
+        />
       ),
       cell: ({ getValue }) => formatCount(getValue()),
       meta: rightAligned,
     }),
     strikingHelper.accessor("clicks", {
       header: ({ column }) => (
-        <SortableHeader column={column} label="Clicks" align="right" />
+        <SortableHeader column={column} label={clicksLabel} align="right" />
       ),
       cell: ({ getValue }) => formatCount(getValue()),
       meta: rightAligned,
     }),
     strikingHelper.accessor("position", {
       header: ({ column }) => (
-        <SortableHeader column={column} label="Position" align="right" />
+        <SortableHeader column={column} label={positionLabel} align="right" />
       ),
       cell: ({ getValue }) => formatPosition(getValue()),
       meta: rightAligned,

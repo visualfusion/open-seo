@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
+import { useLocale } from "@/client/lib/i18n";
 import {
   createFormValidationErrors,
   getFieldError,
@@ -18,6 +19,7 @@ type SearchDraft = Pick<BacklinksSearchState, "target" | "scope">;
 function getBacklinksValidationErrors(
   value: SearchDraft,
   shouldValidateUntouchedField: boolean,
+  errorMessage: string,
   validateFormat = false,
 ) {
   if (!value.target.trim()) {
@@ -27,7 +29,7 @@ function getBacklinksValidationErrors(
 
     return createFormValidationErrors({
       fields: {
-        target: "Enter a domain or URL to analyze.",
+        target: errorMessage,
       },
     });
   }
@@ -51,6 +53,7 @@ export function BacklinksSearchCard({
   initialValues: SearchDraft;
   onSubmit: (values: SearchDraft) => void;
 }) {
+  const { t } = useLocale();
   const [userSelectedScope, setUserSelectedScope] = useState(false);
   const form = useForm({
     defaultValues: initialValues,
@@ -59,8 +62,15 @@ export function BacklinksSearchCard({
         getBacklinksValidationErrors(
           value,
           shouldValidateFieldOnChange(formApi, "target"),
+          t("backlinks.target_validation_error"),
         ),
-      onSubmit: ({ value }) => getBacklinksValidationErrors(value, true, true),
+      onSubmit: ({ value }) =>
+        getBacklinksValidationErrors(
+          value,
+          true,
+          t("backlinks.target_validation_error"),
+          true,
+        ),
     },
     onSubmit: ({ value }) => {
       onSubmit({ ...value, target: value.target.trim() });
@@ -88,8 +98,8 @@ export function BacklinksSearchCard({
       <form.Field name="target">
         {(field) => (
           <SearchInput
-            placeholder="Enter a domain or URL"
-            aria-label="Domain or URL"
+            placeholder={t("backlinks.input_placeholder")}
+            aria-label={t("backlinks.input_aria_label")}
             value={field.state.value}
             onChange={(event) => {
               const nextTarget = event.target.value;

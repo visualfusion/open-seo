@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { z } from "zod";
 import { useLocalHistoryStore } from "@/client/hooks/useLocalHistoryStore";
 import { jsonCodec } from "@/shared/json";
@@ -47,7 +48,10 @@ const backlinksSearchHistoryItemSchema = z
         : LEGACY_SCOPES[item.scope],
     );
     if (!scope.success) {
-      ctx.addIssue({ code: "custom", message: "Unknown backlinks scope" });
+      ctx.addIssue({
+        code: "custom",
+        message: getTranslation("ui.details.unknown_backlinks_scope"),
+      });
       return z.NEVER;
     }
 

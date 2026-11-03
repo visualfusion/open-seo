@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { Area, AreaChart } from "recharts";
 import {
   ChartGrid,
@@ -11,11 +12,7 @@ import {
   type ChartConfig,
 } from "@/client/components/ui/chart";
 import type { MonthlySearch } from "@/types/keywords";
-import {
-  formatCompactNumber,
-  lastTwelveMonths,
-  MONTH_SHORT_LABELS,
-} from "../utils";
+import { formatCompactNumber, lastTwelveMonths } from "../utils";
 
 export type SortField =
   | "keyword"
@@ -27,16 +24,20 @@ export type SortDir = "asc" | "desc";
 
 export function AreaTrendChart({
   trend,
-  label = "Search volume",
+  label,
 }: {
   trend: MonthlySearch[];
   label?: string;
 }) {
+  const { t, locale } = useLocale();
+  const chartLabel = label ?? t("keywords.results.filters.search_volume");
   const last12 = lastTwelveMonths(trend);
   if (last12.length === 0) return null;
 
   const data = last12.map((m) => ({
-    month: MONTH_SHORT_LABELS[m.month - 1],
+    month: new Date(m.year, m.month - 1, 1).toLocaleDateString(locale, {
+      month: "short",
+    }),
     searchVolume: m.searchVolume,
   }));
 
@@ -44,11 +45,13 @@ export function AreaTrendChart({
     <ChartContainer
       config={
         {
-          searchVolume: { label, color: "var(--color-primary)" },
+          searchVolume: { label: chartLabel, color: "var(--color-primary)" },
         } satisfies ChartConfig
       }
       className="h-[210px]"
-      aria-label={`${label} trend chart`}
+      aria-label={getTranslation("ui.details.value_trend_chart", undefined, {
+        v1: chartLabel,
+      })}
     >
       <AreaChart
         data={data}

@@ -1,149 +1,27 @@
+import { getTranslation } from "@/client/lib/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronRight } from "lucide-react";
 import { SortableHeader } from "@/client/components/table/SortableHeader";
 import { HelpLabel } from "@/client/components/HelpLabel";
-import { SafeExternalLink } from "@/client/components/SafeExternalLink";
-import { Badge } from "@/client/components/ui/badge";
-import { Button } from "@/client/components/ui/button";
-import { Spinner } from "@/client/components/ui/spinner";
-import type { BacklinksRow } from "./backlinksPageTypes";
 import type { BacklinksRowsSortField } from "@/types/schemas/backlinks";
 import {
-  extractUrlPath,
   formatCompactDate,
   formatDecimal,
   formatNumber,
-  truncateMiddle,
 } from "./backlinksPageUtils";
 import type { DomainRatings } from "./useAhrefsDomainRatings";
+import {
+  type BacklinksDisplayRow,
+  BacklinkFlags,
+  BacklinksSourceLink,
+  SourceCell,
+  linkCell,
+} from "./BacklinksTableCells";
 
-/**
- * Row model for the backlinks table. In the one-per-domain view, depth-0 rows
- * are each domain's strongest link and can expand into the domain's remaining
- * links (depth-1) plus a transient status row while they load.
- */
-export type BacklinksDisplayRow =
-  | {
-      kind: "link";
-      row: BacklinksRow;
-      depth: 0 | 1;
-      expandable: boolean;
-      expanded: boolean;
-    }
-  | { kind: "status"; domain: string; status: "loading" | "error" | "empty" };
-
-function BacklinksSourceLink({
-  url,
-  maxLength,
-  muted = false,
-}: {
-  url: string;
-  maxLength: number;
-  muted?: boolean;
-}) {
-  return (
-    <SafeExternalLink
-      url={url}
-      label={truncateMiddle(extractUrlPath(url), maxLength)}
-      className={`inline-flex items-center gap-1 break-all underline-offset-4 hover:underline ${muted ? "text-xs text-muted-foreground" : "text-sm"}`}
-    />
-  );
-}
-
-function BacklinkFlags({ row }: { row: BacklinksRow }) {
-  return (
-    <div className="flex flex-wrap gap-1">
-      {row.isLost ? <Badge variant="destructive">Lost</Badge> : null}
-      {row.isBroken ? <Badge variant="warning">Broken</Badge> : null}
-      {row.isDofollow === false ? (
-        <Badge variant="outline">Nofollow</Badge>
-      ) : null}
-      {row.linksCount != null && row.linksCount > 1 ? (
-        <Badge variant="outline">{row.linksCount} links</Badge>
-      ) : null}
-    </div>
-  );
-}
-
-function StatusCell({ status }: { status: "loading" | "error" | "empty" }) {
-  if (status === "loading") {
-    return (
-      <span className="flex items-center gap-2 pl-6 text-sm text-muted-foreground">
-        <Spinner className="size-3.5" />
-        Loading links…
-      </span>
-    );
-  }
-  return (
-    <span className="pl-6 text-sm text-muted-foreground">
-      {status === "error"
-        ? "Couldn't load this domain's links."
-        : "No other links from this domain."}
-    </span>
-  );
-}
-
-function SourceCell({
-  displayRow,
-  onToggleDomain,
-}: {
-  displayRow: BacklinksDisplayRow;
-  onToggleDomain?: (domain: string) => void;
-}) {
-  if (displayRow.kind === "status") {
-    return <StatusCell status={displayRow.status} />;
-  }
-
-  const { row, depth, expandable, expanded } = displayRow;
-  if (depth > 0) {
-    return (
-      <div className="break-all pl-6">
-        {row.urlFrom ? (
-          <BacklinksSourceLink url={row.urlFrom} maxLength={48} muted />
-        ) : (
-          <span className="text-muted-foreground">-</span>
-        )}
-      </div>
-    );
-  }
-
-  const domainLabel = row.domainFrom?.replace(/^www\./, "") ?? "-";
-  return (
-    <div className="flex items-start gap-1.5 break-all">
-      {expandable && row.domainFrom && onToggleDomain ? (
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="-ml-1 shrink-0"
-          aria-label={`${expanded ? "Hide" : "Show"} all links from ${domainLabel}`}
-          aria-expanded={expanded}
-          onClick={() => onToggleDomain(row.domainFrom ?? "")}
-        >
-          <ChevronRight
-            className={`size-4 transition-transform ${expanded ? "rotate-90" : ""}`}
-          />
-        </Button>
-      ) : null}
-      <div>
-        <div className="font-semibold">{domainLabel}</div>
-        {row.urlFrom ? (
-          <BacklinksSourceLink url={row.urlFrom} maxLength={48} muted />
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-/** Renders nothing for status rows, the link cell otherwise. */
-function linkCell(
-  render: (row: BacklinksRow) => React.ReactNode,
-): (ctx: { row: { original: BacklinksDisplayRow } }) => React.ReactNode {
-  return ({ row }) =>
-    row.original.kind === "link" ? render(row.original.row) : null;
-}
+export type { BacklinksDisplayRow };
 
 function buildBaseColumns(
   onToggleDomain?: (domain: string) => void,
+  t?: (key: string, params?: Record<string, string | number>) => string,
 ): ColumnDef<BacklinksDisplayRow>[] {
   // Sortable column ids ("rank", "domainRank", "spamScore", "firstSeen") map
   // to server-side sort fields — sorting re-queries DataForSEO across the
@@ -152,7 +30,20 @@ function buildBaseColumns(
     {
       id: "source",
       enableSorting: false,
-      header: () => <HelpLabel label="Source" helpText="Page linking to you" />,
+      header: () => (
+        <HelpLabel
+          label={
+            t
+              ? t("backlinks.backlinks_table.source")
+              : getTranslation("backlinks.backlinks_table.source")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.source_help")
+              : getTranslation("backlinks.backlinks_table.source_help")
+          }
+        />
+      ),
       meta: { headerClassName: "min-w-[200px]" },
       cell: ({ row }) => (
         <SourceCell displayRow={row.original} onToggleDomain={onToggleDomain} />
@@ -162,7 +53,18 @@ function buildBaseColumns(
       id: "target",
       enableSorting: false,
       header: () => (
-        <HelpLabel label="Target" helpText="Destination on your site" />
+        <HelpLabel
+          label={
+            t
+              ? t("backlinks.backlinks_table.target")
+              : getTranslation("backlinks.backlinks_table.target")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.target_help")
+              : getTranslation("backlinks.backlinks_table.target_help")
+          }
+        />
       ),
       meta: { headerClassName: "min-w-[180px]" },
       cell: linkCell((row) => (
@@ -179,12 +81,28 @@ function buildBaseColumns(
       id: "anchor",
       enableSorting: false,
       header: () => (
-        <HelpLabel label="Anchor" helpText="Text or format of the link" />
+        <HelpLabel
+          label={
+            t
+              ? t("backlinks.backlinks_table.anchor")
+              : getTranslation("backlinks.backlinks_table.anchor")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.anchor_help")
+              : getTranslation("backlinks.backlinks_table.anchor_help")
+          }
+        />
       ),
       meta: { headerClassName: "min-w-[150px]" },
       cell: linkCell((row) => (
         <div className="space-y-0.5 wrap-anywhere">
-          <span className="text-sm">{row.anchor || "No anchor text"}</span>
+          <span className="text-sm">
+            {row.anchor ||
+              (t
+                ? t("backlinks.backlinks_table.no_anchor")
+                : getTranslation("backlinks.backlinks_table.no_anchor"))}
+          </span>
           {row.itemType ? (
             <div className="text-xs text-muted-foreground">{row.itemType}</div>
           ) : null}
@@ -196,8 +114,16 @@ function buildBaseColumns(
       enableSorting: false,
       header: () => (
         <HelpLabel
-          label="Flags"
-          helpText="Special backlink attributes, such as lost, broken, nofollow, or multiple links from the same source."
+          label={
+            t
+              ? t("backlinks.backlinks_table.flags")
+              : getTranslation("backlinks.backlinks_table.flags")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.flags_help")
+              : getTranslation("backlinks.backlinks_table.flags_help")
+          }
         />
       ),
       meta: { headerClassName: "min-w-[110px]" },
@@ -210,8 +136,16 @@ function buildBaseColumns(
       header: ({ column }) => (
         <SortableHeader
           column={column}
-          label="Link"
-          helpText="Authority of the linking page"
+          label={
+            t
+              ? t("backlinks.backlinks_table.link_rank")
+              : getTranslation("backlinks.backlinks_table.link_rank")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.link_rank_help")
+              : getTranslation("backlinks.backlinks_table.link_rank_help")
+          }
           align="right"
         />
       ),
@@ -229,8 +163,16 @@ function buildBaseColumns(
       header: ({ column }) => (
         <SortableHeader
           column={column}
-          label="DA"
-          helpText="Authority of the linking domain"
+          label={
+            t
+              ? t("backlinks.backlinks_table.da")
+              : getTranslation("backlinks.backlinks_table.da")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.da_help")
+              : getTranslation("backlinks.backlinks_table.da_help")
+          }
           align="right"
         />
       ),
@@ -248,8 +190,16 @@ function buildBaseColumns(
       header: ({ column }) => (
         <SortableHeader
           column={column}
-          label="Spam"
-          helpText="Estimated spam risk for this backlink. Higher scores are more likely to be manipulative or low quality."
+          label={
+            t
+              ? t("backlinks.backlinks_table.spam")
+              : getTranslation("backlinks.backlinks_table.spam")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.spam_help")
+              : getTranslation("backlinks.backlinks_table.spam_help")
+          }
           align="right"
         />
       ),
@@ -261,7 +211,9 @@ function buildBaseColumns(
             {value != null ? (
               Math.round(value)
             ) : (
-              <span title="Spam score unknown">-</span>
+              <span title={getTranslation("ui.details.spam_score_unknown")}>
+                -
+              </span>
             )}
           </div>
         );
@@ -274,8 +226,16 @@ function buildBaseColumns(
       header: ({ column }) => (
         <SortableHeader
           column={column}
-          label="First Seen"
-          helpText="When this link was first discovered by the crawler"
+          label={
+            t
+              ? t("backlinks.backlinks_table.first_seen")
+              : getTranslation("backlinks.backlinks_table.first_seen")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.first_seen_help")
+              : getTranslation("backlinks.backlinks_table.first_seen_help")
+          }
         />
       ),
       sortDescFirst: true,
@@ -284,7 +244,13 @@ function buildBaseColumns(
           <div>{formatCompactDate(row.firstSeen)}</div>
           {row.lastSeen ? (
             <div className="text-xs text-muted-foreground">
-              Last {formatCompactDate(row.lastSeen)}
+              {t
+                ? t("backlinks.backlinks_table.last_seen", {
+                    date: formatCompactDate(row.lastSeen),
+                  })
+                : getTranslation("ui.details.last_value", undefined, {
+                    v1: formatCompactDate(row.lastSeen),
+                  })}
             </div>
           ) : null}
         </div>
@@ -302,8 +268,9 @@ function buildBaseColumns(
 export function buildBacklinksColumns(
   domainRatings: DomainRatings | null,
   onToggleDomain?: (domain: string) => void,
+  t?: (key: string, params?: Record<string, string | number>) => string,
 ): ColumnDef<BacklinksDisplayRow>[] {
-  const baseColumns = buildBaseColumns(onToggleDomain);
+  const baseColumns = buildBaseColumns(onToggleDomain, t);
   if (!domainRatings) return baseColumns;
 
   const ratings = domainRatings;
@@ -313,8 +280,16 @@ export function buildBacklinksColumns(
     header: () => (
       <span className="flex w-full justify-end">
         <HelpLabel
-          label="Ahrefs DR"
-          helpText="Ahrefs Domain Rating (0-100) for the linking domain."
+          label={
+            t
+              ? t("backlinks.backlinks_table.ahrefs_dr")
+              : getTranslation("backlinks.toolbar.ahrefs_dr")
+          }
+          helpText={
+            t
+              ? t("backlinks.backlinks_table.ahrefs_dr_help")
+              : getTranslation("backlinks.backlinks_table.ahrefs_dr_help")
+          }
         />
       </span>
     ),

@@ -34,6 +34,7 @@ import {
   type ExportTarget,
 } from "@/client/features/search-performance/SearchPerformanceParts";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
+import { useLocale } from "@/client/lib/i18n";
 import {
   exportSearchPerformanceTable,
   getSearchPerformanceReport,
@@ -73,6 +74,7 @@ export function SearchPerformancePage({
   search: SearchPerformanceSearch;
   onSearchChange: (update: Partial<SearchPerformanceSearch>) => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const { range, device, country } = search;
   const textFilters = useMemo<TextFilters>(
@@ -168,7 +170,9 @@ export function SearchPerformancePage({
       });
       await exportDimensionRows(dimension, data.rows, report.range, target);
     } catch (error) {
-      toast.error(getStandardErrorMessage(error, "Export failed"));
+      toast.error(
+        getStandardErrorMessage(error, t("search_performance.export_failed")),
+      );
     } finally {
       setIsExporting(false);
     }
@@ -189,7 +193,7 @@ export function SearchPerformancePage({
   const reportError = (
     <QueryError
       error={reportQuery.error}
-      fallback="Failed to load Search Console data"
+      fallback={t("search_performance.failed_to_load")}
       onRetry={() => void reportQuery.refetch()}
       isRetrying={reportQuery.isFetching}
     />
@@ -219,10 +223,11 @@ export function SearchPerformancePage({
       <div className="mx-auto max-w-7xl space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold">Search Performance</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("search_performance.title")}
+            </h1>
             <p className="text-sm text-muted-foreground">
-              See your site&apos;s clicks, impressions, CTR, and position from
-              Google Search Console.
+              {t("search_performance.description")}
             </p>
           </div>
           {report?.connected ? (
@@ -231,7 +236,7 @@ export function SearchPerformancePage({
               params={{ projectId }}
               className="shrink-0 self-start text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline sm:mt-1"
             >
-              Change property
+              {t("search_performance.change_property")}
             </Link>
           ) : null}
         </div>
@@ -276,11 +281,17 @@ export function SearchPerformancePage({
               >
                 <TabsTrigger value="striking">
                   {reportQuery.isPlaceholderData
-                    ? "Striking distance"
-                    : `Striking distance (${report.strikingDistance.length})`}
+                    ? t("search_performance.tabs.striking")
+                    : t("search_performance.tabs.striking_with_count", {
+                        count: report.strikingDistance.length,
+                      })}
                 </TabsTrigger>
-                <TabsTrigger value="queries">Queries</TabsTrigger>
-                <TabsTrigger value="pages">Pages</TabsTrigger>
+                <TabsTrigger value="queries">
+                  {t("search_performance.tabs.queries")}
+                </TabsTrigger>
+                <TabsTrigger value="pages">
+                  {t("search_performance.tabs.pages")}
+                </TabsTrigger>
               </DataTableTabs>
               <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
                 <Button
@@ -290,10 +301,10 @@ export function SearchPerformancePage({
                   aria-expanded={showFilters}
                   aria-controls="search-performance-filters"
                   onClick={() => setShowFilters((current) => !current)}
-                  title="Toggle table filters"
+                  title={t("search_performance.filters.toggle_title")}
                 >
                   <SlidersHorizontal data-icon="inline-start" />
-                  Filters
+                  {t("search_performance.filters.toggle")}
                   {activeFilterCount > 0 ? (
                     <Badge size="sm">{activeFilterCount}</Badge>
                   ) : null}
@@ -311,7 +322,7 @@ export function SearchPerformancePage({
               {showFilters ? filtersPanel : null}
               {reportQuery.isPlaceholderData ? (
                 <div className="p-8 text-sm" role="status">
-                  Loading matching results…
+                  {t("search_performance.loading_matching")}
                 </div>
               ) : tab === "striking" ? (
                 <StrikingDistanceTable
@@ -332,7 +343,11 @@ export function SearchPerformancePage({
                 <DimensionSection
                   projectId={projectId}
                   tableQuery={tableQuery}
-                  keyLabel={tab === "queries" ? "Query" : "Page"}
+                  keyLabel={
+                    tab === "queries"
+                      ? t("search_performance.columns.query")
+                      : t("search_performance.columns.page")
+                  }
                   page={page}
                   pageSize={pageSize}
                   onPageChange={(nextPage) =>

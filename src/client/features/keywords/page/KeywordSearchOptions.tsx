@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { FormDialog } from "@/client/components/FormDialog";
 import { Button } from "@/client/components/ui/button";
@@ -14,35 +14,46 @@ import {
   type KeywordMode,
 } from "@/client/features/keywords/keywordResearchTypes";
 import { isLabsLocationCode } from "@/client/features/keywords/locations";
+import { useLocale } from "@/client/lib/i18n";
 import type { KeywordResearchControllerState } from "./types";
 
 type Props = {
   controller: KeywordResearchControllerState;
 };
 
-const RESULT_ITEMS = RESULT_LIMITS.map((limit) => ({
-  value: limit,
-  label: `${limit} results`,
-}));
-
-const MODE_ITEMS: { value: KeywordMode; label: string }[] = [
-  { value: "auto", label: "Auto" },
-  { value: "suggestions", label: "Phrase match" },
-  { value: "ideas", label: "Category ideas" },
-  { value: "related", label: "People also search for" },
-];
-
-const GOOGLE_ADS_ONLY_NOTE =
-  "Not available for countries served from Google Ads data.";
-
 /** The search settings most people leave at their defaults. */
 export function KeywordSearchOptions({ controller }: Props) {
+  const { t } = useLocale();
   const {
     controlsForm,
     preferredGroupKeywords: groupKeywords,
     setPreferredGroupKeywords: setGroupKeywords,
   } = controller;
   const [open, setOpen] = useState(false);
+
+  const resultItems = useMemo(
+    () =>
+      RESULT_LIMITS.map((limit) => ({
+        value: limit,
+        label: t("keywords.options.results_item", { count: limit }),
+      })),
+    [t],
+  );
+
+  const modeItems: { value: KeywordMode; label: string }[] = useMemo(
+    () => [
+      { value: "auto", label: t("keywords.options.sources.auto") },
+      {
+        value: "suggestions",
+        label: t("keywords.options.sources.suggestions"),
+      },
+      { value: "ideas", label: t("keywords.options.sources.ideas") },
+      { value: "related", label: t("keywords.options.sources.related") },
+    ],
+    [t],
+  );
+
+  const googleAdsOnlyNote = t("keywords.options.google_ads_only_note");
 
   return (
     <controlsForm.Subscribe selector={(state) => state.values}>
@@ -60,27 +71,34 @@ export function KeywordSearchOptions({ controller }: Props) {
               onClick={() => setOpen(true)}
             >
               <SlidersHorizontal data-icon="inline-start" />
-              Options
+              {t("keywords.search_bar.options_button")}
             </Button>
 
             {open ? (
               <FormDialog
-                title="Search options"
+                title={t("keywords.options.title")}
                 onClose={() => setOpen(false)}
-                actions={<Button onClick={() => setOpen(false)}>Done</Button>}
+                actions={
+                  <Button onClick={() => setOpen(false)}>
+                    {t("keywords.options.done")}
+                  </Button>
+                }
               >
                 <controlsForm.AppField name="resultLimit">
                   {(field) => (
-                    <field.SelectField label="Results" items={RESULT_ITEMS} />
+                    <field.SelectField
+                      label={t("keywords.options.results_label")}
+                      items={resultItems}
+                    />
                   )}
                 </controlsForm.AppField>
 
                 <controlsForm.AppField name="mode">
                   {(field) => (
                     <field.SelectField
-                      label="Keyword source"
-                      description={labs ? undefined : GOOGLE_ADS_ONLY_NOTE}
-                      items={MODE_ITEMS}
+                      label={t("keywords.options.source_label")}
+                      description={labs ? undefined : googleAdsOnlyNote}
+                      items={modeItems}
                       disabled={!labs}
                     />
                   )}
@@ -89,13 +107,13 @@ export function KeywordSearchOptions({ controller }: Props) {
                 <controlsForm.Field name="clickstream">
                   {(field) => (
                     <ToggleRow
-                      label="Clickstream-refined volumes"
+                      label={t("keywords.options.clickstream_label")}
                       help={
                         !labs
-                          ? GOOGLE_ADS_ONLY_NOTE
+                          ? googleAdsOnlyNote
                           : local
-                            ? "Not available for local results. Clickstream data covers whole countries only."
-                            : "Google reports one combined volume for similar keywords. This estimates each keyword's own volume. Costs 2x the credits."
+                            ? t("keywords.options.clickstream_local_help")
+                            : t("keywords.options.clickstream_help")
                       }
                       // The saved choice returns when the option applies again.
                       checked={labs && !local && field.state.value}
@@ -106,8 +124,8 @@ export function KeywordSearchOptions({ controller }: Props) {
                 </controlsForm.Field>
 
                 <ToggleRow
-                  label="Group keywords"
-                  help={labs ? undefined : GOOGLE_ADS_ONLY_NOTE}
+                  label={t("keywords.options.group_keywords_label")}
+                  help={labs ? undefined : googleAdsOnlyNote}
                   checked={labs && groupKeywords}
                   disabled={!labs}
                   onChange={setGroupKeywords}

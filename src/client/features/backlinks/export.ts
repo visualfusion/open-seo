@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import type { CsvValue } from "@/client/lib/csv";
 import type {
   BacklinksSearchState,
@@ -36,7 +37,7 @@ export function buildBacklinksTabExport(args: {
         "Source Page Rank",
         "Target Rank",
         "Spam Score",
-        "First Seen",
+        getTranslation("backlinks.backlinks_table.first_seen"),
         "Last Seen",
         "Lost",
         "Broken",
@@ -73,7 +74,7 @@ export function buildBacklinksTabExport(args: {
         "Rank",
         ...(domainRatings ? ["Ahrefs DR"] : []),
         "Spam Score",
-        "First Seen",
+        getTranslation("backlinks.backlinks_table.first_seen"),
         "Broken Backlinks",
         "Broken Pages",
       ],

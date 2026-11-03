@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { List, Rows3 } from "lucide-react";
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
+import { useLocale } from "@/client/lib/i18n";
 import { BacklinksFilterPanel } from "./BacklinksFilterPanel";
 import { backlinksFilterConditionLimit } from "./backlinksFilterTypes";
 import { BacklinksTable } from "./BacklinksTable";
@@ -33,15 +34,6 @@ import {
 } from "@/client/components/table/DataTableToolbar";
 import { TabsTrigger } from "@/client/components/ui/tabs";
 import { exportRows } from "@/client/lib/exportRows";
-
-const BACKLINKS_RESULTS_TABS: Array<{
-  tab: BacklinksSearchState["tab"];
-  label: string;
-}> = [
-  { tab: "backlinks", label: "Backlinks" },
-  { tab: "domains", label: "Referring Domains" },
-  { tab: "pages", label: "Top Pages" },
-];
 
 export function BacklinksResultsCard({
   projectId,
@@ -98,6 +90,19 @@ export function BacklinksResultsCard({
   onTabChange: (tab: BacklinksSearchState["tab"]) => void;
   onViewChange: (view: "all" | undefined) => void;
 }) {
+  const { t } = useLocale();
+
+  const resultsTabs = useMemo<
+    Array<{ tab: BacklinksSearchState["tab"]; label: string }>
+  >(
+    () => [
+      { tab: "backlinks", label: t("backlinks.tabs.backlinks") },
+      { tab: "domains", label: t("backlinks.tabs.domains") },
+      { tab: "pages", label: t("backlinks.tabs.pages") },
+    ],
+    [t],
+  );
+
   const {
     ratings: domainRatings,
     isLoading: isLoadingRatings,
@@ -147,28 +152,35 @@ export function BacklinksResultsCard({
         <DataTableTabs
           value={activeTab}
           onValueChange={(value) => {
-            const next = BACKLINKS_RESULTS_TABS.find(
-              (item) => item.tab === value,
-            );
+            const next = resultsTabs.find((item) => item.tab === value);
             if (next) onTabChange(next.tab);
           }}
-          description={TAB_DESCRIPTIONS[activeTab]}
+          description={
+            t(`backlinks.tabs.${activeTab}_desc`) || TAB_DESCRIPTIONS[activeTab]
+          }
         >
-          {BACKLINKS_RESULTS_TABS.filter(
-            // Referring domains can't be filtered to a path prefix.
-            ({ tab }) => !(scope === "subfolder" && tab === "domains"),
-          ).map(({ label, tab }) => (
-            <TabsTrigger key={tab} value={tab}>
-              {label}
-            </TabsTrigger>
-          ))}
+          {resultsTabs
+            .filter(
+              // Referring domains can't be filtered to a path prefix.
+              ({ tab }) => !(scope === "subfolder" && tab === "domains"),
+            )
+            .map(({ label, tab }) => (
+              <TabsTrigger key={tab} value={tab}>
+                {label}
+              </TabsTrigger>
+            ))}
         </DataTableTabs>
         <DataTableToolbar
           actions={
             <>
               <ExportMenu
                 actions={["sheets", "csv"]}
-                scopes={[{ id: "page", label: "Current page · selected view" }]}
+                scopes={[
+                  {
+                    id: "page",
+                    label: t("backlinks.toolbar.export_current_page"),
+                  },
+                ]}
                 disabled={exportTable.rows.length === 0}
                 onExport={(format) =>
                   void exportRows({
@@ -213,9 +225,13 @@ export function BacklinksResultsCard({
                   {
                     value: "one",
                     icon: <Rows3 />,
-                    label: "One per domain",
+                    label: t("backlinks.toolbar.view_one_per_domain"),
                   },
-                  { value: "all", icon: <List />, label: "All links" },
+                  {
+                    value: "all",
+                    icon: <List />,
+                    label: t("backlinks.toolbar.view_all_links"),
+                  },
                 ]}
               />
             </>

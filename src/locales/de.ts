@@ -8,13 +8,14 @@ import { ranksDe } from "./ranks.de";
 import { aiDe } from "./ai.de";
 import { auditDe } from "./audit.de";
 import { billingDe } from "./billing.de";
-import { dashboardDe } from "./dashboard.de";
 import { backlinksDe } from "./backlinks.de";
+import { dashboardDe } from "./dashboard.de";
 import { integrationsDe } from "./integrations.de";
 import { aiVisibilityDe } from "./aiVisibility.de";
 import { searchPerformanceDe } from "./searchPerformance.de";
 import { contextDe } from "./context.de";
 import { samDe } from "./sam.de";
+import { keywordsDe } from "./keywords.de";
 import { projectsDe } from "./projects.de";
 import { projectSettingsDe } from "./projectSettings.de";
 import { teamDe } from "./team.de";
@@ -36,6 +37,8 @@ export const de: TranslationDict = {
     close: "Schließen",
     status: "Status",
     cancel: "Abbrechen",
+    save: "Speichern",
+    saved: "Gespeichert",
   },
   domain: domainDe,
   shell: shellDe,
@@ -67,13 +70,14 @@ export const de: TranslationDict = {
   ai: aiDe,
   audit: auditDe,
   billing: billingDe,
-  dashboard: dashboardDe,
   backlinks: backlinksDe,
+  dashboard: dashboardDe,
   integrations: integrationsDe,
   ai_visibility: aiVisibilityDe,
   search_performance: searchPerformanceDe,
   context: contextDe,
   sam: samDe,
+  keywords: keywordsDe,
   projects: projectsDe,
   project_settings: projectSettingsDe,
   team: teamDe,

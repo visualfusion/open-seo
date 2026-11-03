@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Download, Save, Sheet } from "lucide-react";
+import { useLocale } from "@/client/lib/i18n";
 import {
   TableBulkActionBar,
   TableBulkActionButton,
@@ -49,25 +50,6 @@ import {
 type SearchUpdate = Partial<DomainSearchParams>;
 
 const EMPTY_KEYWORDS: KeywordRow[] = [];
-const KEYWORD_TEXT_FILTERS = [
-  {
-    key: "include",
-    label: "Include Terms",
-    placeholder: "audit, checker, template",
-  },
-  {
-    key: "exclude",
-    label: "Exclude Terms",
-    placeholder: "jobs, salary, course",
-  },
-] as const;
-const KEYWORD_RANGE_FILTERS = [
-  { title: "Traffic", minKey: "minTraffic", maxKey: "maxTraffic" },
-  { title: "Volume", minKey: "minVol", maxKey: "maxVol" },
-  { title: "CPC (USD)", minKey: "minCpc", maxKey: "maxCpc", step: "0.01" },
-  { title: "Score (KD)", minKey: "minKd", maxKey: "maxKd" },
-  { title: "Rank", minKey: "minRank", maxKey: "maxRank" },
-] as const;
 
 type Props = {
   projectId: string;
@@ -99,7 +81,58 @@ export function KeywordsTab({
   onPageChange,
   onPageSizeChange,
 }: Props) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
+
+  const keywordTextFields = useMemo(
+    () =>
+      [
+        {
+          key: "include",
+          label: t("domain.keywords_tab.include_label"),
+          placeholder: t("domain.keywords_tab.include_placeholder"),
+        },
+        {
+          key: "exclude",
+          label: t("domain.keywords_tab.exclude_label"),
+          placeholder: t("domain.keywords_tab.exclude_placeholder"),
+        },
+      ] as const,
+    [t],
+  );
+
+  const keywordRangeFilters = useMemo(
+    () =>
+      [
+        {
+          title: t("domain.keywords_tab.traffic"),
+          minKey: "minTraffic",
+          maxKey: "maxTraffic",
+        },
+        {
+          title: t("domain.keywords_tab.volume"),
+          minKey: "minVol",
+          maxKey: "maxVol",
+        },
+        {
+          title: t("domain.keywords_tab.cpc"),
+          minKey: "minCpc",
+          maxKey: "maxCpc",
+          step: "0.01",
+        },
+        {
+          title: t("domain.keywords_tab.score"),
+          minKey: "minKd",
+          maxKey: "maxKd",
+        },
+        {
+          title: t("domain.keywords_tab.rank"),
+          minKey: "minRank",
+          maxKey: "maxRank",
+        },
+      ] as const,
+    [t],
+  );
   const [selectedKeywords, setSelectedKeywords] = useState<Set<string>>(
     new Set(),
   );
@@ -240,17 +273,17 @@ export function KeywordsTab({
               onClick={handleSaveKeywords}
               disabled={!canSaveKeywords}
             >
-              Save Keywords
+              {t("domain.keywords_tab.save_keywords")}
             </TableBulkActionButton>
             <TableBulkExportMenu
               actions={[
                 {
-                  label: "Export to Sheets",
+                  label: t("domain.keywords_tab.export_sheets"),
                   icon: <Sheet className="size-4" />,
                   onClick: () => exportSelection("sheets"),
                 },
                 {
-                  label: "Download CSV",
+                  label: t("domain.keywords_tab.download_csv"),
                   icon: <Download className="size-4" />,
                   onClick: () => exportSelection("csv"),
                 },
@@ -276,7 +309,7 @@ export function KeywordsTab({
           query.isError ? (
             <QueryError
               error={query.error}
-              fallback="Failed to load keywords."
+              fallback={t("domain.keywords_tab.error_fallback")}
               onRetry={() => void query.refetch()}
               isRetrying={isFetching}
             />
@@ -290,7 +323,7 @@ export function KeywordsTab({
               showFilters={showFilters}
               onToggleFilters={() => setShowFilters((prev) => !prev)}
               activeFilterCount={activeFilterCount}
-              countLabel="keywords"
+              countLabel={t("domain.toolbar.keywords_count")}
               totalCount={totalCount}
               fallbackCount={rows.length}
               onExport={exportAll}
@@ -299,8 +332,8 @@ export function KeywordsTab({
                   activeFilterCount={activeFilterCount}
                   appliedFilters={restoredFilters}
                   fields={KEYWORD_FILTER_FIELDS}
-                  textFields={KEYWORD_TEXT_FILTERS}
-                  rangeFields={KEYWORD_RANGE_FILTERS}
+                  textFields={keywordTextFields}
+                  rangeFields={keywordRangeFilters}
                   countConditions={countKeywordFilterConditions}
                   maxConditions={maxConditions}
                   onApply={applyFilters}
@@ -311,8 +344,10 @@ export function KeywordsTab({
               <span className="text-sm text-muted-foreground">
                 ·{" "}
                 {selectedKeywords.size > 0
-                  ? `${selectedKeywords.size} selected`
-                  : "Select keywords to save"}
+                  ? t("domain.keywords_tab.selected", {
+                      count: selectedKeywords.size,
+                    })
+                  : t("domain.keywords_tab.select_to_save")}
               </span>
             </DomainTableToolbar>
           </>

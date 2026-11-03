@@ -10,49 +10,78 @@ export const TAB_DESCRIPTIONS: Record<BacklinksTab, string> = {
     "See which pages on the target site attract the most backlinks and referring domains.",
 };
 
-export function buildSummaryStats(data: BacklinksOverviewData | undefined) {
+export function buildSummaryStats(
+  data: BacklinksOverviewData | undefined,
+  t?: (key: string) => string,
+) {
   if (!data) return [];
 
   return [
     {
-      label: "Backlinks",
+      label: t ? t("backlinks.overview.stats.backlinks") : "Backlinks",
       value: formatNumber(data.summary.backlinks),
-      description: "Total links pointing to this site or page.",
+      description: t
+        ? t("backlinks.overview.stats.backlinks_desc")
+        : "Total links pointing to this site or page.",
     },
     {
-      label: "Referring Domains",
+      label: t
+        ? t("backlinks.overview.stats.referring_domains")
+        : "Referring Domains",
       value: formatNumber(data.summary.referringDomains),
-      description: "Unique domains linking to this site or page.",
+      description: t
+        ? t("backlinks.overview.stats.referring_domains_desc")
+        : "Unique domains linking to this site or page.",
     },
     {
-      label: "Referring Pages",
+      label: t
+        ? t("backlinks.overview.stats.referring_pages")
+        : "Referring Pages",
       value: formatNumber(data.summary.referringPages),
-      description: "Unique pages linking to this site or page.",
+      description: t
+        ? t("backlinks.overview.stats.referring_pages_desc")
+        : "Unique pages linking to this site or page.",
     },
     {
-      label: "Rank",
+      label: t ? t("backlinks.overview.stats.rank") : "Rank",
       value: formatNumber(data.summary.rank),
-      description: "DataForSEO's 0-100 authority score.",
+      description: t
+        ? t("backlinks.overview.stats.rank_desc")
+        : "DataForSEO's 0-100 authority score.",
     },
     {
-      label: "Backlink Spam Score",
+      label: t
+        ? t("backlinks.overview.stats.backlink_spam_score")
+        : "Backlink Spam Score",
       value: formatDecimal(data.summary.backlinksSpamScore),
-      description: "Estimated spam risk of links pointing here.",
+      description: t
+        ? t("backlinks.overview.stats.backlink_spam_score_desc")
+        : "Estimated spam risk of links pointing here.",
     },
     {
-      label: "Broken Backlinks",
+      label: t
+        ? t("backlinks.overview.stats.broken_backlinks")
+        : "Broken Backlinks",
       value: formatNumber(data.summary.brokenBacklinks),
-      description: "Links pointing to broken pages here.",
+      description: t
+        ? t("backlinks.overview.stats.broken_backlinks_desc")
+        : "Links pointing to broken pages here.",
     },
     {
-      label: "Broken Pages",
+      label: t ? t("backlinks.overview.stats.broken_pages") : "Broken Pages",
       value: formatNumber(data.summary.brokenPages),
-      description: "Broken pages here that still have backlinks.",
+      description: t
+        ? t("backlinks.overview.stats.broken_pages_desc")
+        : "Broken pages here that still have backlinks.",
     },
     {
-      label: "Target Spam Score",
+      label: t
+        ? t("backlinks.overview.stats.target_spam_score")
+        : "Target Spam Score",
       value: formatDecimal(data.summary.targetSpamScore),
-      description: "Estimated spam risk of this site or page.",
+      description: t
+        ? t("backlinks.overview.stats.target_spam_score_desc")
+        : "Estimated spam risk of this site or page.",
     },
   ];
 }

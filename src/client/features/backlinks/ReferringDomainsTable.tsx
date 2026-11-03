@@ -1,6 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { useLocale } from "@/client/lib/i18n";
 import { SafeExternalLink } from "@/client/components/SafeExternalLink";
 import {
   DataTable,
@@ -20,119 +21,125 @@ import type { DomainRatings } from "./useAhrefsDomainRatings";
 
 const columnHelper = createColumnHelper<ReferringDomainRow>();
 
-// Column ids map to server-side sort fields; sorting re-queries DataForSEO
-// across all referring domains, not just the loaded page.
-const baseColumns = [
-  columnHelper.accessor("domain", {
-    id: "domain" satisfies ReferringDomainsSortField,
-    meta: { cellClassName: "font-medium break-all" },
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Domain"
-        helpText="The referring site linking to your target."
-      />
-    ),
-    cell: ({ getValue }) => {
-      const domain = getValue();
-      if (!domain) return "-";
-      return (
-        <SafeExternalLink
-          url={getDomainWebsiteHref(domain)}
-          label={domain}
-          className="inline-flex items-center gap-1 break-all text-primary underline-offset-4 hover:underline"
-        />
-      );
-    },
-  }),
-  columnHelper.accessor("backlinks", {
-    id: "backlinks" satisfies ReferringDomainsSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Backlinks"
-        helpText="Total backlinks found from this domain."
-      />
-    ),
-    cell: ({ getValue }) => formatNumber(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("referringPages", {
-    id: "referringPages" satisfies ReferringDomainsSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Referring Pages"
-        helpText="Unique pages on this domain that link to your target."
-      />
-    ),
-    cell: ({ getValue }) => formatNumber(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("rank", {
-    id: "rank" satisfies ReferringDomainsSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Rank"
-        helpText="Authority score for the referring domain."
-      />
-    ),
-    cell: ({ getValue }) => formatNumber(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("spamScore", {
-    id: "spamScore" satisfies ReferringDomainsSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Spam"
-        helpText="Spam risk score for this referring domain."
-      />
-    ),
-    cell: ({ getValue }) => formatDecimal(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("firstSeen", {
-    id: "firstSeen" satisfies ReferringDomainsSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="First Seen"
-        helpText="When this domain was first discovered linking to your target."
-      />
-    ),
-    cell: ({ getValue }) => formatCompactDate(getValue()),
-    sortDescFirst: true,
-  }),
-  columnHelper.accessor("brokenBacklinks", {
-    id: "brokenBacklinks" satisfies ReferringDomainsSortField,
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Issues"
-        helpText="Broken link and broken page counts tied to this domain."
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm">
-        <div>Broken links: {formatNumber(row.original.brokenBacklinks)}</div>
-        <div className="text-muted-foreground">
-          Broken pages: {formatNumber(row.original.brokenPages)}
-        </div>
-      </div>
-    ),
-    sortDescFirst: true,
-  }),
-];
+type TranslateFn = (
+  key: string,
+  params?: Record<string, string | number>,
+) => string;
 
-/**
- * Columns for the referring domains table. When `domainRatings` is provided
- * (the user clicked "Ahrefs DR"), an Ahrefs DR column is inserted after Rank;
- * otherwise it stays hidden. DR is loaded client-side from Ahrefs, so it can't
- * participate in server-side sorting.
- */
-function buildReferringDomainColumns(domainRatings: DomainRatings | null) {
+function buildReferringDomainColumns(
+  domainRatings: DomainRatings | null,
+  t: TranslateFn,
+) {
+  const baseColumns = [
+    columnHelper.accessor("domain", {
+      id: "domain" satisfies ReferringDomainsSortField,
+      meta: { cellClassName: "font-medium break-all" },
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.domains_table.domain")}
+          helpText={t("backlinks.domains_table.domain_help")}
+        />
+      ),
+      cell: ({ getValue }) => {
+        const domain = getValue();
+        if (!domain) return "-";
+        return (
+          <SafeExternalLink
+            url={getDomainWebsiteHref(domain)}
+            label={domain}
+            className="inline-flex items-center gap-1 break-all text-primary underline-offset-4 hover:underline"
+          />
+        );
+      },
+    }),
+    columnHelper.accessor("backlinks", {
+      id: "backlinks" satisfies ReferringDomainsSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.domains_table.backlinks")}
+          helpText={t("backlinks.domains_table.backlinks_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatNumber(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("referringPages", {
+      id: "referringPages" satisfies ReferringDomainsSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.domains_table.referring_pages")}
+          helpText={t("backlinks.domains_table.referring_pages_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatNumber(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("rank", {
+      id: "rank" satisfies ReferringDomainsSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.domains_table.rank")}
+          helpText={t("backlinks.domains_table.rank_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatNumber(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("spamScore", {
+      id: "spamScore" satisfies ReferringDomainsSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.domains_table.spam")}
+          helpText={t("backlinks.domains_table.spam_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatDecimal(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("firstSeen", {
+      id: "firstSeen" satisfies ReferringDomainsSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.domains_table.first_seen")}
+          helpText={t("backlinks.domains_table.first_seen_help")}
+        />
+      ),
+      cell: ({ getValue }) => formatCompactDate(getValue()),
+      sortDescFirst: true,
+    }),
+    columnHelper.accessor("brokenBacklinks", {
+      id: "brokenBacklinks" satisfies ReferringDomainsSortField,
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label={t("backlinks.domains_table.issues")}
+          helpText={t("backlinks.domains_table.issues_help")}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="text-sm">
+          <div>
+            {t("backlinks.domains_table.broken_links", {
+              count: formatNumber(row.original.brokenBacklinks),
+            })}
+          </div>
+          <div className="text-muted-foreground">
+            {t("backlinks.domains_table.broken_pages", {
+              count: formatNumber(row.original.brokenPages),
+            })}
+          </div>
+        </div>
+      ),
+      sortDescFirst: true,
+    }),
+  ];
+
   if (!domainRatings) return baseColumns;
 
   const ratings = domainRatings;
@@ -140,8 +147,8 @@ function buildReferringDomainColumns(domainRatings: DomainRatings | null) {
     id: "ahrefsDr",
     header: () => (
       <HelpLabel
-        label="Ahrefs DR"
-        helpText="Ahrefs Domain Rating (0-100) for this referring domain."
+        label={t("backlinks.domains_table.ahrefs_dr")}
+        helpText={t("backlinks.domains_table.ahrefs_dr_help")}
       />
     ),
     cell: ({ row }) => {
@@ -179,9 +186,10 @@ export function ReferringDomainsTable({
   sorting: SortingState;
   onSortingChange: OnChangeFn<SortingState>;
 }) {
+  const { t } = useLocale();
   const columns = useMemo(
-    () => buildReferringDomainColumns(domainRatings),
-    [domainRatings],
+    () => buildReferringDomainColumns(domainRatings, t),
+    [domainRatings, t],
   );
 
   const table = useDataTable({
@@ -195,7 +203,7 @@ export function ReferringDomainsTable({
   return (
     <DataTable
       table={table}
-      empty={{ title: "No referring domains found for this target." }}
+      empty={{ title: t("backlinks.domains_table.empty_title") }}
       {...frame}
     />
   );
