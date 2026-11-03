@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/client/components/ui/table";
+import { useLocale } from "@/client/lib/i18n";
 import { formatDate, StatusBadge } from "@/client/features/audit/shared";
 
 type AuditHistory = Awaited<ReturnType<typeof getAuditHistory>>;
@@ -31,10 +32,11 @@ export function AuditHistorySection({
   historyQuery: UseQueryResult<AuditHistory>;
   onDelete: (auditId: string) => void;
 }) {
+  const { t } = useLocale();
   return (
     <QueryState
       query={historyQuery}
-      errorFallback="Failed to load audit history"
+      errorFallback={t("audit.history.failed_to_load")}
     >
       {(history) => (
         <AuditHistoryTable
@@ -56,23 +58,31 @@ function AuditHistoryTable({
   history: AuditHistory;
   onDelete: (auditId: string) => void;
 }) {
+  const { t, locale } = useLocale();
   if (history.length === 0) {
-    return <EmptyState icon={ScanSearch} title="No audits yet" />;
+    return (
+      <EmptyState
+        icon={ScanSearch}
+        title={t("audit.history.no_audits_title")}
+      />
+    );
   }
 
   return (
     <TableCard>
       <DataTableToolbar>
-        <h2 className="text-sm font-semibold">Previous Audits</h2>
+        <h2 className="text-sm font-semibold">
+          {t("audit.history.previous_audits")}
+        </h2>
       </DataTableToolbar>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>URL</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Pages</TableHead>
-            <TableHead>Lighthouse</TableHead>
+            <TableHead>{t("common.date")}</TableHead>
+            <TableHead>{t("common.url")}</TableHead>
+            <TableHead>{t("common.status")}</TableHead>
+            <TableHead>{t("audit.pages")}</TableHead>
+            <TableHead>{t("audit.phases.lighthouse")}</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
@@ -80,7 +90,7 @@ function AuditHistoryTable({
           {history.map((audit) => (
             <TableRow key={audit.id} className="group">
               <TableCell className="text-xs text-muted-foreground">
-                {formatDate(audit.startedAt)}
+                {formatDate(audit.startedAt, locale)}
               </TableCell>
               <TableCell className="max-w-[220px] truncate">
                 {audit.startUrl}
@@ -92,7 +102,7 @@ function AuditHistoryTable({
               <TableCell>
                 {audit.ranLighthouse ? (
                   <Badge variant="outline" size="sm">
-                    Yes
+                    {t("audit.yes")}
                   </Badge>
                 ) : null}
               </TableCell>
@@ -120,6 +130,7 @@ function HistoryActions({
   auditId: string;
   onDelete: (auditId: string) => void;
 }) {
+  const { t, locale } = useLocale();
   return (
     <div className="flex items-center justify-end gap-2 reveal-on-hover">
       <Button
@@ -133,15 +144,15 @@ function HistoryActions({
           />
         }
       >
-        View
+        {locale === "de" ? "Ansehen" : "View"}
       </Button>
-      <RowActionsMenu label="Audit actions">
+      <RowActionsMenu label={t("audit.history.actions_label")}>
         <DropdownMenuItem
           variant="destructive"
           onClick={() => onDelete(auditId)}
         >
           <Trash2 />
-          Delete audit
+          {t("audit.history.delete_audit")}
         </DropdownMenuItem>
       </RowActionsMenu>
     </div>

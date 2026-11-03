@@ -1,4 +1,14 @@
 export const projectsEn = {
+  switcher: {
+    project_settings: "Project settings",
+    switch_project: "Switch project",
+    select_project: "Select project",
+    find_project: "Find project…",
+    filter_projects: "Filter projects",
+    no_match: "No projects match.",
+    new_project: "New project",
+    manage_projects: "Manage projects",
+  },
   create: {
     name_required: "Project name is required",
     domain_validation_error: "Enter a valid domain, like acme.com.",
@@ -32,16 +42,6 @@ export const projectsEn = {
     restored: "Project restored",
     archived_section: "Archived",
     restore: "Restore",
-  },
-  switcher: {
-    switch_project: "Switch project",
-    select_project: "Select project",
-    project_settings: "Project settings",
-    find_project: "Find project…",
-    filter_projects: "Filter projects",
-    no_match: "No projects match.",
-    new_project: "New project",
-    manage_projects: "Manage projects",
   },
   initial_audit: {
     unavailable: "Website saved. The first scan could not start.",

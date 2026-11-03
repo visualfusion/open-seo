@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useMemo, useState, type ReactNode } from "react";
 import {
   createColumnHelper,
@@ -85,13 +86,17 @@ const EmptyCell = () => (
 function buildPagesColumns({
   canonicalHost,
   missingTitlePageIds,
+  t,
 }: {
   canonicalHost: string;
   missingTitlePageIds: Set<string>;
+  t: (key: string) => string;
 }): ColumnDef<PageRow>[] {
   return [
     pageColumnHelper.accessor("url", {
-      header: ({ column }) => <SortableHeader column={column} label="URL" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label={getTranslation("common.url")} />
+      ),
       cell: ({ getValue }) => {
         const url = getValue();
         return (
@@ -109,16 +114,20 @@ function buildPagesColumns({
       meta: { cellClassName: "max-w-[240px] truncate" },
     }),
     pageColumnHelper.accessor("statusCode", {
-      header: ({ column }) => <SortableHeader column={column} label="Status" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label={t("common.status")} />
+      ),
       // A failed fetch or render has no HTTP status to show.
       cell: ({ getValue, row }) =>
         row.original.fetchClass === "error" ? (
           <Badge
             variant="destructive"
             size="sm"
-            title="Fetching or rendering failed, so this page was not checked for content issues."
+            title={getTranslation(
+              "audit.details.fetching_or_rendering_failed_not_checked",
+            )}
           >
-            Failed
+            {t("audit.failed")}
           </Badge>
         ) : (
           <HttpStatusBadge code={getValue()} />
@@ -126,13 +135,18 @@ function buildPagesColumns({
       sortingFn: nullableNumberSort,
     }),
     pageColumnHelper.accessor("title", {
-      header: ({ column }) => <SortableHeader column={column} label="Title" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label={t("audit.columns.title")} />
+      ),
       cell: ({ getValue, row }) => {
         if (isRedirect(row.original)) {
           const target = row.original.redirectUrl;
           return (
             <span className="text-xs text-muted-foreground">
-              → {target ? displayPath(target, canonicalHost) : "redirect"}
+              →{" "}
+              {target
+                ? displayPath(target, canonicalHost)
+                : t("audit.redirect")}
             </span>
           );
         }
@@ -143,7 +157,7 @@ function buildPagesColumns({
         // Red only when the engine flagged it — a 200 that isn't an HTML
         // document (robots.txt, security.txt) legitimately has no title.
         return missingTitlePageIds.has(row.original.id) ? (
-          <span className="text-destructive text-xs">missing</span>
+          <span className="text-destructive text-xs">{t("audit.missing")}</span>
         ) : (
           <EmptyCell />
         );
@@ -152,18 +166,24 @@ function buildPagesColumns({
       meta: { cellClassName: "max-w-[360px]" },
     }),
     pageColumnHelper.accessor("h1Count", {
-      header: ({ column }) => <SortableHeader column={column} label="H1" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label={t("audit.columns.h1")} />
+      ),
       cell: ({ getValue, row }) =>
         hasAnalyzedContent(row.original) ? getValue() : <EmptyCell />,
     }),
     pageColumnHelper.accessor("wordCount", {
-      header: ({ column }) => <SortableHeader column={column} label="Words" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label={t("audit.columns.words")} />
+      ),
       cell: ({ getValue, row }) =>
         hasAnalyzedContent(row.original) ? getValue() : <EmptyCell />,
     }),
     pageColumnHelper.display({
       id: "images",
-      header: ({ column }) => <SortableHeader column={column} label="Images" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label={t("audit.columns.images")} />
+      ),
       cell: ({ row }) => {
         if (!hasAnalyzedContent(row.original)) return <EmptyCell />;
         return row.original.imagesMissingAlt > 0 ? (
@@ -180,7 +200,9 @@ function buildPagesColumns({
         left.original.imagesTotal - right.original.imagesTotal,
     }),
     pageColumnHelper.accessor("responseTimeMs", {
-      header: ({ column }) => <SortableHeader column={column} label="Speed" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} label={t("audit.columns.speed")} />
+      ),
       cell: ({ getValue }) => {
         const value = getValue();
         return value ? (
@@ -205,6 +227,7 @@ export function PagesTable({
   issues: AuditResultsData["issues"];
   tabs: ReactNode;
 }) {
+  const { t } = useLocale();
   const [filters, setFilters] = useState<PagesFilters>(EMPTY_PAGES_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   // URL order reads as a site inventory; status-first would open the table
@@ -227,8 +250,9 @@ export function PagesTable({
             .map((issue) => issue.pageId)
             .filter((pageId): pageId is string => pageId !== null),
         ),
+        t,
       }),
-    [issues, pages, startUrl],
+    [issues, pages, startUrl, t],
   );
   const table = useDataTable({
     data: filteredPages,
@@ -243,7 +267,7 @@ export function PagesTable({
   return (
     <DataTable
       table={table}
-      empty={{ title: "No pages crawled" }}
+      empty={{ title: t("audit.no_pages_crawled") }}
       isFiltered={activeFilterCount > 0}
       onClearFilters={resetFilters}
       toolbar={

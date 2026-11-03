@@ -16,6 +16,7 @@ import { BackLink, PageHeader } from "@/client/components/PageHeader";
 import { QueryError } from "@/client/components/QueryState";
 import { SkeletonPage } from "@/client/components/SkeletonPresets";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/_app/p/$projectId/reports/$reportId")({
 
 function ReportDetailPage() {
   const { projectId, reportId } = Route.useParams();
+  const { t } = useLocale();
   const canShare = usesBetterAuthClient();
   const { full } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
@@ -98,7 +100,7 @@ function ReportDetailPage() {
 
   const loadError = {
     error: reportQuery.error,
-    fallback: "Failed to load the report",
+    fallback: t("reports.failed_to_load_report"),
     onRetry: () => void reportQuery.refetch(),
     isRetrying: reportQuery.isFetching,
   };
@@ -112,7 +114,7 @@ function ReportDetailPage() {
       <div className="px-4 py-4 md:px-6 md:py-6">
         <div className="mx-auto max-w-7xl space-y-4">
           <BackLink to="/p/$projectId/reports" params={{ projectId }}>
-            Reports
+            {t("reports.back_to_reports")}
           </BackLink>
           {/* A deleted report and another project's report are the same
               answer on purpose, so ids cannot be probed. Retrying either
@@ -120,13 +122,13 @@ function ReportDetailPage() {
           {notFound ? (
             <QueryError
               variant="page"
-              title="Report not found"
-              fallback="This report does not exist or you do not have access to it."
+              title={t("reports.report_not_found_title")}
+              fallback={t("reports.report_not_found_desc")}
             />
           ) : (
             <QueryError
               variant="page"
-              title="Couldn't load the report"
+              title={t("reports.could_not_load_report")}
               {...loadError}
             />
           )}
@@ -164,24 +166,28 @@ function ReportDetailPage() {
       <PageHeader
         backLink={
           <BackLink to="/p/$projectId/reports" params={{ projectId }}>
-            Reports
+            {t("reports.back_to_reports")}
           </BackLink>
         }
         title={report.title}
         description={
           <dl className="flex flex-wrap items-baseline gap-x-6 gap-y-1 text-foreground">
             <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">Created by</dt>
+              <dt className="text-muted-foreground">
+                {t("reports.th_created_by")}
+              </dt>
               <dd>{formatCreatedBy(report)}</dd>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">Type</dt>
+              <dt className="text-muted-foreground">{t("reports.th_type")}</dt>
               {/* As in the list's Type column: the template name when the
                     report followed one, else the skill, else an em dash. */}
               <dd>{report.templateName ?? report.skill ?? "—"}</dd>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">Updated</dt>
+              <dt className="text-muted-foreground">
+                {t("reports.th_updated")}
+              </dt>
               <dd title={new Date(report.updatedAt).toLocaleString()}>
                 {formatRelativeTime(report.updatedAt)}
               </dd>
@@ -202,12 +208,12 @@ function ReportDetailPage() {
                 ) : (
                   <Lock data-icon="inline-start" />
                 )}
-                Share
+                {t("reports.share")}
               </Button>
             ) : (
               <Button onClick={exportPdf}>
                 <FileDown data-icon="inline-start" />
-                Export
+                {t("reports.export")}
               </Button>
             )}
             <DropdownMenu>
@@ -216,7 +222,7 @@ function ReportDetailPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Report actions"
+                    aria-label={t("reports.report_actions")}
                   />
                 }
               >
@@ -227,7 +233,7 @@ function ReportDetailPage() {
                   <>
                     <DropdownMenuItem onClick={exportPdf}>
                       <FileDown />
-                      Export
+                      {t("reports.export")}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                   </>
@@ -237,7 +243,7 @@ function ReportDetailPage() {
                   onClick={() => setShowDelete(true)}
                 >
                   <Trash2 />
-                  Delete
+                  {t("common.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -257,8 +263,8 @@ function ReportDetailPage() {
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Full screen"
-            title="Full screen"
+            aria-label={t("reports.full_screen")}
+            title={t("reports.full_screen")}
             onClick={() =>
               void navigate({ search: () => ({ full: true }), replace: true })
             }
@@ -269,8 +275,8 @@ function ReportDetailPage() {
             variant="ghost"
             size="icon-sm"
             nativeButton={false}
-            aria-label="Open in new tab"
-            title="Open in new tab"
+            aria-label={t("reports.open_new_tab")}
+            title={t("reports.open_new_tab")}
             render={
               <a href={`/r/${report.id}`} target="_blank" rel="noreferrer" />
             }
@@ -312,6 +318,7 @@ function FullScreenReport({
   title: string;
   onExit: () => void;
 }) {
+  const { t } = useLocale();
   const exitRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -331,7 +338,7 @@ function FullScreenReport({
         <span className="truncate text-sm font-medium">{title}</span>
         <Button ref={exitRef} variant="ghost" onClick={onExit}>
           <Minimize2 data-icon="inline-start" />
-          Exit
+          {t("reports.exit")}
         </Button>
       </div>
       <div className="min-h-0 flex-1 p-2">

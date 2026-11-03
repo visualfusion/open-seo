@@ -1,0 +1,21 @@
+export const lighthouseDetailsEn = {
+  affected_items: "Affected items (",
+  scanned_value: "Scanned {v1}",
+  reading_latest_issues: "Reading latest issues...",
+  loading_url: "Loading URL...",
+  value_issues: "{v1} issues",
+  copied_value_issues: "Copied {v1} issues",
+  all_actionable_issues: "All actionable issues",
+  saved_lighthouse_payload: "Saved Lighthouse payload",
+  no_actionable_issues_for_this_category:
+    "No actionable issues for this category.",
+  severity: "Severity",
+  issue: "Issue",
+  category: "Category",
+  impact: "Impact",
+  failed_to_load_lighthouse_issues: "Failed to load Lighthouse issues.",
+  download_started: "Download started",
+  performance: "Performance",
+  accessibility: "Accessibility",
+  best_practices: "Best Practices",
+};

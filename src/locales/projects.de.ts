@@ -1,4 +1,14 @@
 export const projectsDe = {
+  switcher: {
+    project_settings: "Projekteinstellungen",
+    switch_project: "Projekt wechseln",
+    select_project: "Projekt auswählen",
+    find_project: "Projekt suchen…",
+    filter_projects: "Projekte filtern",
+    no_match: "Keine passenden Projekte gefunden.",
+    new_project: "Neues Projekt",
+    manage_projects: "Projekte verwalten",
+  },
   create: {
     name_required: "Projektname ist erforderlich",
     domain_validation_error: "Gib eine gültige Domain ein, z. B. acme.de.",
@@ -33,16 +43,6 @@ export const projectsDe = {
     restored: "Projekt wiederhergestellt",
     archived_section: "Archiviert",
     restore: "Wiederherstellen",
-  },
-  switcher: {
-    switch_project: "Projekt wechseln",
-    select_project: "Projekt auswählen",
-    project_settings: "Projekteinstellungen",
-    find_project: "Projekt suchen…",
-    filter_projects: "Projekte filtern",
-    no_match: "Keine passenden Projekte gefunden.",
-    new_project: "Neues Projekt",
-    manage_projects: "Projekte verwalten",
   },
   initial_audit: {
     unavailable:

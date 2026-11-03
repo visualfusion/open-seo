@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/client/components/ui/table";
+import { useLocale } from "@/client/lib/i18n";
 import { formatCreatedBy } from "@/client/features/reports/shared";
 import { formatRelativeTime } from "@/client/lib/relative-time";
 import type { ReportListItem } from "@/serverFunctions/reports";
@@ -26,12 +27,14 @@ export function ReportsList({
   reports: ReportListItem[];
   onDelete: (report: ReportListItem) => void;
 }) {
+  const { t } = useLocale();
+
   if (reports.length === 0) {
     return (
       <EmptyState
         icon={FileText}
-        title="No reports yet"
-        description="Run an OpenSEO skill such as seo-audit from Claude Code or Codex and the report will appear here."
+        title={t("reports.empty_reports_title")}
+        description={t("reports.empty_reports_desc")}
       />
     );
   }
@@ -42,10 +45,10 @@ export function ReportsList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Created by</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Updated</TableHead>
+              <TableHead>{t("reports.th_title")}</TableHead>
+              <TableHead>{t("reports.th_created_by")}</TableHead>
+              <TableHead>{t("reports.th_type")}</TableHead>
+              <TableHead>{t("reports.th_updated")}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -74,13 +77,17 @@ export function ReportsList({
                   {formatRelativeTime(report.updatedAt)}
                 </TableCell>
                 <TableCell className="w-10 text-right">
-                  <RowActionsMenu label={`Actions for ${report.title}`}>
+                  <RowActionsMenu
+                    label={t("reports.actions_for_report", {
+                      title: report.title,
+                    })}
+                  >
                     <DropdownMenuItem
                       variant="destructive"
                       onClick={() => onDelete(report)}
                     >
                       <Trash2 />
-                      Delete
+                      {t("common.delete")}
                     </DropdownMenuItem>
                   </RowActionsMenu>
                 </TableCell>
@@ -91,7 +98,9 @@ export function ReportsList({
       </TableCard>
       {reports.length === REPORT_APP_LIST_LIMIT ? (
         <p className="text-xs text-muted-foreground">
-          Showing the {REPORT_APP_LIST_LIMIT} most recent reports.
+          {t("reports.showing_recent_reports", {
+            limit: REPORT_APP_LIST_LIMIT,
+          })}
         </p>
       ) : null}
     </div>

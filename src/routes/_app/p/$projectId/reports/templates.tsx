@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/client/components/ConfirmDialog";
 import { BackLink, PageHeader } from "@/client/components/PageHeader";
 import { QueryState } from "@/client/components/QueryState";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 import { ReportTemplateForm } from "@/client/features/reports/ReportTemplateForm";
 import { ReportTemplatesList } from "@/client/features/reports/ReportTemplatesList";
 import {
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_app/p/$projectId/reports/templates")({
 
 function ReportTemplatesPage() {
   const { projectId } = Route.useParams();
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   // `{}` opens the form for a new template; `{ template }` opens it for an edit.
   const [form, setForm] = useState<{ template?: ReportTemplate } | null>(null);
@@ -57,7 +59,7 @@ function ReportTemplatesPage() {
         project_id: projectId,
         template_id: templateId,
       });
-      toast.success("Template deleted");
+      toast.success(t("reports.template_deleted_toast"));
       setPendingDelete(null);
       invalidate();
     },
@@ -69,22 +71,22 @@ function ReportTemplatesPage() {
         <PageHeader
           backLink={
             <BackLink to="/p/$projectId/reports" params={{ projectId }}>
-              Reports
+              {t("reports.back_to_reports")}
             </BackLink>
           }
-          title="Report templates"
-          description="Reusable briefs your agents follow when they write a report: who it is for, which sections it has, and how it should sound."
+          title={t("reports.templates_title")}
+          description={t("reports.templates_description")}
           actions={
             <Button onClick={() => setForm({})}>
               <Plus data-icon="inline-start" />
-              New template
+              {t("reports.new_template")}
             </Button>
           }
         />
 
         <QueryState
           query={templatesQuery}
-          errorFallback="Failed to load templates"
+          errorFallback={t("reports.failed_to_load_templates")}
         >
           {(data) => (
             <ReportTemplatesList
@@ -110,14 +112,16 @@ function ReportTemplatesPage() {
 
       {pendingDelete ? (
         <ConfirmDialog
-          title={`Delete \u201c${pendingDelete.name}\u201d?`}
-          confirmLabel="Delete template"
+          title={t("reports.delete_template_confirm_title", {
+            name: pendingDelete.name,
+          })}
+          confirmLabel={t("reports.delete_template")}
           destructive
           pending={deleteMutation.isPending}
           onClose={() => setPendingDelete(null)}
           onConfirm={() => deleteMutation.mutate(pendingDelete.id)}
         >
-          Reports already written from it are not affected.
+          {t("reports.delete_template_confirm_desc")}
         </ConfirmDialog>
       ) : null}
     </div>

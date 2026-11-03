@@ -11,23 +11,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/client/components/ui/dialog";
+import { useLocale, getTranslation } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { saveReportTemplate } from "@/serverFunctions/reportTemplates";
 import type { ReportTemplate } from "@/types/schemas/report-templates";
 
 // One form for create and edit. Shape only, as at every other boundary: the
 // caps come back from the service with their copy and show in a toast.
-const formSchema = z.object({
-  name: z.string().trim().min(1, "Give the template a name."),
-  description: z
-    .string()
-    .trim()
-    .min(1, "Say in one line when to use this template."),
-  instructions: z
-    .string()
-    .trim()
-    .min(1, "Say who the report is for and which sections it has."),
-});
+const createFormSchema = () =>
+  z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, getTranslation("reports.field_name_required")),
+    description: z
+      .string()
+      .trim()
+      .min(1, getTranslation("reports.field_desc_required")),
+    instructions: z
+      .string()
+      .trim()
+      .min(1, getTranslation("reports.field_instructions_required")),
+  });
 
 const INSTRUCTIONS_PLACEHOLDER = `Audience: the client's marketing lead, not technical.
 Sections, in order: Where we are / What we did this month / What moved / What to expect next.
@@ -47,6 +52,9 @@ export function ReportTemplateForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLocale();
+  const formSchema = createFormSchema();
+
   const saveMutation = useMutation({
     // A refusal (duplicate name, the cap) comes back as `{ ok: false }` rather
     // than an error, because thrown errors reach the client stripped to their
@@ -64,7 +72,11 @@ export function ReportTemplateForm({
         is_update: !result.created,
         source: "app",
       });
-      toast.success(result.created ? "Template created" : "Template saved");
+      toast.success(
+        result.created
+          ? t("reports.template_created_toast")
+          : t("reports.template_saved_toast"),
+      );
       onSaved();
     },
   });
@@ -92,15 +104,17 @@ export function ReportTemplateForm({
           <form.Form className="flex flex-col gap-4">
             <DialogHeader>
               <DialogTitle>
-                {template ? "Edit template" : "New template"}
+                {template
+                  ? t("reports.edit_template")
+                  : t("reports.new_template")}
               </DialogTitle>
             </DialogHeader>
 
             <form.AppField name="name">
               {(field) => (
                 <field.TextField
-                  label="Name"
-                  placeholder="Monthly client check-in"
+                  label={t("reports.field_name_label")}
+                  placeholder={t("reports.field_name_placeholder")}
                   required
                 />
               )}
@@ -109,9 +123,9 @@ export function ReportTemplateForm({
             <form.AppField name="description">
               {(field) => (
                 <field.TextField
-                  label="Description"
-                  description="One line saying when to use it. This is what an agent reads to decide."
-                  placeholder="The monthly update we send retainer clients."
+                  label={t("reports.field_desc_label")}
+                  description={t("reports.field_desc_helper")}
+                  placeholder={t("reports.field_desc_placeholder")}
                   required
                 />
               )}
@@ -120,8 +134,8 @@ export function ReportTemplateForm({
             <form.AppField name="instructions">
               {(field) => (
                 <field.TextareaField
-                  label="Instructions"
-                  description="Brand voice for the whole project lives in Context › Writing preferences."
+                  label={t("reports.field_instructions_label")}
+                  description={t("reports.field_instructions_helper")}
                   className="h-56 font-mono leading-relaxed md:text-xs"
                   placeholder={INSTRUCTIONS_PLACEHOLDER}
                   required
@@ -136,10 +150,12 @@ export function ReportTemplateForm({
                 onClick={onClose}
                 disabled={saveMutation.isPending}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <form.SubmitButton>
-                {template ? "Save changes" : "Create template"}
+                {template
+                  ? t("reports.save_changes")
+                  : t("reports.create_template")}
               </form.SubmitButton>
             </DialogFooter>
           </form.Form>

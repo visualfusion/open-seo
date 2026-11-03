@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState, type ReactNode } from "react";
 import { ChevronRight, ExternalLink } from "lucide-react";
 import { TableCell, TableRow } from "@/client/components/ui/table";
@@ -5,6 +6,7 @@ import { SeverityBadge } from "@/client/features/audit/shared";
 import type { LighthouseIssue } from "./types";
 
 export function LighthouseIssueRow({ issue }: { issue: LighthouseIssue }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const hasDetails = !!(issue.description || issue.items.length > 0);
 
@@ -73,7 +75,8 @@ export function LighthouseIssueRow({ issue }: { issue: LighthouseIssue }) {
               {issue.items.length > 0 ? (
                 <details className="text-sm">
                   <summary className="cursor-pointer font-medium text-muted-foreground text-xs">
-                    Affected items ({issue.items.length})
+                    {t("lighthouse.details.affected_items")}
+                    {issue.items.length})
                   </summary>
                   <div className="mt-2 space-y-1.5">
                     {issue.items.map((item, itemIndex) => (

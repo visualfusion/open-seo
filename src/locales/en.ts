@@ -13,13 +13,14 @@ import { teamEn } from "./team.en";
 import { reportsEn } from "./reports.en";
 import { keywordsEn } from "./keywords.en";
 import { auditEn } from "./audit.en";
+import { projectsEn } from "./projects.en";
 import { billingEn } from "./billing.en";
 import { backlinksEn } from "./backlinks.en";
 import { dashboardEn } from "./dashboard.en";
 import { integrationsEn } from "./integrations.en";
 import { searchPerformanceEn } from "./searchPerformance.en";
+import { lighthouseEn } from "./lighthouse.en";
 import { localSeoEn } from "./localSeo.en";
-import { projectsEn } from "./projects.en";
 import { projectSettingsEn } from "./projectSettings.en";
 import { savedKeywordsEn } from "./savedKeywords.en";
 export const en = {
@@ -42,17 +43,19 @@ export const en = {
     date: "Date",
     save: "Save",
     saved: "Saved",
+    url: "URL",
     status: "Status",
     all: "All",
+    edit: "Edit",
   },
   domain: domainEn,
   shell: shellEn,
   settings: settingsEn,
   nav: {
     settings: "Settings",
+    audit: "Site Audit",
     keywords: "Keyword Research",
     dashboard: "Dashboard",
-    audit: "Site Audit",
     overview: "Overview",
     research: "Research",
     ai_visibility: "AI Visibility",
@@ -81,13 +84,14 @@ export const en = {
   reports: reportsEn,
   keywords: keywordsEn,
   audit: auditEn,
+  projects: projectsEn,
   billing: billingEn,
   backlinks: backlinksEn,
   dashboard: dashboardEn,
   integrations: integrationsEn,
   search_performance: searchPerformanceEn,
+  lighthouse: lighthouseEn,
   local_seo: localSeoEn,
-  projects: projectsEn,
   project_settings: projectSettingsEn,
   saved_keywords: savedKeywordsEn,
 };

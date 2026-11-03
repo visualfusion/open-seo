@@ -22,6 +22,7 @@ import {
   MIN_PAGES,
 } from "@/client/features/audit/launch/types";
 import type { useLaunchController } from "@/client/features/audit/launch/useLaunchController";
+import { useLocale } from "@/client/lib/i18n";
 import { getFieldError, getFormError } from "@/client/lib/forms";
 import {
   isEveryAppClientAuthMode,
@@ -46,11 +47,12 @@ export function LaunchFormCard({
   canRenderJavaScript,
   outOfCredits,
 }: Props) {
+  const { t } = useLocale();
   return (
     <Card>
       <CardHeader>
         <CardTitle>
-          <h2>Start New Audit</h2>
+          <h2>{t("audit.start_new_audit")}</h2>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -68,7 +70,7 @@ export function LaunchFormCard({
               return (
                 <Input
                   className="lg:col-span-9"
-                  aria-label="Site URL"
+                  aria-label={t("audit.site_url_aria")}
                   aria-invalid={urlError ? true : undefined}
                   placeholder="https://example.com"
                   value={field.state.value}
@@ -91,7 +93,7 @@ export function LaunchFormCard({
                 className="w-full lg:col-span-3"
                 pending={isSubmitting}
               >
-                {isSubmitting ? "Starting..." : "Start Audit"}
+                {isSubmitting ? t("audit.starting") : t("audit.start_audit")}
               </Button>
             )}
           </launchForm.Subscribe>
@@ -124,9 +126,26 @@ function LaunchOptions({
   commitMaxPagesInput,
   maxPagesLimit,
 }: Props) {
+  const { t, locale } = useLocale();
+  const upgradeLink = (
+    <Link to={SUBSCRIBE_ROUTE} search={{ upgrade: true }}>
+      {t("audit.upgrade")}
+    </Link>
+  );
+  const maxPagesFormatted = maxPagesLimit.toLocaleString(
+    locale === "de" ? "de-DE" : "en-US",
+  );
+  const paidMaxPagesFormatted = PAID_MAX_AUDIT_PAGES.toLocaleString(
+    locale === "de" ? "de-DE" : "en-US",
+  );
+  const upgradeTextParts = t("audit.upgrade_pages_desc", {
+    link: "___LINK___",
+    max: paidMaxPagesFormatted,
+  }).split("___LINK___");
+
   return (
     <Field className="rounded-lg border border-border p-3">
-      <FieldLabel htmlFor="audit-max-pages">Max pages</FieldLabel>
+      <FieldLabel htmlFor="audit-max-pages">{t("audit.max_pages")}</FieldLabel>
       <launchForm.Field name="maxPagesInput">
         {(field) => (
           <Input
@@ -149,14 +168,16 @@ function LaunchOptions({
         )}
       </launchForm.Field>
       <FieldDescription>
-        Enter any value from {MIN_PAGES} to {maxPagesLimit.toLocaleString()}.
+        {t("audit.max_pages_desc", {
+          min: String(MIN_PAGES),
+          max: maxPagesFormatted,
+        })}
         {maxPagesLimit < PAID_MAX_AUDIT_PAGES ? (
           <>
             {" "}
-            <Link to={SUBSCRIBE_ROUTE} search={{ upgrade: true }}>
-              Upgrade
-            </Link>{" "}
-            to crawl up to {PAID_MAX_AUDIT_PAGES.toLocaleString()} pages.
+            {upgradeTextParts[0]}
+            {upgradeLink}
+            {upgradeTextParts[1] || null}
           </>
         ) : null}
       </FieldDescription>
@@ -165,6 +186,7 @@ function LaunchOptions({
 }
 
 function LighthouseOptions({ launchForm }: Pick<Props, "launchForm">) {
+  const { t } = useLocale();
   return (
     <Field className="rounded-lg border border-border p-3">
       <div className="flex items-center gap-2">
@@ -179,9 +201,9 @@ function LighthouseOptions({ launchForm }: Pick<Props, "launchForm">) {
         </launchForm.Field>
         <FieldLabel
           htmlFor="audit-run-lighthouse"
-          title="Lighthouse measures the performance of your pages and identifies issues."
+          title={t("audit.lighthouse_tooltip")}
         >
-          Include Lighthouse
+          {t("audit.include_lighthouse")}
         </FieldLabel>
       </div>
 
@@ -190,10 +212,7 @@ function LighthouseOptions({ launchForm }: Pick<Props, "launchForm">) {
       >
         {(runLighthouse) =>
           runLighthouse ? (
-            <FieldDescription>
-              We choose a sample of 20 pages to audit, removing pages from
-              duplicate templates.
-            </FieldDescription>
+            <FieldDescription>{t("audit.lighthouse_desc")}</FieldDescription>
           ) : null
         }
       </launchForm.Subscribe>
@@ -206,6 +225,7 @@ function RenderingOptions({
   maxPagesLimit,
   canRenderJavaScript,
 }: Pick<Props, "launchForm" | "maxPagesLimit" | "canRenderJavaScript">) {
+  const { t } = useLocale();
   return (
     <Field className="rounded-lg border border-border p-3">
       <div className="flex items-center gap-2">
@@ -221,9 +241,9 @@ function RenderingOptions({
         </launchForm.Field>
         <FieldLabel
           htmlFor="audit-render-javascript"
-          title="Loads each page in a browser before auditing it. Slower."
+          title={t("audit.render_javascript_tooltip")}
         >
-          Render JavaScript
+          {t("audit.render_javascript")}
         </FieldLabel>
       </div>
 
@@ -247,22 +267,21 @@ function RenderingOptions({
       )}
       {canRenderJavaScript === false && isEveryAppClientAuthMode() && (
         <FieldDescription>
-          JavaScript rendering isn't set up on your Every App gateway yet. An
-          owner or admin sets it with{" "}
+          {t("audit.details.javascript_rendering_isn_t_every_app")}{" "}
           <code>pnpm everyapp secret set CONTEXT_API_KEY</code>.
         </FieldDescription>
       )}
       {canRenderJavaScript === false && !isEveryAppClientAuthMode() && (
         <FieldDescription>
-          This deployment has no browser, so rendering needs a Context.dev API
-          key. Set <code>CONTEXT_API_KEY</code>, restart OpenSEO, then reload
-          this page.{" "}
+          {t("audit.details.this_deployment_has_no_a_context")}{" "}
+          <code>CONTEXT_API_KEY</code>
+          {t("audit.details.restart_openseo_then_reload_this_page")}{" "}
           <a
             href="https://github.com/every-app/open-seo/blob/main/docs/SELF_HOSTING_CLOUDFLARE_OPERATIONS.md#render-javascript-in-site-audits"
             target="_blank"
             rel="noreferrer"
           >
-            Setup guide
+            {t("audit.setup_guide")}
           </a>
         </FieldDescription>
       )}

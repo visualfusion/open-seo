@@ -17,6 +17,7 @@ import type {
   PagesFilters,
   PerformanceFilters,
 } from "@/client/features/audit/results/AuditResultsTableFilterLogic";
+import { useLocale } from "@/client/lib/i18n";
 
 export function PagesFilterBar({
   filters,
@@ -29,60 +30,61 @@ export function PagesFilterBar({
   activeFilterCount: number;
   onReset: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <DataTableFilterPanel activeCount={activeFilterCount} onReset={onReset}>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
         <TextFilter
-          label="Search"
+          label={t("common.search")}
           value={filters.query}
-          placeholder="URL, title, meta"
+          placeholder={t("audit.filters.query_placeholder")}
           onChange={(query) => onChange({ ...filters, query })}
         />
         <SelectFilter
-          label="Status"
+          label={t("common.status")}
           value={filters.status}
           onChange={(status) => onChange({ ...filters, status })}
           options={[
-            ["all", "All"],
+            ["all", t("common.all")],
             ["ok", "2xx"],
             ["redirect", "3xx"],
             ["error", "4xx/5xx"],
-            ["missing", "Missing"],
+            ["missing", t("audit.filters.missing")],
           ]}
         />
         <SelectFilter
-          label="Crawl result"
+          label={t("audit.filters.fetch_class")}
           value={filters.fetchClass}
           onChange={(fetchClass) => onChange({ ...filters, fetchClass })}
           options={[
-            ["all", "All"],
-            ["ok", "Read"],
-            ["error", "Failed"],
-            ["blocked", "Blocked"],
-            ["rate_limited", "Rate limited"],
+            ["all", t("common.all")],
+            ["ok", t("audit.filters.read")],
+            ["error", t("audit.failed")],
+            ["blocked", t("audit.filters.blocked")],
+            ["rate_limited", t("audit.filters.rate_limited")],
           ]}
         />
         <SelectFilter
-          label="Alt text"
+          label={t("audit.filters.alt_text")}
           value={filters.missingAlt}
           onChange={(missingAlt) => onChange({ ...filters, missingAlt })}
           options={[
-            ["all", "All"],
-            ["yes", "Missing alt"],
-            ["no", "No missing alt"],
+            ["all", t("common.all")],
+            ["yes", t("audit.filters.missing_alt")],
+            ["no", t("audit.filters.no_missing_alt")],
           ]}
         />
       </div>
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         <RangeFilter
-          label="Words"
+          label={t("audit.columns.words")}
           min={filters.minWords}
           max={filters.maxWords}
           onMinChange={(minWords) => onChange({ ...filters, minWords })}
           onMaxChange={(maxWords) => onChange({ ...filters, maxWords })}
         />
         <RangeFilter
-          label="Speed ms"
+          label={t("audit.filters.speed_ms")}
           min={filters.minResponseMs}
           max={filters.maxResponseMs}
           onMinChange={(minResponseMs) =>
@@ -108,37 +110,38 @@ export function PerformanceFilterBar({
   activeFilterCount: number;
   onReset: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <DataTableFilterPanel activeCount={activeFilterCount} onReset={onReset}>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
         <TextFilter
-          label="Search"
+          label={t("common.search")}
           value={filters.query}
-          placeholder="URL"
+          placeholder={t("common.url")}
           onChange={(query) => onChange({ ...filters, query })}
         />
         <SelectFilter
-          label="Device"
+          label={t("audit.filters.device")}
           value={filters.device}
           onChange={(device) => onChange({ ...filters, device })}
           options={[
-            ["all", "All"],
-            ["desktop", "Desktop"],
-            ["mobile", "Mobile"],
+            ["all", t("common.all")],
+            ["desktop", t("audit.filters.desktop")],
+            ["mobile", t("audit.filters.mobile")],
           ]}
         />
         <SelectFilter
-          label="Status"
+          label={t("common.status")}
           value={filters.status}
           onChange={(status) => onChange({ ...filters, status })}
           options={[
-            ["all", "All"],
+            ["all", t("common.all")],
             ["ok", "OK"],
-            ["failed", "Failed"],
+            ["failed", t("audit.failed")],
           ]}
         />
         <TextFilter
-          label="Max LCP s"
+          label={t("audit.filters.max_lcp")}
           value={filters.maxLcpSeconds}
           placeholder="2.5"
           type="number"
@@ -147,14 +150,14 @@ export function PerformanceFilterBar({
       </div>
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         <RangeFilter
-          label="Perf"
+          label={t("audit.filters.perf")}
           min={filters.minPerf}
           max={filters.maxPerf}
           onMinChange={(minPerf) => onChange({ ...filters, minPerf })}
           onMaxChange={(maxPerf) => onChange({ ...filters, maxPerf })}
         />
         <RangeFilter
-          label="SEO"
+          label={t("audit.filters.seo")}
           min={filters.minSeo}
           max={filters.maxSeo}
           onMinChange={(minSeo) => onChange({ ...filters, minSeo })}
@@ -179,11 +182,19 @@ export function ResultsTableToolbar({
   resultCount: number;
   totalCount: number;
 }) {
+  const { t, locale } = useLocale();
   return (
     <DataTableToolbar
       actions={
         <span className="text-sm tabular-nums text-muted-foreground">
-          {resultCount.toLocaleString()} of {totalCount.toLocaleString()}
+          {t("audit.filters.result_count_of", {
+            count: resultCount.toLocaleString(
+              locale === "de" ? "de-DE" : "en-US",
+            ),
+            total: totalCount.toLocaleString(
+              locale === "de" ? "de-DE" : "en-US",
+            ),
+          })}
         </span>
       }
     >

@@ -18,5 +18,8 @@ export const integrationsDe = {
       dismiss: "Ausblenden",
     },
   },
+  lighthouse: {
+    title: "Lighthouse-Probleme",
+  },
   details: integrationsDetailsDe,
 };

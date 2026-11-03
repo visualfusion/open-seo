@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ export function LighthouseIssuesScreen({
   category: CategoryTab;
   auditId: string | undefined;
 }) {
+  const { t } = useLocale();
   const navigate = useNavigate({
     from: "/p/$projectId/audit/issues/$resultId",
   });
@@ -104,7 +106,9 @@ export function LighthouseIssuesScreen({
             <div className="p-4">
               <QueryError
                 error={issuesQuery.error}
-                fallback="Failed to load Lighthouse issues."
+                fallback={t(
+                  "lighthouse.details.failed_to_load_lighthouse_issues",
+                )}
                 // A missing result stays missing, so retry cannot help.
                 onRetry={
                   getErrorCode(issuesQuery.error) === "NOT_FOUND"
@@ -161,6 +165,7 @@ function useLighthouseIssuesActions({
     ) => Promise<{ filename: string; content: string }>;
   };
 }) {
+  const { t } = useLocale();
   const visibleIssues =
     category === "all"
       ? allIssues
@@ -173,7 +178,7 @@ function useLighthouseIssuesActions({
     try {
       const exported = await exportMutation.mutateAsync(data);
       downloadFile(exported.content, exported.filename, "application/json");
-      toast.success("Download started");
+      toast.success(t("lighthouse.details.download_started"));
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to export payload";

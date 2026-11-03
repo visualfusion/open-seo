@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -54,6 +55,7 @@ export function useLaunchController({
   isFreePlan: boolean;
   onAuditStarted: (auditId: string) => void;
 }) {
+  const { t } = useLocale();
   const capabilitiesQuery = useAuditCapabilities(projectId);
   const historyQuery = useQuery({
     queryKey: ["audit-history", projectId],
@@ -101,7 +103,7 @@ export function useLaunchController({
           lighthouseStrategy: value.runLighthouse ? "auto" : "none",
           renderJavaScript: value.renderJavaScript,
         });
-        toast.success("Audit started!");
+        toast.success(t("audit.details.audit_started"));
         onAuditStarted(result.auditId);
       } catch (error) {
         // Starting an audit refuses for credits only when the rendering hold
@@ -146,6 +148,7 @@ export function useLaunchController({
 }
 
 function useLaunchMutations({ projectId }: { projectId: string }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   // Invalidate rather than refetch: starting an audit navigates away from the
   // list, so the stale mark is what makes it reload when the user comes back.
@@ -171,7 +174,7 @@ function useLaunchMutations({ projectId }: { projectId: string }) {
       deleteAudit({ data: { projectId, auditId } }),
     onSuccess: () => {
       void invalidateHistory();
-      toast.success("Audit deleted");
+      toast.success(t("audit.details.audit_deleted"));
     },
   });
 

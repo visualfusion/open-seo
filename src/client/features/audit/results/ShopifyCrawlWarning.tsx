@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useIsMutating, useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
@@ -46,6 +47,7 @@ export function ShopifyCrawlWarning({
   /** Shopify answered with 429s, not only refusals. */
   throttled: boolean;
 }) {
+  const { t } = useLocale();
   const navigate = useNavigate();
   const host = extractHostname(audit.startUrl);
   const usedCredentialId = audit.config.crawlerCredentialId;
@@ -57,7 +59,7 @@ export function ShopifyCrawlWarning({
   const canStoreCrawlerAccess = !useCrawlerAccessNeedsSetup(projectId);
   const setupHint = canStoreCrawlerAccess ? null : (
     <p className="text-muted-foreground">
-      A signature can't be saved here until crawler access is set up.{" "}
+      {t("audit.details.a_signature_can_t_crawler_access")}{" "}
       <CrawlerAccessSetupHint />
     </p>
   );
@@ -113,7 +115,9 @@ export function ShopifyCrawlWarning({
       disabled={isSaving}
       onClick={() => rerunMutation.mutate()}
     >
-      {rerunMutation.isPending ? "Starting…" : "Re-run audit"}
+      {rerunMutation.isPending
+        ? t("audit.details.starting")
+        : t("audit.details.re_run_audit")}
     </Button>
   );
 
@@ -137,23 +141,22 @@ export function ShopifyCrawlWarning({
         <AlertDescription className="text-foreground">
           {signedAndStillLimited ? (
             <>
-              Shopify limited this crawl despite your signature. To check that
-              it was created for <span className="font-mono">{host}</span>,
-              paste it again in{" "}
+              {t("audit.details.shopify_limited_this_crawl_check_that")}{" "}
+              <span className="font-mono">{host}</span>
+              {t("audit.details.paste_it_again_in")}{" "}
               <Link
                 to="/p/$projectId/settings/integrations"
                 params={{ projectId }}
               >
-                Project settings
+                {t("projects.switcher.project_settings")}
               </Link>
-              . If it was, Shopify is still throttling this store: re-run the
-              audit later or with fewer pages.
+              {t("audit.details.if_it_was_shopify_store_re")}
             </>
           ) : (
             <>
-              Crawler access is saved for{" "}
-              <span className="font-mono">{host}</span>. Re-run the audit to
-              crawl with it.
+              {t("audit.details.crawler_access_is_saved_for")}{" "}
+              <span className="font-mono">{host}</span>
+              {t("audit.details.re_run_the_audit_with_it")}
             </>
           )}
         </AlertDescription>
@@ -169,13 +172,13 @@ export function ShopifyCrawlWarning({
         {expiredCredential?.expiresAt ? (
           <>
             <AlertTitle>
-              Your Shopify signature for this store has expired.
+              {t("audit.details.your_shopify_signature_for_has_expired")}
             </AlertTitle>
             {setupHint}
             <p className="text-muted-foreground">
-              It ran out on{" "}
-              {new Date(expiredCredential.expiresAt).toLocaleDateString()}, so
-              requests after that went out unsigned and Shopify limited them.
+              {t("audit.details.it_ran_out_on")}{" "}
+              {new Date(expiredCredential.expiresAt).toLocaleDateString()}
+              {t("audit.details.so_requests_after_that_shopify_limited")}
               {canStoreCrawlerAccess
                 ? " Signatures can't be renewed: create a fresh one in Shopify admin and paste it below to replace the stored values."
                 : null}
@@ -183,13 +186,14 @@ export function ShopifyCrawlWarning({
           </>
         ) : (
           <>
-            <AlertTitle>Shopify limited this crawl.</AlertTitle>
+            <AlertTitle>
+              {t("audit.details.shopify_limited_this_crawl")}
+            </AlertTitle>
             {setupHint}
             <p className="text-muted-foreground">
-              Shopify rate-limits crawlers it hasn't authorized, so parts of
-              this report are missing.
+              {t("audit.details.shopify_rate_limits_crawlers_so_parts")}
               {canStoreCrawlerAccess
-                ? " If you own this store, authorizing OpenSEO takes about a minute."
+                ? t("audit.details.if_you_own_this_about_a")
                 : null}
             </p>
           </>
@@ -198,18 +202,16 @@ export function ShopifyCrawlWarning({
         {canStoreCrawlerAccess ? (
           <>
             <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
+              <li>{t("audit.details.in_shopify_admin_go_crawler_access")}</li>
               <li>
-                In Shopify admin, go to Online Store &rarr; Preferences &rarr;
-                Crawler access and click Create signature.
+                {t("audit.details.pick_the_domain")}{" "}
+                <span className="font-mono">{host}</span>{" "}
+                {t("audit.details.and_an_expiry_up_to_3_months")}
               </li>
-              <li>
-                Pick the domain <span className="font-mono">{host}</span> and an
-                expiry (up to 3 months).
-              </li>
-              <li>Paste the two values below.</li>
+              <li>{t("audit.details.paste_the_two_values_below")}</li>
             </ol>
 
-            {/* Keyed by host: the report stays mounted when the audit changes. */}
+            {/* Keyed by hosthe report stays mounted when the audit changes. */}
             <CrawlerAccessForm
               key={host}
               projectId={projectId}
@@ -227,7 +229,7 @@ export function ShopifyCrawlWarning({
             target="_blank"
             rel="noreferrer"
           >
-            Shopify's crawler access guide
+            {t("audit.details.shopify_s_crawler_access_guide")}
           </a>
         </div>
       </div>

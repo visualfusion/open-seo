@@ -14,13 +14,14 @@ import { teamDe } from "./team.de";
 import { reportsDe } from "./reports.de";
 import { keywordsDe } from "./keywords.de";
 import { auditDe } from "./audit.de";
+import { projectsDe } from "./projects.de";
 import { billingDe } from "./billing.de";
 import { backlinksDe } from "./backlinks.de";
 import { dashboardDe } from "./dashboard.de";
 import { integrationsDe } from "./integrations.de";
 import { searchPerformanceDe } from "./searchPerformance.de";
+import { lighthouseDe } from "./lighthouse.de";
 import { localSeoDe } from "./localSeo.de";
-import { projectsDe } from "./projects.de";
 import { projectSettingsDe } from "./projectSettings.de";
 import { savedKeywordsDe } from "./savedKeywords.de";
 export const de: TranslationDict = {
@@ -43,17 +44,19 @@ export const de: TranslationDict = {
     date: "Datum",
     save: "Speichern",
     saved: "Gespeichert",
+    url: "URL",
     status: "Status",
     all: "Alle",
+    edit: "Bearbeiten",
   },
   domain: domainDe,
   shell: shellDe,
   settings: settingsDe,
   nav: {
     settings: "Einstellungen",
+    audit: "Site-Audit",
     keywords: "Keyword-Recherche",
     dashboard: "Dashboard",
-    audit: "Site-Audit",
     overview: "Übersicht",
     research: "Recherche",
     ai_visibility: "KI-Sichtbarkeit",
@@ -82,13 +85,14 @@ export const de: TranslationDict = {
   reports: reportsDe,
   keywords: keywordsDe,
   audit: auditDe,
+  projects: projectsDe,
   billing: billingDe,
   backlinks: backlinksDe,
   dashboard: dashboardDe,
   integrations: integrationsDe,
   search_performance: searchPerformanceDe,
+  lighthouse: lighthouseDe,
   local_seo: localSeoDe,
-  projects: projectsDe,
   project_settings: projectSettingsDe,
   saved_keywords: savedKeywordsDe,
 };

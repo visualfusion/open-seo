@@ -5,9 +5,11 @@ import {
   AlertTitle,
 } from "@/client/components/ui/alert";
 import type { AuditResultsData } from "@/client/features/audit/results/types";
+import { useLocale } from "@/client/lib/i18n";
 
 /** Report notices about JavaScript: app shells, and pages a render missed. */
 export function RenderingWarnings({ data }: { data: AuditResultsData }) {
+  const { t } = useLocale();
   const rendered = data.audit.config.renderJavaScript;
   const hasShells = data.issues.some(
     (issue) => issue.issueType === "javascript-rendering-suspected",
@@ -21,13 +23,11 @@ export function RenderingWarnings({ data }: { data: AuditResultsData }) {
       {hasShells && (
         <Alert variant="warning">
           <ShieldAlert />
-          <AlertTitle>
-            Some pages may need JavaScript to show their content.
-          </AlertTitle>
+          <AlertTitle>{t("audit.warnings.shells_title")}</AlertTitle>
           <AlertDescription>
             {rendered
-              ? "They were still loading after rendering, so we couldn't check them."
-              : "Turn on Render JavaScript and run the audit again to check them."}
+              ? t("audit.warnings.shells_rendered_desc")
+              : t("audit.warnings.shells_not_rendered_desc")}
           </AlertDescription>
         </Alert>
       )}
@@ -36,18 +36,23 @@ export function RenderingWarnings({ data }: { data: AuditResultsData }) {
         <Alert variant="warning">
           <ShieldAlert />
           <AlertTitle>
-            We couldn't read {unreadCount}{" "}
-            {unreadCount === 1 ? "page" : "pages"}.
+            {t("audit.warnings.unread_pages_title", {
+              count: String(unreadCount),
+              pages:
+                unreadCount === 1
+                  ? t("audit.page_singular")
+                  : t("audit.page_plural"),
+            })}
           </AlertTitle>
           <AlertDescription>
-            To see them, open Pages and filter Crawl result by Failed.
+            {t("audit.warnings.unread_pages_desc")}
           </AlertDescription>
         </Alert>
       )}
 
       {rendered && (
         <p className="text-sm text-muted-foreground">
-          JavaScript rendering was enabled for this audit.
+          {t("audit.warnings.js_rendering_enabled")}
         </p>
       )}
     </>

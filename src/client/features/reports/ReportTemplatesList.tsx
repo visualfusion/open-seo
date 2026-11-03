@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/client/components/ui/table";
+import { useLocale } from "@/client/lib/i18n";
 import { formatRelativeTime } from "@/client/lib/relative-time";
 import type { ReportTemplate } from "@/types/schemas/report-templates";
 
@@ -23,12 +24,14 @@ export function ReportTemplatesList({
   onEdit: (template: ReportTemplate) => void;
   onDelete: (template: ReportTemplate) => void;
 }) {
+  const { t } = useLocale();
+
   if (templates.length === 0) {
     return (
       <EmptyState
         icon={LayoutTemplate}
-        title="No templates yet"
-        description="A template is a reusable brief for a kind of report: who it is for, which sections it has, how it sounds."
+        title={t("reports.empty_templates_title")}
+        description={t("reports.empty_templates_desc")}
       />
     );
   }
@@ -38,9 +41,9 @@ export function ReportTemplatesList({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Updated</TableHead>
+            <TableHead>{t("reports.th_name")}</TableHead>
+            <TableHead>{t("reports.th_description")}</TableHead>
+            <TableHead>{t("reports.th_updated")}</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
@@ -63,17 +66,21 @@ export function ReportTemplatesList({
                 {formatRelativeTime(template.updatedAt)}
               </TableCell>
               <TableCell className="w-10 text-right">
-                <RowActionsMenu label={`Actions for ${template.name}`}>
+                <RowActionsMenu
+                  label={t("reports.actions_for_template", {
+                    name: template.name,
+                  })}
+                >
                   <DropdownMenuItem onClick={() => onEdit(template)}>
                     <Pencil />
-                    Edit
+                    {t("common.edit")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => onDelete(template)}
                   >
                     <Trash2 />
-                    Delete
+                    {t("common.delete")}
                   </DropdownMenuItem>
                 </RowActionsMenu>
               </TableCell>

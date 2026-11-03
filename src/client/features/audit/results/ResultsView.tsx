@@ -1,5 +1,4 @@
-import { MetricsTable } from "@/client/components/MetricsTable";
-import { useMemo, type ReactNode } from "react";
+import { useMemo } from "react";
 import { ShieldAlert } from "lucide-react";
 import {
   exportIssues,
@@ -8,20 +7,13 @@ import {
 } from "@/client/features/audit/results/export";
 import type { AuditResultsData } from "@/client/features/audit/results/types";
 import { isLighthouseFailure } from "@/client/features/audit/results/AuditResultsTableFilterLogic";
-import {
-  IssuesView,
-  resolveIssueSeverity,
-} from "@/client/features/audit/results/IssuesView";
+import { IssuesView } from "@/client/features/audit/results/IssuesView";
 import { PagesTable } from "@/client/features/audit/results/PagesTable";
 import { ShopifyCrawlWarning } from "@/client/features/audit/results/ShopifyCrawlWarning";
 import { RenderingWarnings } from "@/client/features/audit/results/RenderingWarnings";
+import { StatsStrip } from "@/client/features/audit/results/StatsStrip";
 import { PerformanceTable } from "@/client/features/audit/results/ResultsTables";
-import {
-  BotProtectionAdvice,
-  SCORE_TEXT_CLASS,
-  scoreTone,
-  SeverityBadge,
-} from "@/client/features/audit/shared";
+import { BotProtectionAdvice } from "@/client/features/audit/shared";
 import { ExportMenu } from "@/client/components/ExportMenu";
 import {
   Alert,
@@ -30,6 +22,7 @@ import {
 } from "@/client/components/ui/alert";
 import { DataTableTabs } from "@/client/components/table/DataTableToolbar";
 import { TabsTrigger } from "@/client/components/ui/tabs";
+import { useLocale } from "@/client/lib/i18n";
 
 type ResultsTab = "issues" | "pages" | "performance";
 
@@ -47,6 +40,7 @@ export function ResultsView({
   /** The page already says bot protection blocked the whole site. */
   siteBlocked: boolean;
 }) {
+  const { t } = useLocale();
   const { audit, pages, lighthouse, issues } = data;
   const crawlStopped = issues.some(
     (issue) => issue.issueType === "crawl-rate-limited",
@@ -91,6 +85,20 @@ export function ResultsView({
     />
   );
 
+  const crawlerLink = (
+    <a
+      className="underline underline-offset-4"
+      href="https://openseo.so/docs/crawler"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {t("audit.crawler_link_text")}
+    </a>
+  );
+  const rateLimitedAdviceParts = t("audit.rate_limited_advice", {
+    crawler: "___CRAWLER___",
+  }).split("___CRAWLER___");
+
   return (
     <>
       {shopifyLimited && (
@@ -105,8 +113,13 @@ export function ResultsView({
         <Alert variant="warning">
           <ShieldAlert />
           <AlertTitle>
-            Bot protection blocked our crawler on {blockedCount}{" "}
-            {blockedCount === 1 ? "page" : "pages"}.
+            {t("audit.bot_blocked_pages_title", {
+              count: String(blockedCount),
+              pages:
+                blockedCount === 1
+                  ? t("audit.page_singular")
+                  : t("audit.page_plural"),
+            })}
           </AlertTitle>
           <AlertDescription>
             <BotProtectionAdvice
@@ -122,24 +135,22 @@ export function ResultsView({
           <ShieldAlert />
           <AlertTitle>
             {crawlStopped
-              ? "The crawl stopped early because of the site’s rate limit."
-              : `The site rate limited us on ${rateLimitedCount} ${rateLimitedCount === 1 ? "page" : "pages"}.`}
+              ? t("audit.rate_limited_stopped_title")
+              : t("audit.rate_limited_pages_title", {
+                  count: String(rateLimitedCount),
+                  pages:
+                    rateLimitedCount === 1
+                      ? t("audit.page_singular")
+                      : t("audit.page_plural"),
+                })}
           </AlertTitle>
           <AlertDescription>
             {crawlStopped
-              ? "The site kept refusing pages, so some URLs were left unvisited. This report is incomplete. "
-              : "Pages that returned 429 Too Many Requests could not be audited. "}
-            Re-run the audit after the rate limit resets, or ask the site owner
-            to allow the{" "}
-            <a
-              className="underline underline-offset-4"
-              href="https://openseo.so/docs/crawler"
-              target="_blank"
-              rel="noreferrer"
-            >
-              OpenSEO-Audit crawler
-            </a>
-            .
+              ? t("audit.rate_limited_stopped_desc")
+              : t("audit.rate_limited_pages_desc")}
+            {rateLimitedAdviceParts[0]}
+            {crawlerLink}
+            {rateLimitedAdviceParts[1] || null}
           </AlertDescription>
         </Alert>
       )}
@@ -237,14 +248,23 @@ function ResultsHeader({
   onTabChange: (tab: ResultsTab) => void;
   onExport: (format: "csv" | "json" | "sheets") => void;
 }) {
+  const { t } = useLocale();
   const tabs: Array<{ tab: ResultsTab; label: string }> = [
-    { tab: "issues", label: `Issues (${issueCount})` },
-    { tab: "pages", label: `Pages (${pageCount})` },
+    {
+      tab: "issues",
+      label: t("audit.tabs.issues", { count: String(issueCount) }),
+    },
+    {
+      tab: "pages",
+      label: t("audit.tabs.pages", { count: String(pageCount) }),
+    },
     ...(hasPerformanceTab
       ? [
           {
             tab: "performance" as const,
-            label: `Performance (${lighthouseCount})`,
+            label: t("audit.tabs.performance", {
+              count: String(lighthouseCount),
+            }),
           },
         ]
       : []),
@@ -268,125 +288,4 @@ function ResultsHeader({
       ))}
     </DataTableTabs>
   );
-}
-
-interface StatItem {
-  label: string;
-  value: string;
-  valueClass?: string;
-  sub?: ReactNode;
-}
-
-function StatsStrip({
-  pagesCrawled,
-  issues,
-  totalLighthouse,
-  averageResponseMs,
-  lighthouseSummary,
-}: {
-  pagesCrawled: number;
-  issues: AuditResultsData["issues"];
-  totalLighthouse: number;
-  averageResponseMs: number;
-  lighthouseSummary: {
-    failed: number;
-    avgPerformance: number | null;
-    avgSeo: number | null;
-    avgAccessibility: number | null;
-  };
-}) {
-  const severityCounts = useMemo(() => {
-    const counts = { critical: 0, warning: 0, info: 0 };
-    for (const issue of issues) {
-      counts[resolveIssueSeverity(issue)] += 1;
-    }
-    return counts;
-  }, [issues]);
-
-  const items: StatItem[] = [
-    { label: "Pages crawled", value: String(pagesCrawled) },
-    {
-      label: "Issues found",
-      value: String(issues.length),
-      valueClass: issues.length === 0 ? "text-success" : "",
-      sub: issues.length > 0 && (
-        <span className="flex flex-wrap items-center gap-1">
-          {(["critical", "warning", "info"] as const).map((severity) =>
-            severityCounts[severity] > 0 ? (
-              <SeverityBadge
-                key={severity}
-                severity={severity}
-                title={severity}
-              >
-                {severity === "critical"
-                  ? "Critical"
-                  : severity === "warning"
-                    ? "Warning"
-                    : "Info"}{" "}
-                {severityCounts[severity]}
-              </SeverityBadge>
-            ) : null,
-          )}
-        </span>
-      ),
-    },
-    { label: "Average response time", value: `${averageResponseMs}ms` },
-  ];
-
-  if (totalLighthouse > 0) {
-    items.push(
-      { label: "Lighthouse tests", value: String(totalLighthouse) },
-      {
-        label: "Lighthouse performance",
-        value:
-          lighthouseSummary.avgPerformance == null
-            ? "-"
-            : String(lighthouseSummary.avgPerformance),
-        valueClass: scoreClass(lighthouseSummary.avgPerformance),
-      },
-      {
-        label: "Lighthouse SEO",
-        value:
-          lighthouseSummary.avgSeo == null
-            ? "-"
-            : String(lighthouseSummary.avgSeo),
-        valueClass: scoreClass(lighthouseSummary.avgSeo),
-      },
-      {
-        label: "Lighthouse accessibility",
-        value:
-          lighthouseSummary.avgAccessibility == null
-            ? "-"
-            : String(lighthouseSummary.avgAccessibility),
-        valueClass: scoreClass(lighthouseSummary.avgAccessibility),
-      },
-      {
-        label: "Lighthouse failures",
-        value: String(lighthouseSummary.failed),
-        valueClass:
-          lighthouseSummary.failed > 0 ? "text-destructive" : "text-success",
-      },
-    );
-  }
-
-  return (
-    <div className="w-full max-w-xl rounded-lg border border-border bg-card p-3">
-      <MetricsTable
-        rows={items.map((item) => ({
-          label: (
-            <div className="flex flex-wrap items-center gap-2">
-              {item.label}
-              {item.sub || null}
-            </div>
-          ),
-          value: <span className={item.valueClass}>{item.value}</span>,
-        }))}
-      />
-    </div>
-  );
-}
-
-function scoreClass(score: number | null) {
-  const tone = scoreTone(score);
-  return tone ? SCORE_TEXT_CLASS[tone] : "";
 }

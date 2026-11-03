@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { cn } from "cn";
 import { SCORE_TEXT_CLASS, scoreTone } from "@/client/features/audit/shared";
 import type { LighthouseMetrics, LighthouseScores } from "./types";
@@ -9,6 +10,7 @@ export function LighthouseIssuesSummary({
   scores?: LighthouseScores | null;
   metrics?: LighthouseMetrics | null;
 }) {
+  const { t } = useLocale();
   const metricItems = getMetricItems(metrics);
 
   if (!scores && metricItems.length === 0) {
@@ -19,10 +21,19 @@ export function LighthouseIssuesSummary({
     <>
       {scores ? (
         <div className="grid grid-cols-4 gap-3">
-          <ScoreGauge label="Performance" score={scores.performance} />
-          <ScoreGauge label="Accessibility" score={scores.accessibility} />
-          <ScoreGauge label="Best Practices" score={scores["best-practices"]} />
-          <ScoreGauge label="SEO" score={scores.seo} />
+          <ScoreGauge
+            label={t("lighthouse.details.performance")}
+            score={scores.performance}
+          />
+          <ScoreGauge
+            label={t("lighthouse.details.accessibility")}
+            score={scores.accessibility}
+          />
+          <ScoreGauge
+            label={t("lighthouse.details.best_practices")}
+            score={scores["best-practices"]}
+          />
+          <ScoreGauge label={t("audit.filters.seo")} score={scores.seo} />
         </div>
       ) : null}
       {metricItems.length > 0 ? (

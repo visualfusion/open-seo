@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { BackButton } from "@/client/components/PageHeader";
 import { ExportMenu } from "@/client/components/ExportMenu";
 import { SkeletonTableRows } from "@/client/components/SkeletonPresets";
@@ -40,15 +41,18 @@ export function LighthouseIssuesHeader({
   metrics?: LighthouseMetrics | null;
   severityCounts: { critical: number; warning: number; info: number };
 }) {
+  const { t } = useLocale();
   return (
     <>
       <div className="flex items-center justify-between gap-3">
-        <BackButton onClick={onBack}>Site Audit</BackButton>
+        <BackButton onClick={onBack}>{t("nav.audit")}</BackButton>
         <span className="text-xs text-muted-foreground">
           {scannedAt
-            ? `Scanned ${new Date(scannedAt).toLocaleString()}`
+            ? t("lighthouse.details.scanned_value", {
+                v1: new Date(scannedAt).toLocaleString(),
+              })
             : isLoading
-              ? "Reading latest issues..."
+              ? t("lighthouse.details.reading_latest_issues")
               : null}
         </span>
       </div>
@@ -56,21 +60,24 @@ export function LighthouseIssuesHeader({
       <Card>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold">Lighthouse Issues</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("integrations.lighthouse.title")}
+            </h1>
             <p className="text-sm text-muted-foreground break-all">
-              {finalUrl ?? (isLoading ? "Loading URL..." : null)}
+              {finalUrl ??
+                (isLoading ? t("lighthouse.details.loading_url") : null)}
             </p>
           </div>
           <LighthouseIssuesSummary scores={scores} metrics={metrics} />
           <div className="flex flex-wrap gap-2">
             <SeverityBadge severity="critical">
-              Critical {severityCounts.critical}
+              {t("audit.critical")} {severityCounts.critical}
             </SeverityBadge>
             <SeverityBadge severity="warning">
-              Warning {severityCounts.warning}
+              {t("audit.warning")} {severityCounts.warning}
             </SeverityBadge>
             <SeverityBadge severity="info">
-              Info {severityCounts.info}
+              {t("audit.info")} {severityCounts.info}
             </SeverityBadge>
           </div>
         </CardContent>
@@ -106,6 +113,7 @@ export function LighthouseIssuesToolbar({
     variant: "all" | "current",
   ) => void;
 }) {
+  const { t } = useLocale();
   const exportCurrentCategory: ExportPayload =
     category === "all" ? { mode: "issues" } : { mode: "category", category };
 
@@ -123,21 +131,25 @@ export function LighthouseIssuesToolbar({
   }> = [
     {
       id: "current",
-      label: `${selectedCategoryLabel} issues`,
+      label: t("lighthouse.details.value_issues", {
+        v1: selectedCategoryLabel,
+      }),
       issues: visibleIssues,
       payload: exportCurrentCategory,
-      copied: `Copied ${categoryLabelLower} issues`,
+      copied: t("lighthouse.details.copied_value_issues", {
+        v1: categoryLabelLower,
+      }),
     },
     {
       id: "all",
-      label: "All actionable issues",
+      label: t("lighthouse.details.all_actionable_issues"),
       issues: allIssues,
       payload: { mode: "issues" },
       copied: "Copied all actionable issues",
     },
     {
       id: "full",
-      label: "Saved Lighthouse payload",
+      label: t("lighthouse.details.saved_lighthouse_payload"),
       actions: ["copy-json", "json"],
       issues: [],
       payload: { mode: "full" },
@@ -212,13 +224,15 @@ export function LighthouseIssueList({
   isLoading: boolean;
   emptyMessage?: string;
 }) {
+  const { t } = useLocale();
   if (isLoading) {
     return <SkeletonTableRows className="p-4" rows={5} columns={3} />;
   }
   if (!issues.length) {
     return (
       <p className="p-4 text-sm text-muted-foreground">
-        {emptyMessage ?? "No actionable issues for this category."}
+        {emptyMessage ??
+          t("lighthouse.details.no_actionable_issues_for_this_category")}
       </p>
     );
   }
@@ -227,13 +241,19 @@ export function LighthouseIssueList({
       <TableHeader>
         <TableRow>
           <TableHead className="w-8" />
-          <TableHead className="w-24">Severity</TableHead>
-          <TableHead>Issue</TableHead>
-          <TableHead className="hidden w-28 sm:table-cell">Category</TableHead>
-          <TableHead className="hidden w-28 md:table-cell text-right">
-            Impact
+          <TableHead className="w-24">
+            {t("lighthouse.details.severity")}
           </TableHead>
-          <TableHead className="w-14 text-right">Score</TableHead>
+          <TableHead>{t("lighthouse.details.issue")}</TableHead>
+          <TableHead className="hidden w-28 sm:table-cell">
+            {t("lighthouse.details.category")}
+          </TableHead>
+          <TableHead className="hidden w-28 md:table-cell text-right">
+            {t("lighthouse.details.impact")}
+          </TableHead>
+          <TableHead className="w-14 text-right">
+            {t("domain.keywords_table.score")}
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

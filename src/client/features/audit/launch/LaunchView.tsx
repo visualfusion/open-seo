@@ -4,6 +4,7 @@ import { AuditHistorySection } from "@/client/features/audit/launch/AuditHistory
 import { LaunchFormCard } from "@/client/features/audit/launch/LaunchFormCard";
 import { useLaunchController } from "@/client/features/audit/launch/useLaunchController";
 import { useHostedPlanGate } from "@/client/features/billing/HostedPlanGate";
+import { useLocale } from "@/client/lib/i18n";
 import { isHostedClientAuthMode } from "@/lib/auth-mode";
 import {
   RENDERING_COST_NOTE,
@@ -21,6 +22,7 @@ export function LaunchView({
   initialUrl,
   onAuditStarted,
 }: LaunchViewProps) {
+  const { t } = useLocale();
   // The plan only sets the page limit, so the form stays usable while the
   // plan loads. The server enforces the limit regardless.
   const isFreePlan = useHostedPlanGate() === "free";
@@ -34,7 +36,7 @@ export function LaunchView({
   return (
     <div className="px-4 py-4 md:px-6 md:py-6 pb-24 md:pb-8 overflow-auto">
       <div className="mx-auto max-w-7xl space-y-4">
-        <PageHeader title="Site Audit" />
+        <PageHeader title={t("audit.title")} />
 
         <LaunchFormCard
           launchForm={controller.launchForm}
@@ -74,28 +76,36 @@ function LargeCrawlDialog({
   onConfirm: () => void;
   onClose: () => void;
 }) {
-  const pageCount = pages.toLocaleString();
+  const { t, locale } = useLocale();
+  const pageCount = pages.toLocaleString(locale === "de" ? "de-DE" : "en-US");
   // Only hosted plans pay for rendering, so only they see a price.
   const priced = renderJavaScript && isHostedClientAuthMode();
   return (
     <ConfirmDialog
       title={
-        priced ? `Render up to ${pageCount} pages?` : "Start a large audit?"
+        priced
+          ? t("audit.render_up_to_title", { count: pageCount })
+          : t("audit.large_audit_title")
       }
-      confirmLabel={priced ? "Start audit" : "Continue"}
+      confirmLabel={
+        priced
+          ? t("audit.start_audit")
+          : locale === "de"
+            ? "Fortfahren"
+            : t("ranks.suggestions.continue")
+      }
       onConfirm={onConfirm}
       onClose={onClose}
     >
       {priced ? (
         <>
-          {RENDERING_COST_NOTE} Rendered audits can take longer than regular
-          audits.
+          {RENDERING_COST_NOTE} {t("audit.render_cost_info")}
           <span className="mt-3 block font-semibold text-foreground">
             {renderingCostText(pages)}
           </span>
         </>
       ) : (
-        `You are about to crawl ${pageCount} pages. This is okay, but it may take a while. Continue?`
+        t("audit.large_audit_confirm", { count: pageCount })
       )}
     </ConfirmDialog>
   );
