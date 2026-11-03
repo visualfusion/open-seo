@@ -53,6 +53,7 @@ export const uiDe = {
     date_range: {
       last_7_days: "Letzte 7 Tage",
       last_90_days: "Letzte 90 Tage",
+      last_30_days: "Letzte 30 Tage",
     },
     answer_view: {
       mentioned: "Erwähnt",

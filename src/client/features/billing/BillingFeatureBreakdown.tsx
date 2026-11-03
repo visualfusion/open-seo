@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { BillingUsage } from "@/server/billing/usage";
 import { QueryState } from "@/client/components/QueryState";
 import { Skeleton } from "@/client/components/ui/skeleton";
@@ -5,13 +6,14 @@ import { BillingUsageSection } from "@/client/features/billing/BillingUsageSecti
 import { useBillingUsage } from "@/client/features/billing/useBillingUsage";
 
 export function BillingFeatureBreakdown() {
+  const { t } = useLocale();
   const usageQuery = useBillingUsage();
 
   return (
-    <BillingUsageSection title="Usage by feature">
+    <BillingUsageSection title={t("billing.details.usage_by_feature")}>
       <QueryState
         query={usageQuery}
-        errorFallback="Failed to load usage"
+        errorFallback={t("billing.details.failed_to_load_usage")}
         loading={
           <div className="space-y-3">
             {[0, 1, 2, 3].map((i) => (
@@ -27,11 +29,14 @@ export function BillingFeatureBreakdown() {
 }
 
 function BreakdownRows({ rows }: { rows: BillingUsage["features"] }) {
+  const { t } = useLocale();
   const total = rows.reduce((sum, row) => sum + row.usd, 0);
 
   if (rows.length === 0) {
     return (
-      <div className="text-sm text-muted-foreground">No usage recorded yet</div>
+      <div className="text-sm text-muted-foreground">
+        {t("billing.details.no_usage_recorded_yet")}
+      </div>
     );
   }
 

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Link } from "@tanstack/react-router";
 import { Settings, User } from "lucide-react";
 import { ThemePreferenceDropdownItems } from "@/client/components/ThemePreferenceMenuItems";
@@ -15,6 +16,7 @@ import { signOutAndRedirect } from "@/lib/auth-client";
 
 // Shared account menu for onboarding and standalone plan pages.
 export function PlanPageAccountMenu({ email }: { email: string | undefined }) {
+  const { t } = useLocale();
   if (!email) return null;
 
   return (
@@ -25,7 +27,7 @@ export function PlanPageAccountMenu({ email }: { email: string | undefined }) {
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Open account menu"
+              aria-label={t("shell.open_account_menu")}
             />
           }
         >
@@ -38,7 +40,7 @@ export function PlanPageAccountMenu({ email }: { email: string | undefined }) {
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuItem render={<Link to="/settings" />}>
-            <Settings className="size-4" /> Settings
+            <Settings className="size-4" /> {t("nav.settings")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <ThemePreferenceDropdownItems />
@@ -47,7 +49,7 @@ export function PlanPageAccountMenu({ email }: { email: string | undefined }) {
             variant="destructive"
             onClick={() => signOutAndRedirect()}
           >
-            Sign out
+            {t("common.sign_out")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

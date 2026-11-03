@@ -24,6 +24,7 @@ import { lighthouseDe } from "./lighthouse.de";
 import { localSeoDe } from "./localSeo.de";
 import { projectSettingsDe } from "./projectSettings.de";
 import { savedKeywordsDe } from "./savedKeywords.de";
+import { widgetsDe } from "./widgets.de";
 export const de: TranslationDict = {
   ui: uiDe,
   auth: authDe,
@@ -95,4 +96,5 @@ export const de: TranslationDict = {
   local_seo: localSeoDe,
   project_settings: projectSettingsDe,
   saved_keywords: savedKeywordsDe,
+  widgets: widgetsDe,
 };

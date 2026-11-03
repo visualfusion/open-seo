@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { AppBanner } from "@/client/layout/AppBanner";
@@ -8,6 +9,7 @@ import { useCanManageBilling } from "@/client/features/team/organizationQueries"
 import { BILLING_ROUTE, SUBSCRIBE_ROUTE } from "@/shared/billing";
 
 export function FreePlanBanner() {
+  const { t } = useLocale();
   const {
     accountQuery,
     isFreePlan,
@@ -33,25 +35,32 @@ export function FreePlanBanner() {
   // Credits may be in the balance, but the budget holds them back; buying
   // more would not help, only raising it does.
   if (isPausedByBudget && autoReload) {
-    const until = refillDate ? ` until ${refillDate}` : "";
+    const until = refillDate
+      ? t("billing.details.until_value", {
+          v1: refillDate,
+        })
+      : "";
     return (
       <AppBanner variant="warning">
         {canManageBilling ? (
           <>
-            You&rsquo;ve hit your ${autoReload.monthlyLimitUsd} monthly
-            auto-reload budget, so credits are paused{until}.{" "}
+            {t("billing.details.you_ve_hit_your")}
+            {autoReload.monthlyLimitUsd}{" "}
+            {t("billing.details.monthly_auto_reload_budget_are_paused")}
+            {until}.{" "}
             <Link
               to={BILLING_ROUTE}
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              Raise your budget
+              {t("billing.details.raise_your_budget")}
             </Link>{" "}
-            to keep going.
+            {t("billing.details.to_keep_going")}
           </>
         ) : (
           <>
-            Your organization hit its monthly auto-reload budget, so credits are
-            paused{until}. Ask the owner to raise it.
+            {t("billing.details.your_organization_hit_its_so_credits")}
+            {until}
+            {t("billing.details.ask_the_owner_to_raise_it")}
           </>
         )}
       </AppBanner>
@@ -63,8 +72,8 @@ export function FreePlanBanner() {
   if (!isFreePlan && isOutOfCredits && autoReloadState === "on" && autoReload) {
     return (
       <AppBanner variant="info">
-        You&rsquo;re out of credits. Auto-reload is adding $
-        {autoReload.amountUsd} now.
+        {t("billing.details.you_re_out_of_is_adding")}
+        {autoReload.amountUsd} {t("billing.details.now")}
       </AppBanner>
     );
   }
@@ -76,11 +85,16 @@ export function FreePlanBanner() {
       <AppBanner variant={isOutOfCredits ? "destructive" : "warning"}>
         {isOutOfCredits
           ? autoReloadState === "card_failed"
-            ? "Your organization is out of credits and its card was declined."
-            : "Your organization has used its credits."
-          : "Your organization is running low on credits."}{" "}
-        Ask your organization owner to{" "}
-        {autoReloadState === "card_failed" ? "update it" : "add more"}.
+            ? t("billing.details.your_organization_is_out_card_was")
+            : t("billing.details.your_organization_has_used_its_credits")
+          : t(
+              "billing.details.your_organization_is_running_low_on_credits",
+            )}{" "}
+        {t("billing.details.ask_your_organization_owner_to")}{" "}
+        {autoReloadState === "card_failed"
+          ? t("billing.details.update_it")
+          : t("billing.details.add_more")}
+        .
       </AppBanner>
     );
   }
@@ -91,14 +105,14 @@ export function FreePlanBanner() {
       search={{ upgrade: true }}
       className="font-medium text-primary underline-offset-4 hover:underline"
     >
-      Upgrade your plan
+      {t("billing.details.upgrade_your_plan")}
     </Link>
   ) : (
     <Link
       to={BILLING_ROUTE}
       className="font-medium text-primary underline-offset-4 hover:underline"
     >
-      Buy more credits
+      {t("billing.details.buy_more_credits")}
     </Link>
   );
 
@@ -107,31 +121,37 @@ export function FreePlanBanner() {
       <AppBanner variant="destructive">
         {isFreePlan ? (
           <>
-            You&rsquo;ve used your free credits. {creditsActionLink} to get $
-            {BASE_PLAN_OFFER.monthlyCreditsUsd} of credits every month.
+            {t("billing.details.you_ve_used_your_free_credits")}{" "}
+            {creditsActionLink} {t("billing.details.to_get")}
+            {BASE_PLAN_OFFER.monthlyCreditsUsd}{" "}
+            {t("billing.details.of_credits_every_month")}
           </>
         ) : autoReloadState === "card_failed" ? (
           <>
-            You&rsquo;re out of credits and auto-reload couldn&rsquo;t charge
-            your card.{" "}
+            {t("billing.details.you_re_out_of_couldn_t")}{" "}
             <Link
               to={BILLING_ROUTE}
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              Update your card
+              {t("billing.details.update_your_card")}
             </Link>{" "}
-            to keep going.
+            {t("billing.details.to_keep_going")}
           </>
         ) : autoReloadState === "failed" ? (
           <>
-            You&rsquo;re out of credits and auto-reload couldn&rsquo;t buy more.{" "}
-            {creditsActionLink} to keep going.
+            {t("billing.details.you_re_out_of_t_2")} {creditsActionLink}{" "}
+            {t("billing.details.to_keep_going")}
           </>
         ) : (
           <>
-            You&rsquo;ve used this month&rsquo;s credits. {creditsActionLink} to
-            keep going
-            {refillDate ? `, or wait for them to refill on ${refillDate}` : ""}.
+            {t("billing.details.you_ve_used_this_month_s_credits")}{" "}
+            {creditsActionLink} {t("billing.details.to_keep_going_2")}
+            {refillDate
+              ? t("billing.details.or_wait_for_them_on_value", {
+                  v1: refillDate,
+                })
+              : ""}
+            .
           </>
         )}
       </AppBanner>
@@ -141,8 +161,8 @@ export function FreePlanBanner() {
   if (isLowCredits) {
     return (
       <AppBanner variant="warning">
-        You&rsquo;re running low on credits. {creditsActionLink} to keep using
-        OpenSEO.
+        {t("billing.details.you_re_running_low_on_credits")} {creditsActionLink}{" "}
+        {t("billing.details.to_keep_using_openseo")}
       </AppBanner>
     );
   }
@@ -150,20 +170,20 @@ export function FreePlanBanner() {
   if (isFreePlan) {
     return (
       <AppBanner variant="info">
-        We hope you&rsquo;re enjoying OpenSEO!{" "}
+        {t("billing.details.we_hope_you_re_enjoying_openseo")}{" "}
         <Link
           to={SUBSCRIBE_ROUTE}
           search={{ upgrade: true }}
           className="font-medium text-primary underline-offset-4 hover:underline"
         >
-          Upgrade anytime
+          {t("billing.details.upgrade_anytime")}
         </Link>{" "}
-        or{" "}
+        {t("billing.details.or")}{" "}
         <Link
           to="/support"
           className="font-medium text-primary underline-offset-4 hover:underline"
         >
-          reach out with questions
+          {t("billing.details.reach_out_with_questions")}
         </Link>
         .
       </AppBanner>

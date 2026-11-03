@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
@@ -20,6 +21,7 @@ import "@/client/styles/app.css";
 import "./widgets.css";
 
 function Widget() {
+  const { t } = useLocale();
   const host = useWidgetHost();
   const snapshot = host.snapshot;
   const meta = mcpMetaOutputSchema.safeParse(snapshot?.data.meta);
@@ -42,7 +44,7 @@ function Widget() {
             disabled={!host.isConnected || host.action.isPending}
             onClick={() => host.open(appUrl)}
           >
-            Open in OpenSEO
+            {t("widgets.details.open_in_openseo")}
             <ExternalLink />
           </Button>
         )}
@@ -57,7 +59,7 @@ function Widget() {
       {!snapshot && !host.error ? (
         <div role="status" aria-busy="true" className="space-y-3">
           <span className="text-sm text-muted-foreground">
-            Loading OpenSEO results…
+            {t("widgets.details.loading_openseo_results")}
           </span>
           <Skeleton className="h-10" />
           <Skeleton className="h-24" />
@@ -67,10 +69,7 @@ function Widget() {
       ) : serp?.success ? (
         <SerpWidget host={host} data={serp.data} />
       ) : snapshot ? (
-        <p role="alert">
-          Could not read these results. Ask your assistant to run the OpenSEO
-          tool again.
-        </p>
+        <p role="alert">{t("widgets.details.could_not_read_these_to_run")}</p>
       ) : null}
       {host.notice && (
         <p role="status" className="text-sm">

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { ExternalLink, MessageSquare } from "lucide-react";
 import { Button } from "@/client/components/ui/button";
@@ -31,6 +32,7 @@ export function SerpWidget({
   host: WidgetHost;
   data: SerpData;
 }) {
+  const { t } = useLocale();
   const [query, setQuery] = useState(0);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [filter, setFilter] = useState("");
@@ -39,7 +41,8 @@ export function SerpWidget({
     label: `${item.keyword}${item.ok ? "" : " (failed)"} · ${index + 1}`,
   }));
   const result = data.results[query];
-  if (!result) return <p>No search queries were returned.</p>;
+  if (!result)
+    return <p>{t("widgets.details.no_search_queries_were_returned")}</p>;
   const items = result.ok
     ? result.items.map((item, index) => ({ ...item, index }))
     : [];
@@ -51,14 +54,16 @@ export function SerpWidget({
   return (
     <section className="space-y-3">
       <div>
-        <h1 className="text-2xl font-semibold">Google Search Results</h1>
+        <h1 className="text-2xl font-semibold">
+          {t("widgets.details.google_search_results")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          See who ranks and compare the pages behind a keyword.
+          {t("widgets.details.see_who_ranks_and_a_keyword")}
         </p>
       </div>
       {data.results.length > 1 && (
         <div className="space-y-1 text-sm">
-          <span>Search query</span>
+          <span>{t("widgets.details.search_query")}</span>
           <Select
             items={queries}
             value={query}
@@ -70,7 +75,7 @@ export function SerpWidget({
             }}
           >
             <SelectTrigger
-              aria-label="Search query"
+              aria-label={t("widgets.details.search_query")}
               className="w-full bg-card pr-3"
             >
               <SelectValue />
@@ -90,13 +95,15 @@ export function SerpWidget({
           role="alert"
           className="space-y-2 rounded-xl border border-border bg-card p-4"
         >
-          <h2 className="font-medium">Couldn’t retrieve “{result.keyword}”</h2>
+          <h2 className="font-medium">
+            {t("widgets.details.couldn_t_retrieve")}
+            {result.keyword}”
+          </h2>
           <p className="whitespace-pre-wrap text-sm text-muted-foreground">
             {result.error}
           </p>
           <p className="text-xs text-muted-foreground">
-            Other queries in this batch are still available. Retrying research
-            may use credits.
+            {t("widgets.details.other_queries_in_this_retrying_research")}
           </p>
         </div>
       ) : (
@@ -109,7 +116,7 @@ export function SerpWidget({
                   result.locationName,
                   result.locationCode
                     ? LOCATIONS[result.locationCode]
-                    : "Project’s default market",
+                    : t("widgets.details.project_s_default_market"),
                   result.languageCode,
                   result.device ?? "desktop",
                 ]
@@ -117,9 +124,11 @@ export function SerpWidget({
                   .join(" · ")}
               </p>
               <Input
-                aria-label="Filter returned search results"
+                aria-label={t("widgets.details.filter_returned_search_results")}
                 className="h-8"
-                placeholder="Filter by page, domain, or result type…"
+                placeholder={t(
+                  "widgets.details.filter_by_page_domain_or_result_type",
+                )}
                 value={filter}
                 onChange={(event) => setFilter(event.target.value)}
               />
@@ -128,8 +137,10 @@ export function SerpWidget({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-8" />
-                  <TableHead className="w-20 text-center">Organic #</TableHead>
-                  <TableHead>Page</TableHead>
+                  <TableHead className="w-20 text-center">
+                    {t("widgets.details.organic")}
+                  </TableHead>
+                  <TableHead>{t("domain.pages_table.page")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -145,7 +156,9 @@ export function SerpWidget({
                       <TableCell>
                         <Checkbox
                           checked={selected.has(item.index)}
-                          aria-label={`Select ${item.title ?? item.type ?? "result"}`}
+                          aria-label={t("widgets.details.select_value", {
+                            v1: item.title ?? item.type ?? "result",
+                          })}
                           onCheckedChange={(checked) =>
                             setSelected((current) => {
                               const next = new Set(current);
@@ -162,7 +175,8 @@ export function SerpWidget({
                       <TableCell className="min-w-40 space-y-1 whitespace-normal break-words">
                         {item.type !== "organic" && (
                           <Badge variant="secondary">
-                            {item.type?.replaceAll("_", " ") ?? "SERP feature"}
+                            {item.type?.replaceAll("_", " ") ??
+                              t("widgets.details.serp_feature")}
                           </Badge>
                         )}
                         {url ? (
@@ -198,16 +212,20 @@ export function SerpWidget({
             {!shown.length && (
               <p className="p-5 text-sm text-muted-foreground">
                 {items.length
-                  ? "No returned results match this filter."
-                  : "No results were returned for this query."}
+                  ? t("widgets.details.no_returned_results_match_this_filter")
+                  : t(
+                      "widgets.details.no_results_were_returned_for_this_query",
+                    )}
               </p>
             )}
           </div>
           {selected.size > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-auto text-sm">{selected.size} selected</span>
+              <span className="mr-auto text-sm">
+                {selected.size} {t("widgets.details.selected")}
+              </span>
               <Button variant="ghost" onClick={() => setSelected(new Set())}>
-                Clear
+                {t("ranks.filters.clear")}
               </Button>
               <Button
                 disabled={host.action.isPending}
@@ -224,7 +242,11 @@ export function SerpWidget({
                 }
               >
                 <MessageSquare />
-                {host.clientName ? `Compare in ${host.clientName}` : "Compare"}
+                {host.clientName
+                  ? t("widgets.details.compare_in_value", {
+                      v1: host.clientName,
+                    })
+                  : t("widgets.details.compare")}
               </Button>
             </div>
           )}

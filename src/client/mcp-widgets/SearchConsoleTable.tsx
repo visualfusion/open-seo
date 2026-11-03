@@ -1,3 +1,4 @@
+import { getCurrentLocale, useLocale } from "@/client/lib/i18n";
 import type { Dispatch, SetStateAction } from "react";
 import { Checkbox } from "@/client/components/ui/checkbox";
 import {
@@ -28,19 +29,26 @@ export function SearchConsoleTable({
   drill: (page: string) => void;
   busy: boolean;
 }) {
+  const { t } = useLocale();
   const queryIndex = dimensions.indexOf("query");
   const pageIndex = dimensions.indexOf("page");
-  const number = new Intl.NumberFormat("en-US");
+  const number = new Intl.NumberFormat(getCurrentLocale());
   return (
     <Table>
       <TableHeader>
         <TableRow>
           {queryIndex >= 0 && <TableHead className="w-8" />}
           <TableHead>{dimensions.join(" / ") || "Result"}</TableHead>
-          <TableHead className="text-right">Impressions</TableHead>
-          <TableHead className="text-right">Clicks</TableHead>
-          <TableHead className="text-right">CTR</TableHead>
-          <TableHead className="text-right">Position</TableHead>
+          <TableHead className="text-right">
+            {t("search_performance.totals.impressions")}
+          </TableHead>
+          <TableHead className="text-right">
+            {t("search_performance.totals.clicks")}
+          </TableHead>
+          <TableHead className="text-right">
+            {t("search_performance.columns.ctr")}
+          </TableHead>
+          <TableHead className="text-right">{t("ranks.position")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -53,7 +61,9 @@ export function SearchConsoleTable({
               <TableCell>
                 <Checkbox
                   checked={selected.has(row.index)}
-                  aria-label={`Select ${row.keys?.[queryIndex]}`}
+                  aria-label={t("widgets.details.select_value", {
+                    v1: row.keys?.[queryIndex] ?? "",
+                  })}
                   onCheckedChange={(checked) =>
                     setSelected((current) => {
                       const next = new Set(current);

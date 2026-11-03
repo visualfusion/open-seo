@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import {
   Select,
   SelectContent,
@@ -17,13 +18,13 @@ enum DateRange {
 }
 
 const LABELS: Record<DateRange, string> = {
-  [DateRange.Custom]: "Custom range",
-  [DateRange.Last7Days]: "Last 7 days",
-  [DateRange.Last28Days]: "Last 28 days",
-  [DateRange.Last3Months]: "Last 3 months",
-  [DateRange.Last6Months]: "Last 6 months",
-  [DateRange.Last12Months]: "Last 12 months",
-  [DateRange.Last16Months]: "Last 16 months",
+  [DateRange.Custom]: "widgets.details.date_range_custom",
+  [DateRange.Last7Days]: "widgets.details.date_range_last7days",
+  [DateRange.Last28Days]: "widgets.details.date_range_last28days",
+  [DateRange.Last3Months]: "widgets.details.date_range_last3months",
+  [DateRange.Last6Months]: "widgets.details.date_range_last6months",
+  [DateRange.Last12Months]: "widgets.details.date_range_last12months",
+  [DateRange.Last16Months]: "widgets.details.date_range_last16months",
 };
 
 export function SearchConsoleDateRange({
@@ -35,9 +36,13 @@ export function SearchConsoleDateRange({
   disabled: boolean;
   onChange: (value: string) => void;
 }) {
+  const { t } = useLocale();
+  const labels = Object.fromEntries(
+    Object.entries(LABELS).map(([value, key]) => [value, t(key)]),
+  );
   return (
     <Select
-      items={LABELS}
+      items={labels}
       value={
         input.startDate && input.endDate
           ? DateRange.Custom
@@ -50,7 +55,10 @@ export function SearchConsoleDateRange({
         if (value != null) onChange(value);
       }}
     >
-      <SelectTrigger aria-label="Date range" className="w-44 bg-card pr-3">
+      <SelectTrigger
+        aria-label={t("search_performance.aria.date_range")}
+        className="w-44 bg-card pr-3"
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -60,7 +68,7 @@ export function SearchConsoleDateRange({
             value={value}
             disabled={value === DateRange.Custom}
           >
-            {LABELS[value]}
+            {labels[value]}
           </SelectItem>
         ))}
       </SelectContent>

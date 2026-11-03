@@ -5,11 +5,11 @@ export const aiEn = {
   },
   setup: {
     title: "Set up your agent",
+    instructions: "Setup instructions",
     description:
       "Paste the setup prompt into your agent to connect OpenSEO and install its SEO skills. It will guide you through any manual steps.",
     copy_button: "Copy setup prompt",
     copy_success: "Setup prompt copied",
-    instructions: "Setup instructions",
     coach_hint_prefix: "Once connected, ask your agent to use ",
     coach_hint_link: "SEO Coach",
     coach_hint_suffix: " to help you choose what to do next.",

@@ -53,6 +53,7 @@ export const uiEn = {
     date_range: {
       last_7_days: "Last 7 days",
       last_90_days: "Last 90 days",
+      last_30_days: "Last 30 days",
     },
     answer_view: {
       mentioned: "Mentioned",

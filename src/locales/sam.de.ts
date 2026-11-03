@@ -26,6 +26,23 @@ export const samDe = {
       "Eine Schritt-für-Schritt-Anleitung für jede Umgebung findest du in der ",
     guide_suffix: ".",
   },
+  support: {
+    email_title: "E-Mail",
+    eyebrow: "Hilfe & Community",
+    title: "Wir freuen uns auf dein Feedback",
+    description:
+      "Wir möchten mit dir ins Gespräch kommen! Wir sind offen für jedes Feedback und möchten verstehen, wie du arbeitest, um OpenSEO noch besser zu machen.",
+    email_desc:
+      "Sende uns Ideen, Probleme, Fragen oder Feedback direkt per E-Mail.",
+    email_copied: "E-Mail-Adresse in die Zwischenablage kopiert",
+    discord_title: "Discord",
+    discord_desc:
+      "Frage nach Hilfe, teile Ideen und tausche dich mit der Community aus.",
+    discord_cta: "Discord beitreten",
+    github_title: "GitHub Issues",
+    github_desc: "Melde Fehler oder schlage neue Funktionen auf GitHub vor.",
+    github_cta: "Issue erstellen",
+  },
   help: {
     command_copied: "Befehl kopiert",
     copy_command: "Befehl kopieren",
@@ -136,21 +153,4 @@ export const samDe = {
   new_chat: "Neuer Chat",
   sidebar_empty: "Noch keine Chats. Starte einen neuen.",
   archive_chat: "Chat archivieren",
-  support: {
-    eyebrow: "Hilfe & Community",
-    title: "Wir freuen uns auf dein Feedback",
-    description:
-      "Wir möchten mit dir ins Gespräch kommen! Wir sind offen für jedes Feedback und möchten verstehen, wie du arbeitest, um OpenSEO noch besser zu machen.",
-    email_title: "E-Mail",
-    email_desc:
-      "Sende uns Ideen, Probleme, Fragen oder Feedback direkt per E-Mail.",
-    email_copied: "E-Mail-Adresse in die Zwischenablage kopiert",
-    discord_title: "Discord",
-    discord_desc:
-      "Frage nach Hilfe, teile Ideen und tausche dich mit der Community aus.",
-    discord_cta: "Discord beitreten",
-    github_title: "GitHub Issues",
-    github_desc: "Melde Fehler oder schlage neue Funktionen auf GitHub vor.",
-    github_cta: "Issue erstellen",
-  },
 };

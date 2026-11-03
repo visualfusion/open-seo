@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ReactNode } from "react";
 import { cn } from "cn";
 import type { PlanOffer } from "@/client/features/billing/plan-offers";
@@ -62,18 +63,19 @@ export function PlanOfferCard({
 }
 
 export function PlanGuarantee() {
+  const { t } = useLocale();
   return (
     <p className="text-center text-xs text-muted-foreground">
       <Tooltip>
         <TooltipTrigger className="cursor-help underline decoration-dotted">
-          30-day money-back guarantee
+          {t("billing.details.30_day_money_back_guarantee")}
         </TooltipTrigger>
         <TooltipContent>
-          Not for you yet? Email {SUPPORT_EMAIL} within 30 days of your charge
-          and we'll refund your subscription.
+          {t("billing.details.not_for_you_yet_email")} {SUPPORT_EMAIL}{" "}
+          {t("billing.details.within_30_days_of_ll_refund")}
         </TooltipContent>
       </Tooltip>
-      . Cancel anytime. Powered by Stripe.
+      {t("billing.details.cancel_anytime_powered_by_stripe")}
     </p>
   );
 }

@@ -113,4 +113,34 @@ export const uiDetailsEn = {
   redirecting_you_to_billing_a_hosted:
     "Redirecting you to billing so you can start a hosted subscription.",
   failed_to_load_saved_keywords: "Failed to load saved keywords.",
+  finalizing_your_subscription: "Finalizing your subscription…",
+  this_usually_takes_a_few_seconds: "This usually takes a few seconds.",
+  taking_longer: "Taking longer?",
+  billing_unavailable: "Billing unavailable",
+  we_couldn_t_verify_now_please:
+    "We couldn't verify your billing status right now. Please try again.",
+  welcome_to_openseo: "Welcome to OpenSEO!",
+  seo_on_your_terms_in_one:
+    "SEO on your terms. All your SEO tools in one place at a fair price.",
+  billing_period: "Billing period",
+  monthly: "Monthly",
+  yearly_2_months_free: "Yearly (2 months free)",
+  redirecting: "Redirecting...",
+  subscribe: "Subscribe",
+  only_the_organization_owner_to_upgrade:
+    "Only the organization owner can subscribe. Ask them to upgrade this organization.",
+  how_far_do_usage_credits_go: "How far do usage credits go?",
+  questions_email: "Questions? Email",
+  back_to_app: "Back to app",
+  openseo_for_yc_founders: "OpenSEO for YC founders",
+  a_bigger_monthly_credit_serious_seo:
+    "A bigger monthly credit pool for teams doing serious SEO work, with your first month free through the YC deal.",
+  don_t_forget_your_promo_code: "Don’t forget your promo code.",
+  enter_the_code_from_add_promotion:
+    "Enter the code from the YC deal under “Add promotion code” on the checkout page to get your first month free.",
+  you_re_already_on_the: "You’re already on the",
+  manage_it_on_billing: "Manage it on Billing",
+  replaces_your_current_subscription: "Replaces your current subscription.",
+  only_the_organization_owner_ask_them:
+    "Only the organization owner can change the plan. Ask them to switch this organization to the",
 };

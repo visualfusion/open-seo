@@ -117,4 +117,34 @@ export const uiDetailsDe = {
     "Du wirst zur Abrechnung weitergeleitet, um ein gehostetes Abo abzuschließen.",
   failed_to_load_saved_keywords:
     "Gespeicherte Keywords konnten nicht geladen werden.",
+  finalizing_your_subscription: "Dein Abo wird eingerichtet…",
+  this_usually_takes_a_few_seconds: "Das dauert meist nur wenige Sekunden.",
+  taking_longer: "Dauert es länger?",
+  billing_unavailable: "Abrechnung nicht verfügbar",
+  we_couldn_t_verify_now_please:
+    "Dein Abrechnungsstatus konnte derzeit nicht geprüft werden. Versuche es erneut.",
+  welcome_to_openseo: "Willkommen bei OpenSEO!",
+  seo_on_your_terms_in_one:
+    "SEO nach deinen Vorstellungen. Alle SEO-Tools an einem Ort zu einem fairen Preis.",
+  billing_period: "Abrechnungszeitraum",
+  monthly: "Monatlich",
+  yearly_2_months_free: "Jährlich (2 Monate kostenlos)",
+  redirecting: "Weiterleitung…",
+  subscribe: "Abonnieren",
+  only_the_organization_owner_to_upgrade:
+    "Nur der Workspace-Inhaber kann ein Abo abschließen. Bitte ihn, den Tarif zu upgraden.",
+  how_far_do_usage_credits_go: "Wie weit reicht das Nutzungsguthaben?",
+  questions_email: "Fragen? Schreibe an",
+  back_to_app: "Zurück zur App",
+  openseo_for_yc_founders: "OpenSEO für YC-Gründer",
+  a_bigger_monthly_credit_serious_seo:
+    "Mehr monatliches Guthaben für Teams mit umfangreicher SEO-Arbeit. Mit dem YC-Angebot ist der erste Monat kostenlos.",
+  don_t_forget_your_promo_code: "Vergiss deinen Aktionscode nicht.",
+  enter_the_code_from_add_promotion:
+    "Gib den Code aus dem YC-Angebot beim Bezahlen unter „Aktionscode hinzufügen“ ein, damit dein erster Monat kostenlos ist.",
+  you_re_already_on_the: "Dein aktueller Tarif:",
+  manage_it_on_billing: "Unter Abrechnung verwalten",
+  replaces_your_current_subscription: "Ersetzt dein aktuelles Abo.",
+  only_the_organization_owner_ask_them:
+    "Nur der Workspace-Inhaber kann den Tarif ändern. Bitte ihn um den Wechsel zu",
 };

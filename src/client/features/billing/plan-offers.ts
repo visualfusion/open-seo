@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import {
   AUTUMN_AGENCY_PLAN_ID,
   AUTUMN_PAID_PLAN_ID,
@@ -52,5 +53,9 @@ export const TIER_PLAN_OFFERS = [
 ] as const;
 
 export function monthlyCreditsFeature(offer: PlanOffer) {
-  return `Includes $${offer.monthlyCreditsUsd.toFixed(2)} of Usage Credits each month`;
+  return getTranslation(
+    "billing.details.includes_value_of_usage_credits_each_month",
+    undefined,
+    { v1: offer.monthlyCreditsUsd.toFixed(2) },
+  );
 }

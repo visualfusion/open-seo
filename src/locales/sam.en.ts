@@ -25,6 +25,21 @@ export const samEn = {
     guide_prefix: "Step-by-step instructions for every deployment are in the ",
     guide_suffix: ".",
   },
+  support: {
+    email_title: "Email",
+    eyebrow: "Help & Community",
+    title: "We want to hear from you",
+    description:
+      "We want to talk to you! We're super open to feedback and want to learn how you work so we can make OpenSEO better.",
+    email_desc: "Send ideas, problems, questions, or feedback directly.",
+    email_copied: "Email copied to clipboard",
+    discord_title: "Discord",
+    discord_desc: "Ask for help, share ideas and learn from the community.",
+    discord_cta: "Join the Discord",
+    github_title: "GitHub Issues",
+    github_desc: "Report bugs or request features on GitHub.",
+    github_cta: "Open an issue",
+  },
   help: {
     command_copied: "Command copied",
     copy_command: "Copy command",
@@ -128,19 +143,4 @@ export const samEn = {
   new_chat: "New chat",
   sidebar_empty: "No chats yet. Start a new one.",
   archive_chat: "Archive chat",
-  support: {
-    eyebrow: "Help & Community",
-    title: "We want to hear from you",
-    description:
-      "We want to talk to you! We're super open to feedback and want to learn how you work so we can make OpenSEO better.",
-    email_title: "Email",
-    email_desc: "Send ideas, problems, questions, or feedback directly.",
-    email_copied: "Email copied to clipboard",
-    discord_title: "Discord",
-    discord_desc: "Ask for help, share ideas and learn from the community.",
-    discord_cta: "Join the Discord",
-    github_title: "GitHub Issues",
-    github_desc: "Report bugs or request features on GitHub.",
-    github_cta: "Open an issue",
-  },
 };

@@ -5,11 +5,11 @@ export const aiDe = {
   },
   setup: {
     title: "Agent einrichten",
+    instructions: "Einrichtungsanleitung",
     description:
       "Füge den Setup-Prompt in deinen Agenten ein, um OpenSEO zu verbinden und die SEO-Skills zu installieren. Er führt dich durch alle weiteren Schritte.",
     copy_button: "Setup-Prompt kopieren",
     copy_success: "Setup-Prompt kopiert",
-    instructions: "Einrichtungsanleitung",
     coach_hint_prefix: "Sobald die Verbindung steht, bitte deinen Agenten, ",
     coach_hint_link: "SEO Coach",
     coach_hint_suffix: " zu nutzen, um die nächsten Schritte zu planen.",

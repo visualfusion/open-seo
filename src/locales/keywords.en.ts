@@ -14,6 +14,16 @@ export const keywordsEn = {
     options_button: "Options",
   },
   results: {
+    serp: {
+      retry: "Retry",
+      page_header: "Page",
+      show_top_20: "Show top 20",
+      title: "SERP Analysis",
+      organic_results: "{count} organic results",
+      no_serp_title: "No SERP details available for this keyword yet.",
+      no_serp_desc: "Try clicking another keyword to load data.",
+      load_top_100: "Load top 100",
+    },
     filters: {
       search_volume: "Search Volume",
       include_terms: "Include Terms",
@@ -23,16 +33,6 @@ export const keywordsEn = {
       cpc_usd: "CPC (USD)",
       difficulty: "Difficulty",
       intent: "Intent",
-    },
-    serp: {
-      page_header: "Page",
-      show_top_20: "Show top 20",
-      retry: "Retry",
-      title: "SERP Analysis",
-      organic_results: "{count} organic results",
-      no_serp_title: "No SERP details available for this keyword yet.",
-      no_serp_desc: "Try clicking another keyword to load data.",
-      load_top_100: "Load top 100",
     },
     mobile_tabs: {
       keywords: "Keywords ({count})",

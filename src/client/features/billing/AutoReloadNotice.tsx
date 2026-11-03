@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
@@ -56,6 +57,7 @@ export function AutoReloadNotice({
   onRaise: ((monthlyLimitUsd: number) => void) | undefined;
   pending: boolean;
 }) {
+  const { t } = useLocale();
   // A failure is news while reloads are expected; off, it is history.
   if (saved.enabled && saved.failure) {
     const isCardFailure = AUTO_RELOAD_CARD_FAILURE_REASONS.has(
@@ -67,16 +69,19 @@ export function AutoReloadNotice({
           <p>
             {isCardFailure ? (
               <>
-                Auto-reload failed on {formatDate(saved.failure.at)}:{" "}
-                {CARD_FAILURES[saved.failure.reason] ?? "the charge failed"}.{" "}
+                {t("billing.details.auto_reload_failed_on")}{" "}
+                {formatDate(saved.failure.at)}:{" "}
+                {CARD_FAILURES[saved.failure.reason] ??
+                  t("billing.details.the_charge_failed")}
+                .{" "}
                 {canRetry
-                  ? "Update your card, then retry."
-                  : "Update your card so it works the next time you run low."}
+                  ? t("billing.details.update_your_card_then_retry")
+                  : t("billing.details.update_your_card_so_time_you")}
               </>
             ) : (
               <>
-                Auto-reload isn&rsquo;t working right now. Buy credits above and
-                email {SUPPORT_EMAIL}.
+                {t("billing.details.auto_reload_isn_t_credits_above")}{" "}
+                {SUPPORT_EMAIL}.
               </>
             )}
           </p>
@@ -96,9 +101,15 @@ export function AutoReloadNotice({
       <Alert variant="warning">
         <AlertDescription className="space-y-2">
           <p>
-            You&rsquo;ve hit your ${saved.monthlyLimitUsd} monthly budget, so
-            top-up credits are paused{resetDate ? ` until ${resetDate}` : ""}.
-            {canRaise ? " Raise it to keep going." : ""}
+            {t("billing.details.you_ve_hit_your")}
+            {saved.monthlyLimitUsd}{" "}
+            {t("billing.details.monthly_budget_so_top_are_paused")}
+            {resetDate
+              ? t("billing.details.until_value", {
+                  v1: resetDate,
+                })
+              : ""}
+            .{canRaise ? t("billing.details.raise_it_to_keep_going") : ""}
           </p>
           {onRaise && canRaise ? (
             <Button
@@ -108,7 +119,8 @@ export function AutoReloadNotice({
               disabled={pending}
               onClick={() => onRaise(raised)}
             >
-              Raise budget to ${raised}
+              {t("billing.details.raise_budget_to")}
+              {raised}
             </Button>
           ) : null}
         </AlertDescription>
@@ -120,6 +132,7 @@ export function AutoReloadNotice({
 
 /** Opens the Stripe billing portal, where the card on file is changed. */
 export function UpdateCardButton() {
+  const { t } = useLocale();
   const [isOpening, setIsOpening] = useState(false);
 
   async function openPortal() {
@@ -146,7 +159,9 @@ export function UpdateCardButton() {
       pending={isOpening}
       onClick={() => void openPortal()}
     >
-      {isOpening ? "Opening Stripe..." : "Update card"}
+      {isOpening
+        ? t("billing.details.opening_stripe")
+        : t("billing.details.update_card")}
     </Button>
   );
 }

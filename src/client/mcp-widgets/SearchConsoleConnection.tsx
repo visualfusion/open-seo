@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { ExternalLink, MessageSquare, RefreshCw } from "lucide-react";
 import { Button } from "@/client/components/ui/button";
 import { safeHttpUrl } from "@/shared/safe-url";
@@ -11,6 +12,7 @@ export function SearchConsoleConnection({
   host: WidgetHost;
   data: SearchConsoleData;
 }) {
+  const { t } = useLocale();
   const input = host.snapshot!.context.arguments;
   const busy = host.action.isPending;
   const connectUrl = safeHttpUrl(data.connectUrl);
@@ -21,16 +23,16 @@ export function SearchConsoleConnection({
       <div>
         <h1 className="text-xl font-semibold">
           {setupUrl
-            ? "Set up Google Search Console"
+            ? t("widgets.details.set_up_google_search_console")
             : connection
-              ? "Connect Google Search Console"
-              : "Couldn’t load Search Console data"}
+              ? t("auth.onboarding.gsc.title")
+              : t("widgets.details.couldn_t_load_search_console_data")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {setupUrl
-            ? "This self-hosted OpenSEO instance needs Google OAuth configuration before you can connect a property."
+            ? t("widgets.details.this_self_hosted_openseo_configuration_before")
             : connection
-              ? "Connect Google and choose a Search Console property in OpenSEO. Then return here and check the connection. Your Google sign-in stays in OpenSEO."
+              ? t("widgets.details.connect_google_and_choose_in_openseo")
               : host.snapshot?.text}
         </p>
       </div>
@@ -41,10 +43,10 @@ export function SearchConsoleConnection({
             onClick={() => host.open((setupUrl ?? connectUrl)!)}
           >
             {setupUrl
-              ? "Setup instructions"
+              ? t("ai.setup.instructions")
               : connection
-                ? "Connect in OpenSEO"
-                : "Check connection in OpenSEO"}
+                ? t("widgets.details.connect_in_openseo")
+                : t("widgets.details.check_connection_in_openseo")}
             <ExternalLink />
           </Button>
         )}
@@ -54,7 +56,9 @@ export function SearchConsoleConnection({
           onClick={() => host.call(host.snapshot!.context)}
         >
           <RefreshCw />
-          {connection ? "Check connection" : "Try again"}
+          {connection
+            ? t("widgets.details.check_connection")
+            : t("ui.error_boundary.try_again")}
         </Button>
       </div>
       <div className="border-t border-border pt-4">
@@ -69,7 +73,7 @@ export function SearchConsoleConnection({
           }
         >
           <MessageSquare />
-          Research a keyword instead
+          {t("widgets.details.research_a_keyword_instead")}
         </Button>
       </div>
     </section>

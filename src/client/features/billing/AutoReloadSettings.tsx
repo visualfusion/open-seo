@@ -1,3 +1,4 @@
+import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -45,6 +46,7 @@ type AutoReload = NonNullable<
  * Owner-only at the call site, as the server enforces.
  */
 export function AutoReloadSettings() {
+  const { t } = useLocale();
   const {
     topUpRemaining,
     refillDate,
@@ -106,7 +108,13 @@ export function AutoReloadSettings() {
         queryKey: billingAccountQueryOptions().queryKey,
       });
       setEditing(false);
-      toast.success(input.enabled ? "Auto-reload is on" : "Auto-reload is off");
+      toast.success(
+        t(
+          input.enabled
+            ? "billing.details.auto_reload_on"
+            : "billing.details.auto_reload_off",
+        ),
+      );
     },
   });
   const saving = mutation.isPending && Boolean(mutation.variables?.enabled);
@@ -127,10 +135,13 @@ export function AutoReloadSettings() {
   };
 
   const saveLabel = chargesNow
-    ? `${on ? "Retry" : "Turn on"} and buy $${values.amountUsd} now`
+    ? t("billing.details.value_and_buy_value_now", {
+        v1: on ? t("billing.details.retry") : t("billing.details.turn_on"),
+        v2: values.amountUsd,
+      })
     : on
-      ? "Save"
-      : "Turn on auto-reload";
+      ? t("common.save")
+      : t("billing.details.auto_reload_enable");
 
   const notice = saved ? (
     <AutoReloadNotice
@@ -152,19 +163,27 @@ export function AutoReloadSettings() {
 
   return (
     <BillingRow
-      label="Auto-reload"
+      label={t("billing.details.auto_reload")}
       summary={
         on ? (
           <>
-            <span className="font-medium text-foreground">On</span> &middot;
-            Adds ${on.amountUsd} when top-ups drop to $
-            {AUTO_RELOAD_THRESHOLD_USD} &middot; ${on.spentUsd.toFixed(2)} of $
-            {on.monthlyLimitUsd} monthly budget used
-            {refillDate ? `, resets ${refillDate}` : ""}
+            <span className="font-medium text-foreground">
+              {t("backlinks.toolbar.on")}
+            </span>{" "}
+            {t("billing.details.adds")}
+            {on.amountUsd} {t("billing.details.when_top_ups_drop_to")}
+            {AUTO_RELOAD_THRESHOLD_USD} &middot; ${on.spentUsd.toFixed(2)}{" "}
+            {t("billing.details.of")}
+            {on.monthlyLimitUsd} {t("billing.details.monthly_budget_used")}
+            {refillDate
+              ? t("billing.details.resets_value", {
+                  v1: refillDate,
+                })
+              : ""}
           </>
         ) : (
           <>
-            Off &middot; Buy more automatically when top-ups drop to $
+            {t("billing.details.off_buy_more_automatically_drop_to")}
             {AUTO_RELOAD_THRESHOLD_USD}
           </>
         )
@@ -172,7 +191,11 @@ export function AutoReloadSettings() {
       action={
         editing ? null : (
           <Button variant="outline" size="sm" onClick={openForm}>
-            {!on ? "Turn on" : chargesNow ? "Retry" : "Edit"}
+            {!on
+              ? t("billing.details.turn_on")
+              : chargesNow
+                ? t("keywords.results.serp.retry")
+                : t("common.edit")}
           </Button>
         )
       }
@@ -183,12 +206,15 @@ export function AutoReloadSettings() {
           <div className="grid gap-3 sm:grid-cols-2">
             <AmountField
               id="auto-reload-amount"
-              label="Add each time"
+              label={t("billing.details.add_each_time")}
               value={fields.amountUsd}
               error={
                 amount.isValid
                   ? undefined
-                  : `Enter between $${TOP_UP_MIN_USD}–$${TOP_UP_MAX_USD}.`
+                  : t("billing.details.enter_between_value_value", {
+                      v1: TOP_UP_MIN_USD,
+                      v2: TOP_UP_MAX_USD,
+                    })
               }
               onChange={(value) =>
                 setFields((prev) => ({ ...prev, amountUsd: value }))
@@ -196,12 +222,15 @@ export function AutoReloadSettings() {
             />
             <AmountField
               id="auto-reload-budget"
-              label="Monthly budget"
+              label={t("billing.details.monthly_budget")}
               value={fields.monthlyLimitUsd}
               error={
                 budget.isValid
                   ? undefined
-                  : `Enter between $${amount.parsed}–$${AUTO_RELOAD_MAX_MONTHLY_USD}.`
+                  : t("billing.details.enter_between_value_value", {
+                      v1: amount.parsed,
+                      v2: AUTO_RELOAD_MAX_MONTHLY_USD,
+                    })
               }
               onChange={(value) =>
                 setFields((prev) => ({ ...prev, monthlyLimitUsd: value }))
@@ -209,8 +238,7 @@ export function AutoReloadSettings() {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            The budget caps what you spend on top-up credits each month,
-            including ones you buy yourself.
+            {t("billing.details.the_budget_caps_what_up_credits")}
           </p>
 
           {hint ? <p className="text-xs text-amber-600">{hint}</p> : null}
@@ -233,7 +261,7 @@ export function AutoReloadSettings() {
               disabled={mutation.isPending}
               onClick={() => setEditing(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             {on ? (
               <Button
@@ -244,7 +272,7 @@ export function AutoReloadSettings() {
                 disabled={mutation.isPending}
                 onClick={() => mutation.mutate({ enabled: false })}
               >
-                Turn off auto-reload
+                {t("billing.details.turn_off_auto_reload")}
               </Button>
             ) : null}
           </div>
@@ -302,16 +330,35 @@ function hintCopy({
     isBudgetUnderSpend(saved, values.monthlyLimitUsd) &&
     (!on || values.monthlyLimitUsd !== on.monthlyLimitUsd)
   ) {
-    return `You've already spent $${saved.spentUsd.toFixed(2)} on top-up credits this month. Set a budget of at least $${Math.ceil(saved.spentUsd + AUTO_RELOAD_THRESHOLD_USD)} to keep going.`;
+    return getTranslation(
+      "billing.details.you_ve_already_spent_credits_this",
+      undefined,
+      {
+        v1: saved.spentUsd.toFixed(2),
+        v2: Math.ceil(saved.spentUsd + AUTO_RELOAD_THRESHOLD_USD),
+      },
+    );
   }
   if (!chargesNow || !isValid) return null;
   if (on) {
-    return `Retrying charges your card $${values.amountUsd} now.`;
+    return getTranslation(
+      "billing.details.retrying_charges_your_card_value_now",
+      undefined,
+      { v1: values.amountUsd },
+    );
   }
   if (topUpRemaining > 0) {
-    return `Your top-up credits are already at $${topUpRemaining.toFixed(2)}, so turning this on buys $${values.amountUsd} now.`;
+    return getTranslation(
+      "billing.details.your_top_up_credits_so_turning",
+      undefined,
+      { v1: topUpRemaining.toFixed(2), v2: values.amountUsd },
+    );
   }
-  return `You have no top-up credits yet, so turning this on buys $${values.amountUsd} now. They're used after your monthly credits run out.`;
+  return getTranslation(
+    "billing.details.you_have_no_top_turning_this",
+    undefined,
+    { v1: values.amountUsd },
+  );
 }
 
 function AmountField({

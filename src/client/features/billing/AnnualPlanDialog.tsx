@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Button } from "@/client/components/ui/button";
 import {
   Dialog,
@@ -24,20 +25,24 @@ export function AnnualPlanDialog({
   annualPriceUsd: number;
   onSubscribeMonthly: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Yearly plans are set up by email for now</DialogTitle>
+          <DialogTitle>
+            {t("billing.details.yearly_plans_are_set_for_now")}
+          </DialogTitle>
           <DialogDescription>
-            Email {SUPPORT_EMAIL} and we&rsquo;ll move you to the {planName} at
-            ${annualPriceUsd.toLocaleString()}/year. Paying yearly in the app is
-            coming soon.
+            {t("sam.support.email_title")} {SUPPORT_EMAIL}{" "}
+            {t("billing.details.and_we_ll_move_you_to_the")} {planName}{" "}
+            {t("billing.details.at")}
+            {annualPriceUsd.toLocaleString()}
+            {t("billing.details.year_paying_yearly_in_coming_soon")}
           </DialogDescription>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          Want to start today? Subscribe monthly now, and when you switch
-          we&rsquo;ll credit the rest of your month toward the yearly plan.
+          {t("billing.details.want_to_start_today_when_you")}
         </p>
         <DialogFooter>
           <Button
@@ -47,19 +52,21 @@ export function AnnualPlanDialog({
               onSubscribeMonthly();
             }}
           >
-            Subscribe monthly
+            {t("billing.details.subscribe_monthly")}
           </Button>
           <Button
             nativeButton={false}
             render={
               <a
                 href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
-                  `Yearly ${planName}`,
+                  t("billing.details.yearly_value", {
+                    v1: planName,
+                  }),
                 )}`}
               />
             }
           >
-            Email us
+            {t("billing.details.email_us")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useEffect, type ReactElement } from "react";
 import { Link } from "@tanstack/react-router";
 import { ErrorState } from "@/client/components/ErrorState";
@@ -43,6 +44,7 @@ export function GetCreditsButton() {
 }
 
 function useCreditsOffer(surface: "card" | "button") {
+  const { t } = useLocale();
   const {
     accountQuery,
     isFreePlan,
@@ -71,48 +73,79 @@ function useCreditsOffer(surface: "card" | "button") {
   if (!accountQuery.data) {
     message = getStandardErrorMessage(new Error("INSUFFICIENT_CREDITS"));
     action = (
-      <CreditsButton link={<Link to={BILLING_ROUTE} />} label="Go to Billing" />
+      <CreditsButton
+        link={<Link to={BILLING_ROUTE} />}
+        label={t("billing.details.go_to_billing")}
+      />
     );
   } else if (isFreePlan) {
-    message = `You don't have enough credits for this. Upgrade to get $${BASE_PLAN_OFFER.monthlyCreditsUsd} of credits every month.`;
+    message = t("billing.details.you_don_t_have_upgrade_to", {
+      v1: BASE_PLAN_OFFER.monthlyCreditsUsd,
+    });
     action = (
       <CreditsButton
         link={<Link to={SUBSCRIBE_ROUTE} search={{ upgrade: true }} />}
-        label="Upgrade plan"
+        label={t("billing.details.upgrade_plan")}
       />
     );
   } else if (autoReloadState === "on" && isOutOfCredits && autoReload) {
     // The refused call is what told Autumn to reload; the credits are coming.
     // A balance that is not out means this is an old refusal (a scheduled
     // run's stored skip reason), so it gets the general copy below.
-    message = `You're out of credits. Auto-reload is adding $${autoReload.amountUsd} now, so try again in a moment.`;
+    message = t("billing.details.you_re_out_of_adding_value", {
+      v1: autoReload.amountUsd,
+    });
     action = (
-      <CreditsButton link={<Link to={BILLING_ROUTE} />} label="Go to Billing" />
+      <CreditsButton
+        link={<Link to={BILLING_ROUTE} />}
+        label={t("billing.details.go_to_billing")}
+      />
     );
   } else if (autoReloadState === "card_failed") {
     message =
       "You're out of credits and auto-reload couldn't charge your card. Update your card to keep going.";
     action = (
-      <CreditsButton link={<Link to={BILLING_ROUTE} />} label="Update card" />
+      <CreditsButton
+        link={<Link to={BILLING_ROUTE} />}
+        label={t("billing.details.update_card")}
+      />
     );
   } else if (autoReloadState === "failed") {
     message =
       "You're out of credits and auto-reload couldn't buy more. Buy credits to keep going.";
     action = (
-      <CreditsButton link={<Link to={BILLING_ROUTE} />} label="Buy credits" />
+      <CreditsButton
+        link={<Link to={BILLING_ROUTE} />}
+        label={t("billing.details.buy_credits")}
+      />
     );
   } else if (autoReloadState === "budget_spent" && autoReload) {
     // Buying credits would not help: the budget counts those too.
-    message = `You've hit your $${autoReload.monthlyLimitUsd} monthly auto-reload budget, so credits are paused${refillDate ? ` until ${refillDate}` : ""}. Raise it to keep going.`;
+    message = t("billing.details.you_ve_hit_your_budget_so", {
+      v1: autoReload.monthlyLimitUsd,
+      v2: refillDate
+        ? t("billing.details.until_value", {
+            v1: refillDate,
+          })
+        : "",
+    });
     action = (
-      <CreditsButton link={<Link to={BILLING_ROUTE} />} label="Raise budget" />
+      <CreditsButton
+        link={<Link to={BILLING_ROUTE} />}
+        label={t("billing.details.raise_budget")}
+      />
     );
   } else {
     message = refillDate
-      ? `You don't have enough credits for this. Buy more, or wait for your monthly refill on ${refillDate}. Auto-reload can buy them for you next time.`
-      : "You don't have enough credits for this. Buy more to keep going. Auto-reload can buy them for you next time.";
+      ? t("billing.details.you_don_t_have_buy_more", {
+          v1: refillDate,
+        })
+      : t("billing.details.credits_needed");
     action = (
-      <CreditsButton link={<Link to={BILLING_ROUTE} />} label="Buy credits" />
+      <CreditsButton
+        link={<Link to={BILLING_ROUTE} />}
+        label={t("billing.details.buy_credits")}
+      />
     );
   }
 

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import {
   Link,
   createFileRoute,
@@ -69,6 +70,7 @@ export const Route = createFileRoute("/_app/billing")({
 type BillingAction = "plan" | "topUp";
 
 function BillingPage() {
+  const { t } = useLocale();
   const { tab } = Route.useSearch();
   const navigate = useNavigate();
   const [topUpAmount, setTopUpAmount] = useState("20");
@@ -145,14 +147,14 @@ function BillingPage() {
 
   return (
     <div className="mx-auto box-content max-w-7xl space-y-5 px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
-      <PageHeader title="Billing" />
+      <PageHeader title={t("billing.details.billing")} />
 
       {accountQuery.isPending ? (
         <SubscriptionCardSkeleton />
       ) : !account ? (
         <QueryError
           cause={accountQuery.error}
-          fallback="We couldn't load your billing details right now. Please try again."
+          fallback={t("billing.details.we_couldn_t_load_now_please")}
           onRetry={() => void accountQuery.refetch()}
           isRetrying={accountQuery.isFetching}
         />
@@ -161,7 +163,7 @@ function BillingPage() {
           {accountQuery.isError ? (
             <QueryError
               cause={accountQuery.error}
-              fallback="Failed to refresh billing details"
+              fallback={t("billing.details.failed_to_refresh_billing_details")}
               onRetry={() => void accountQuery.refetch()}
               isRetrying={accountQuery.isFetching}
             />
@@ -172,59 +174,66 @@ function BillingPage() {
               <div className="text-2xl font-semibold tabular-nums">
                 ${totalRemaining.toFixed(2)}{" "}
                 <span className="text-sm font-normal text-muted-foreground">
-                  remaining
+                  {t("billing.details.remaining")}
                 </span>
               </div>
               {!isFreePlan ? (
                 <div className="mt-1 flex gap-3 text-xs text-muted-foreground">
                   <span className="tabular-nums">
-                    Monthly ${monthlyRemaining.toFixed(2)}
+                    {t("billing.details.monthly")}
+                    {monthlyRemaining.toFixed(2)}
                   </span>
                   <span>&middot;</span>
                   <span className="tabular-nums">
-                    Top-ups ${topUpRemaining.toFixed(2)}
+                    {t("billing.details.top_ups")}
+                    {topUpRemaining.toFixed(2)}
                   </span>
                 </div>
               ) : null}
               {isOutOfCredits ? (
                 <p className="mt-2 text-xs text-destructive">
                   {isFreePlan
-                    ? "You’ve used your free credits. Upgrade your plan to continue."
-                    : `You’ve used this month’s credits. Buy more below to keep going${
-                        refillDate
-                          ? `, or wait for them to refill on ${refillDate}`
-                          : ""
-                      }.`}
+                    ? t("billing.details.you_ve_used_your_plan_to")
+                    : t("billing.details.you_ve_used_this_more_below", {
+                        v1: refillDate
+                          ? t("billing.details.or_wait_for_them_on_value", {
+                              v1: refillDate,
+                            })
+                          : "",
+                      })}
                 </p>
               ) : isLowCredits ? (
                 <p className="mt-2 text-xs text-amber-600">
-                  You&rsquo;re running low on credits.{" "}
+                  {t("billing.details.you_re_running_low_on_credits")}{" "}
                   {isFreePlan
                     ? `Upgrade to get $${BASE_PLAN_OFFER.monthlyCreditsUsd}/month.`
-                    : "Buy more credits below."}
+                    : t("billing.details.buy_more_credits_below")}
                 </p>
               ) : null}
             </div>
 
             <BillingRow
-              label="Plan"
+              label={t("billing.details.plan")}
               summary={
                 account.paidPlanId ? (
                   <>
                     <span className="text-foreground">
                       {account.paidPlanName}
                     </span>{" "}
-                    &middot; ${account.monthlyCreditsUsd.toFixed(2)} of credits
-                    each month
+                    &middot; ${account.monthlyCreditsUsd.toFixed(2)}{" "}
+                    {t("billing.details.of_credits_each_month")}
                   </>
                 ) : (
                   <>
-                    <span className="text-foreground">Free Plan</span>
+                    <span className="text-foreground">
+                      {t("billing.details.free_plan")}
+                    </span>
                     {canManageBilling ? (
                       <>
                         {" "}
-                        &middot; Upgrade to access every feature and more
-                        credits each month
+                        {t(
+                          "billing.details.upgrade_to_access_every_each_month",
+                        )}
                       </>
                     ) : null}
                   </>
@@ -239,7 +248,7 @@ function BillingPage() {
                       <Link to={SUBSCRIBE_ROUTE} search={{ upgrade: true }} />
                     }
                   >
-                    Upgrade Plan
+                    {t("billing.details.upgrade_plan_2")}
                   </Button>
                 ) : (
                   <Button
@@ -256,16 +265,15 @@ function BillingPage() {
                     }
                   >
                     {pendingAction === "plan"
-                      ? "Redirecting to Stripe..."
-                      : "Manage subscription"}
+                      ? t("billing.details.redirecting_to_stripe")
+                      : t("billing.details.manage_subscription")}
                   </Button>
                 )
               }
             >
               {!canManageBilling ? (
                 <p className="text-sm text-muted-foreground">
-                  Only the organization owner can change the plan or buy
-                  credits. Ask them if you need more.
+                  {t("billing.details.only_the_organization_owner_or_buy")}
                 </p>
               ) : (
                 actionError("plan")
@@ -276,11 +284,11 @@ function BillingPage() {
                 adds, so the base plan's credits aren't read as a cap. */}
             {canManageBilling ? (
               <BillingRow
-                label="Top-up credits"
+                label={t("billing.details.top_up_credits")}
                 summary={
                   isFreePlan
-                    ? "Need more than your monthly credits? On a paid plan, buy as many as you need. They never expire."
-                    : "Never expire and are used after your monthly credits."
+                    ? t("billing.details.need_more_than_your_paid_plan")
+                    : t("billing.details.never_expire_and_are_monthly_credits")
                 }
                 action={
                   isFreePlan || buyingCredits ? null : (
@@ -289,7 +297,7 @@ function BillingPage() {
                       size="sm"
                       onClick={() => setBuyingCredits(true)}
                     >
-                      Buy credits
+                      {t("billing.details.buy_credits")}
                     </Button>
                   )
                 }
@@ -306,7 +314,9 @@ function BillingPage() {
                             max={TOP_UP_MAX_USD}
                             step={1}
                             inputMode="numeric"
-                            aria-label="Top-up amount in USD"
+                            aria-label={t(
+                              "billing.details.top_up_amount_in_usd",
+                            )}
                             aria-invalid={showTopUpError}
                             autoFocus
                             value={topUpAmount}
@@ -329,8 +339,10 @@ function BillingPage() {
                         }
                       >
                         {pendingAction === "topUp"
-                          ? "Redirecting to Stripe..."
-                          : `Buy $${parsedTopUpAmount} of credits`}
+                          ? t("billing.details.redirecting_to_stripe")
+                          : t("billing.details.buy_value_of_credits", {
+                              v1: parsedTopUpAmount,
+                            })}
                       </Button>
                       <Button
                         variant="ghost"
@@ -338,18 +350,18 @@ function BillingPage() {
                         disabled={pendingAction !== null}
                         onClick={() => setBuyingCredits(false)}
                       >
-                        Cancel
+                        {t("common.cancel")}
                       </Button>
                     </div>
                     {showTopUpError ? (
                       <p className="text-xs text-destructive">
-                        Enter between ${TOP_UP_MIN_USD}–${TOP_UP_MAX_USD}.
+                        {t("billing.details.enter_between")}
+                        {TOP_UP_MIN_USD}–${TOP_UP_MAX_USD}.
                       </p>
                     ) : null}
                     {budgetSpent ? (
                       <p className="text-xs text-muted-foreground">
-                        You&rsquo;ve hit your monthly auto-reload budget. Raise
-                        it below to buy more.
+                        {t("billing.details.you_ve_hit_your_raise_it")}
                       </p>
                     ) : null}
                     {actionError("topUp")}
@@ -366,7 +378,7 @@ function BillingPage() {
               <AutoReloadSettings />
             ) : canManageBilling ? (
               <BillingRow
-                label="Auto-reload"
+                label={t("billing.details.auto_reload")}
                 summary="On a paid plan, buy more automatically when you run low, up to a monthly budget you set."
               />
             ) : null}
@@ -390,7 +402,7 @@ function BillingPage() {
       />
 
       <p className="text-xs text-muted-foreground">
-        Billing is powered by Stripe.
+        {t("billing.details.billing_is_powered_by_stripe")}
       </p>
     </div>
   );

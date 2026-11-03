@@ -1,3 +1,4 @@
+import { getCurrentLocale, useLocale } from "@/client/lib/i18n";
 import { Bar, BarChart } from "recharts";
 import type { BillingUsage } from "@/server/billing/usage";
 import { QueryState } from "@/client/components/QueryState";
@@ -11,23 +12,19 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 } from "@/client/components/ui/chart";
 import { BillingUsageSection } from "@/client/features/billing/BillingUsageSection";
 import { useBillingUsage } from "@/client/features/billing/useBillingUsage";
 
-const chartConfig = {
-  usd: { label: "Usage", color: "#7c3aed" },
-} satisfies ChartConfig;
-
 export function BillingUsageChart() {
+  const { t } = useLocale();
   const usageQuery = useBillingUsage();
 
   return (
-    <BillingUsageSection title="Usage">
+    <BillingUsageSection title={t("billing.details.usage")}>
       <QueryState
         query={usageQuery}
-        errorFallback="Failed to load usage"
+        errorFallback={t("billing.details.failed_to_load_usage")}
         loading={<Skeleton className="h-40 w-full" />}
       >
         {(usage) => <UsageChart days={usage.days} />}
@@ -37,6 +34,7 @@ export function BillingUsageChart() {
 }
 
 function UsageChart({ days }: { days: BillingUsage["days"] }) {
+  const { t } = useLocale();
   const totalSpend = days.reduce((sum, day) => sum + day.usd, 0);
 
   return (
@@ -49,11 +47,19 @@ function UsageChart({ days }: { days: BillingUsage["days"] }) {
         {totalSpend === 0 ? (
           <div className="flex h-full items-center justify-center">
             <span className="text-sm text-muted-foreground">
-              No usage recorded yet
+              {t("billing.details.no_usage_recorded_yet")}
             </span>
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="h-full">
+          <ChartContainer
+            config={{
+              usd: {
+                label: t("billing.details.usage"),
+                color: "#7c3aed",
+              },
+            }}
+            className="h-full"
+          >
             <BarChart
               data={days}
               margin={{ top: 4, right: 0, bottom: 0, left: 0 }}
@@ -90,7 +96,7 @@ function UsageChart({ days }: { days: BillingUsage["days"] }) {
 }
 
 function formatShortDate(timestamp: number) {
-  return new Date(timestamp).toLocaleDateString("en-US", {
+  return new Date(timestamp).toLocaleDateString(getCurrentLocale(), {
     month: "short",
     day: "numeric",
   });

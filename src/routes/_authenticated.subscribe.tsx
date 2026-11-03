@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -84,6 +85,7 @@ export const Route = createFileRoute("/_authenticated/subscribe")({
 });
 
 function SubscribePage() {
+  const { t } = useLocale();
   const navigate = useNavigate();
   const {
     upgrade: isUpgradeFlow,
@@ -160,14 +162,21 @@ function SubscribePage() {
         const wanted = TIERS[requestedPlan].offer;
         toast.info(
           paidPlanId === wanted.planId
-            ? `You're already on the ${wanted.name}`
-            : `You're on the ${paidPlanName}`,
+            ? t("billing.details.you_re_already_on_the_value", {
+                v1: wanted.name,
+              })
+            : t("billing.details.you_re_on_the_value", {
+                v1: paidPlanName ?? "",
+              }),
           {
             id: "subscribe-plan-switch",
             description:
               paidPlanId === wanted.planId
                 ? undefined
-                : `To switch to the ${wanted.name}, email ${SUPPORT_EMAIL}.`,
+                : t("billing.details.to_switch_to_the_value_email_value", {
+                    v1: wanted.name,
+                    v2: SUPPORT_EMAIL,
+                  }),
             duration: 10_000,
           },
         );
@@ -182,6 +191,7 @@ function SubscribePage() {
     redirect,
     requestedPlan,
     subscribeRouteState,
+    t,
   ]);
 
   useEffect(() => {
@@ -202,17 +212,17 @@ function SubscribePage() {
       <StatusScreen
         logo
         size="sm"
-        title="Finalizing your subscription…"
+        title={t("ui.details.finalizing_your_subscription")}
         pending
-        description="This usually takes a few seconds."
+        description={t("ui.details.this_usually_takes_a_few_seconds")}
         footer={
           <>
-            Taking longer?{" "}
+            {t("ui.details.taking_longer")}{" "}
             <a
               className="underline underline-offset-2 hover:text-foreground"
               href={`mailto:${SUPPORT_EMAIL}`}
             >
-              Email {SUPPORT_EMAIL}
+              {t("sam.support.email_title")} {SUPPORT_EMAIL}
             </a>
             .
           </>
@@ -223,10 +233,10 @@ function SubscribePage() {
 
   if (subscribeRouteState === "error") {
     return (
-      <StatusScreen logo title="Billing unavailable" size="sm">
+      <StatusScreen logo title={t("ui.details.billing_unavailable")} size="sm">
         <QueryError
           cause={accountQuery.error}
-          fallback="We couldn't verify your billing status right now. Please try again."
+          fallback={t("ui.details.we_couldn_t_verify_now_please")}
           onRetry={() => void accountQuery.refetch()}
           isRetrying={accountQuery.isFetching}
         />
@@ -274,13 +284,13 @@ function SubscribePage() {
         />
         <h1 className="text-xl font-semibold">
           {isUpgradeFlow
-            ? "Upgrade your plan"
+            ? t("billing.details.upgrade_your_plan")
             : firstName
-              ? `Welcome to OpenSEO, ${firstName}!`
-              : "Welcome to OpenSEO!"}
+              ? t("billing.details.welcome_to_openseo_value", { v1: firstName })
+              : t("ui.details.welcome_to_openseo")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          SEO on your terms. All your SEO tools in one place at a fair price.
+          {t("ui.details.seo_on_your_terms_in_one")}
         </p>
       </div>
 
@@ -293,19 +303,19 @@ function SubscribePage() {
           if (next[0]) setYearly(next[0] === "yearly");
         }}
         className="mx-auto"
-        aria-label="Billing period"
+        aria-label={t("ui.details.billing_period")}
       >
         <ToggleGroupItem
           value="monthly"
           className="px-4 aria-pressed:bg-primary/15 aria-pressed:text-primary"
         >
-          Monthly
+          {t("ui.details.monthly")}
         </ToggleGroupItem>
         <ToggleGroupItem
           value="yearly"
           className="px-4 aria-pressed:bg-primary/15 aria-pressed:text-primary"
         >
-          Yearly (2 months free)
+          {t("ui.details.yearly_2_months_free")}
         </ToggleGroupItem>
       </ToggleGroup>
 
@@ -319,13 +329,18 @@ function SubscribePage() {
               <PlanOfferCard
                 key={tier}
                 offer={offer}
-                description={description}
+                description={t(description)}
                 priceLabel={
                   yearly
-                    ? `$${annualPriceUsd.toLocaleString()}/year`
+                    ? t("billing.details.annual_price", {
+                        price: annualPriceUsd.toLocaleString(),
+                      })
                     : undefined
                 }
-                features={[...features, monthlyCreditsFeature(offer)]}
+                features={[
+                  ...features.map((feature) => t(feature)),
+                  monthlyCreditsFeature(offer),
+                ]}
                 highlighted={tier === highlightedPlan}
               >
                 {canManageBilling ? (
@@ -341,7 +356,9 @@ function SubscribePage() {
                         : void handleSubscribe(tier)
                     }
                   >
-                    {attachingPlan === tier ? "Redirecting..." : "Subscribe"}
+                    {attachingPlan === tier
+                      ? t("ui.details.redirecting")
+                      : t("ui.details.subscribe")}
                   </Button>
                 ) : null}
               </PlanOfferCard>
@@ -357,8 +374,7 @@ function SubscribePage() {
         ) : null}
         {canManageBilling ? null : (
           <p className="text-center text-sm text-muted-foreground">
-            Only the organization owner can subscribe. Ask them to upgrade this
-            organization.
+            {t("ui.details.only_the_organization_owner_to_upgrade")}
           </p>
         )}
         <PlanGuarantee />
@@ -372,14 +388,15 @@ function SubscribePage() {
               captureClientEvent("billing:pricing_estimator_click")
             }
           >
-            How far do usage credits go? <span aria-hidden="true">&#8599;</span>
+            {t("ui.details.how_far_do_usage_credits_go")}{" "}
+            <span aria-hidden="true">&#8599;</span>
           </a>
         </p>
       </div>
 
       <div className="mx-auto max-w-sm text-center space-y-2">
         <p className="text-sm text-muted-foreground">
-          Questions? Email{" "}
+          {t("ui.details.questions_email")}{" "}
           <a
             className="underline underline-offset-2 hover:text-foreground"
             href={`mailto:${SUPPORT_EMAIL}`}
@@ -395,7 +412,7 @@ function SubscribePage() {
             onClick={() => void navigate({ to: "/", replace: true })}
           >
             <ArrowRight className="size-3.5 rotate-180" />
-            Back to app
+            {t("ui.details.back_to_app")}
           </Button>
         ) : null}
       </div>

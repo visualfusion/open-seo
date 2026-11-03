@@ -23,6 +23,7 @@ import { lighthouseEn } from "./lighthouse.en";
 import { localSeoEn } from "./localSeo.en";
 import { projectSettingsEn } from "./projectSettings.en";
 import { savedKeywordsEn } from "./savedKeywords.en";
+import { widgetsEn } from "./widgets.en";
 export const en = {
   ui: uiEn,
   auth: authEn,
@@ -94,5 +95,6 @@ export const en = {
   local_seo: localSeoEn,
   project_settings: projectSettingsEn,
   saved_keywords: savedKeywordsEn,
+  widgets: widgetsEn,
 };
 export type TranslationDict = typeof en;

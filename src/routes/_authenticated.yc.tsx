@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
@@ -49,6 +50,7 @@ export const Route = createFileRoute("/_authenticated/yc")({
 });
 
 function YcPlanPage() {
+  const { t } = useLocale();
   const { data: session } = useSession();
   const [isAttaching, setIsAttaching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,10 +68,10 @@ function YcPlanPage() {
   // A failed refetch keeps the loaded page; only a failed first read stops.
   if (accountQuery.isError && !account) {
     return (
-      <StatusScreen logo title="Billing unavailable" size="sm">
+      <StatusScreen logo title={t("ui.details.billing_unavailable")} size="sm">
         <QueryError
           cause={accountQuery.error}
-          fallback="We couldn't verify your billing status right now. Please try again."
+          fallback={t("ui.details.we_couldn_t_verify_now_please")}
           onRetry={() => void accountQuery.refetch()}
           isRetrying={accountQuery.isFetching}
         />
@@ -109,10 +111,11 @@ function YcPlanPage() {
           alt="OpenSEO"
           className="mx-auto size-10 rounded-lg"
         />
-        <h1 className="text-xl font-semibold">OpenSEO for YC founders</h1>
+        <h1 className="text-xl font-semibold">
+          {t("ui.details.openseo_for_yc_founders")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          A bigger monthly credit pool for teams doing serious SEO work, with
-          your first month free through the YC deal.
+          {t("ui.details.a_bigger_monthly_credit_serious_seo")}
         </p>
       </div>
 
@@ -121,10 +124,9 @@ function YcPlanPage() {
           <Tag className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           <p className="text-muted-foreground">
             <span className="font-medium text-foreground">
-              Don&rsquo;t forget your promo code.
+              {t("ui.details.don_t_forget_your_promo_code")}
             </span>{" "}
-            Enter the code from the YC deal under &ldquo;Add promotion
-            code&rdquo; on the checkout page to get your first month free.
+            {t("ui.details.enter_the_code_from_add_promotion")}
           </p>
         </div>
 
@@ -139,12 +141,12 @@ function YcPlanPage() {
           <Skeleton className="h-9 w-full" />
         ) : isOnYcPlan ? (
           <p className="text-sm text-muted-foreground">
-            You&rsquo;re already on the {YC_PLAN_OFFER.name}.{" "}
+            {t("ui.details.you_re_already_on_the")} {YC_PLAN_OFFER.name}.{" "}
             <Link
               to={BILLING_ROUTE}
               className="underline underline-offset-2 hover:text-foreground"
             >
-              Manage it on Billing
+              {t("ui.details.manage_it_on_billing")}
             </Link>
             .
           </p>
@@ -157,21 +159,25 @@ function YcPlanPage() {
               onClick={() => void handleSubscribe()}
             >
               {isAttaching
-                ? "Redirecting..."
+                ? t("ui.details.redirecting")
                 : isPaid
-                  ? `Switch to the ${YC_PLAN_OFFER.name}`
-                  : `Get the ${YC_PLAN_OFFER.name}`}
+                  ? t("billing.details.switch_to_the_value", {
+                      v1: YC_PLAN_OFFER.name,
+                    })
+                  : t("billing.details.get_the_value", {
+                      v1: YC_PLAN_OFFER.name,
+                    })}
             </Button>
             {isPaid ? (
               <p className="text-center text-xs text-muted-foreground">
-                Replaces your current subscription.
+                {t("ui.details.replaces_your_current_subscription")}
               </p>
             ) : null}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Only the organization owner can change the plan. Ask them to switch
-            this organization to the {YC_PLAN_OFFER.name}.
+            {t("ui.details.only_the_organization_owner_ask_them")}{" "}
+            {YC_PLAN_OFFER.name}.
           </p>
         )}
 
@@ -180,7 +186,7 @@ function YcPlanPage() {
 
       <div className="text-center space-y-2">
         <p className="text-sm text-muted-foreground">
-          Questions? Email{" "}
+          {t("ui.details.questions_email")}{" "}
           <a
             className="underline underline-offset-2 hover:text-foreground"
             href={`mailto:${SUPPORT_EMAIL}`}
@@ -194,7 +200,7 @@ function YcPlanPage() {
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowRight className="size-3.5 rotate-180" />
-          Back to app
+          {t("ui.details.back_to_app")}
         </Link>
       </div>
     </div>

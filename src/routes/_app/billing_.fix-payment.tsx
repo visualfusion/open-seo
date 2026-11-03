@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { isHostedClientAuthMode } from "@/lib/auth-mode";
@@ -49,6 +50,7 @@ export const Route = createFileRoute("/_app/billing_/fix-payment")({
 });
 
 function FixPaymentPage() {
+  const { t } = useLocale();
   const { returned } = Route.useSearch();
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,10 +139,10 @@ function FixPaymentPage() {
   // A failed refetch keeps the loaded page; only a failed first read stops.
   if (!isLoaded) {
     return (
-      <Page title="Billing unavailable">
+      <Page title={t("billing.details.billing_unavailable")}>
         <QueryError
           cause={accountQuery.error}
-          fallback="We couldn't load your billing details right now. Please try again."
+          fallback={t("billing.details.we_couldn_t_load_now_please")}
           onRetry={() => void accountQuery.refetch()}
           isRetrying={accountQuery.isFetching}
         />
@@ -150,11 +152,10 @@ function FixPaymentPage() {
 
   if (isChecking) {
     return (
-      <Page title="Checking your payment…">
+      <Page title={t("billing.details.checking_your_payment")}>
         <Spinner />
         <p className="text-sm text-muted-foreground">
-          Stripe is retrying the charge with your updated card. This usually
-          takes a few seconds.
+          {t("billing.details.stripe_is_retrying_the_card_this")}
         </p>
       </Page>
     );
@@ -162,16 +163,24 @@ function FixPaymentPage() {
 
   if (!isPastDue) {
     return (
-      <Page title={returned ? "You're all set" : "Your billing is up to date"}>
+      <Page
+        title={
+          returned
+            ? t("billing.details.you_re_all_set")
+            : t("billing.details.your_billing_is_up_to_date")
+        }
+      >
         <p className="text-sm text-muted-foreground">
           {returned
-            ? "The payment went through and your subscription is active again."
-            : "There's nothing outstanding on your account."}{" "}
+            ? t("billing.details.the_payment_went_through_active_again")
+            : t(
+                "billing.details.there_s_nothing_outstanding_on_your_account",
+              )}{" "}
           <Link
             to={BILLING_ROUTE}
             className="font-medium text-primary underline-offset-4 hover:underline"
           >
-            Back to billing
+            {t("billing.details.back_to_billing")}
           </Link>
         </p>
       </Page>
@@ -180,29 +189,34 @@ function FixPaymentPage() {
 
   if (!canManageBilling) {
     return (
-      <Page title="Fix your payment">
+      <Page title={t("billing.details.fix_your_payment")}>
         <p className="text-sm text-muted-foreground">
-          A payment for this organization didn&rsquo;t go through. Only the
-          organization owner can update the card, so please ask them to visit
-          this page.
+          {t("billing.details.a_payment_for_this_through_only")}
         </p>
       </Page>
     );
   }
 
   return (
-    <Page title={returned ? "Still showing as unpaid" : "Fix your payment"}>
+    <Page
+      title={
+        returned
+          ? t("billing.details.still_showing_as_unpaid")
+          : t("billing.details.fix_your_payment")
+      }
+    >
       <p className="text-sm text-muted-foreground">
         {returned
-          ? "Your subscription is still marked past due. Stripe can take a few minutes to retry the charge. If you added a new card but the invoice is still listed as open in the portal, you can pay it there directly."
-          : "Your last payment didn't go through. This usually means the card expired or the bank declined the charge. Nothing has been turned off yet."}
+          ? t("billing.details.your_subscription_is_still_can_take")
+          : t("billing.details.your_last_payment_didn_usually_means")}
       </p>
 
       <div className="rounded-lg border border-border bg-card p-4">
-        <p className="text-sm font-semibold">Update your payment method</p>
+        <p className="text-sm font-semibold">
+          {t("billing.details.update_your_payment_method")}
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Add a working card in the billing portal. It becomes your default for
-          future renewals, and the open invoice can be paid on the same screen.
+          {t("billing.details.add_a_working_card_it_becomes")}
         </p>
         <Button
           size="sm"
@@ -210,7 +224,9 @@ function FixPaymentPage() {
           pending={isOpeningPortal}
           onClick={() => void openPortal()}
         >
-          {isOpeningPortal ? "Opening Stripe..." : "Open billing portal"}
+          {isOpeningPortal
+            ? t("billing.details.opening_stripe")
+            : t("billing.details.open_billing_portal")}
         </Button>
       </div>
 
@@ -224,15 +240,18 @@ function FixPaymentPage() {
 }
 
 function Page({ title, children }: { title: string; children: ReactNode }) {
+  const { t } = useLocale();
   return (
     <div className="mx-auto box-content max-w-7xl space-y-5 px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
       <div>
-        <p className="text-sm font-medium text-muted-foreground">Billing</p>
+        <p className="text-sm font-medium text-muted-foreground">
+          {t("billing.details.billing")}
+        </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">{title}</h1>
       </div>
       {children}
       <p className="text-xs text-muted-foreground">
-        Something look wrong? Email {SUPPORT_EMAIL}.
+        {t("billing.details.something_look_wrong_email")} {SUPPORT_EMAIL}.
       </p>
     </div>
   );

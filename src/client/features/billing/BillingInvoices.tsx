@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { QueryError } from "@/client/components/QueryState";
@@ -68,6 +69,7 @@ function InvoiceEmailsToggle({
 }: {
   invoiceEmailsEnabled: boolean;
 }) {
+  const { t } = useLocale();
   const mutation = useMutation({
     mutationFn: (enabled: boolean) => setInvoiceEmails({ data: { enabled } }),
     // The error shows inline under the switch.
@@ -93,12 +95,11 @@ function InvoiceEmailsToggle({
           onCheckedChange={(enabled) => mutation.mutate(enabled)}
         />
         <FieldLabel htmlFor="billing-invoice-emails">
-          Email me a receipt for each invoice
+          {t("billing.details.email_me_a_receipt_for_each_invoice")}
         </FieldLabel>
       </div>
       <FieldDescription>
-        Stripe sends the receipt to the billing email on your account after each
-        payment.
+        {t("billing.details.stripe_sends_the_receipt_on_your")}
       </FieldDescription>
       {mutation.isError ? (
         <p role="alert" className="text-sm text-destructive">
@@ -113,6 +114,7 @@ function InvoiceEmailsToggle({
 }
 
 function InvoiceTable() {
+  const { t } = useLocale();
   const invoicesQuery = useQuery(invoicesQueryOptions);
 
   if (invoicesQuery.isPending) {
@@ -129,7 +131,7 @@ function InvoiceTable() {
     return (
       <QueryError
         error={invoicesQuery.error}
-        fallback="We couldn't load your invoices. Please try again."
+        fallback={t("billing.details.we_couldn_t_load_try_again")}
         onRetry={() => void invoicesQuery.refetch()}
         isRetrying={invoicesQuery.isFetching}
       />
@@ -139,7 +141,11 @@ function InvoiceTable() {
   const { invoices, hasMore } = invoicesQuery.data;
 
   if (invoices.length === 0) {
-    return <p className="text-sm text-muted-foreground">No invoices yet.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t("billing.details.no_invoices_yet")}
+      </p>
+    );
   }
 
   return (
@@ -147,13 +153,13 @@ function InvoiceTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Invoice</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Billing period</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>{t("billing.details.invoice")}</TableHead>
+            <TableHead>{t("common.date")}</TableHead>
+            <TableHead>{t("billing.details.billing_period")}</TableHead>
+            <TableHead>{t("billing.details.amount")}</TableHead>
+            <TableHead>{t("common.status")}</TableHead>
             <TableHead>
-              <span className="sr-only">Download</span>
+              <span className="sr-only">{t("billing.details.download")}</span>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -185,7 +191,9 @@ function InvoiceTable() {
                       variant: "outline",
                       size: "sm",
                     })}
-                    aria-label={`Download ${invoice.number ?? "invoice"} PDF`}
+                    aria-label={t("billing.details.download_value_pdf", {
+                      v1: invoice.number ?? "invoice",
+                    })}
                   >
                     <Download />
                     PDF
@@ -198,8 +206,9 @@ function InvoiceTable() {
       </Table>
       {hasMore ? (
         <p className="text-xs text-muted-foreground">
-          Showing your newest invoices. Find older invoices under Manage
-          subscription.
+          {t(
+            "billing.details.showing_your_newest_invoices_manage_subscription",
+          )}
         </p>
       ) : null}
     </div>

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { z } from "zod";
 import { SearchConsoleConnection } from "./SearchConsoleConnection";
@@ -55,6 +56,7 @@ export function SearchConsoleWidget({
   host: WidgetHost;
   data: SearchConsoleData;
 }) {
+  const { t } = useLocale();
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [confirmSave, setConfirmSave] = useState(false);
@@ -161,9 +163,12 @@ export function SearchConsoleWidget({
   return (
     <section className="space-y-3">
       <div>
-        <h1 className="text-2xl font-semibold">Search Performance</h1>
+        <h1 className="text-2xl font-semibold">
+          {t("search_performance.title")}
+        </h1>
         <p className="break-all text-sm text-muted-foreground">
-          {data.siteUrl} · {data.startDate} to {data.endDate}
+          {data.siteUrl} · {data.startDate} {t("widgets.details.to")}{" "}
+          {data.endDate}
         </p>
       </div>
       {previous && (
@@ -178,7 +183,7 @@ export function SearchConsoleWidget({
           disabled={busy}
         >
           <ArrowLeft />
-          Back to results
+          {t("widgets.details.back_to_results")}
         </Button>
       )}
       <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -186,13 +191,13 @@ export function SearchConsoleWidget({
           <Tabs value={view} onValueChange={changeView}>
             <TabsList variant="line" className="max-w-full flex-wrap">
               <TabsTrigger value={View.Striking} disabled={busy}>
-                Striking distance
+                {t("search_performance.tabs.striking")}
               </TabsTrigger>
               <TabsTrigger value={View.Queries} disabled={busy}>
-                Queries
+                {t("search_performance.tabs.queries")}
               </TabsTrigger>
               <TabsTrigger value={View.Pages} disabled={busy}>
-                Pages
+                {t("audit.pages")}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -200,13 +205,14 @@ export function SearchConsoleWidget({
         <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
           <Input
             className="h-8 w-48"
-            aria-label="Filter returned rows"
-            placeholder="Filter returned rows…"
+            aria-label={t("widgets.details.filter_returned_rows")}
+            placeholder={t("widgets.details.filter_returned_rows_2")}
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
           />
           <span className="text-xs text-muted-foreground">
-            {matching.length} of {rows.length} returned rows
+            {matching.length} {t("widgets.details.of")} {rows.length}{" "}
+            {t("widgets.details.returned_rows")}
           </span>
         </div>
         <SearchConsoleTable
@@ -220,8 +226,8 @@ export function SearchConsoleWidget({
         {!matching.length && (
           <p className="p-5 text-sm text-muted-foreground">
             {rows.length
-              ? "No rows match this filter."
-              : "No Search Console rows in this scope. Try another range or view."}
+              ? t("widgets.details.no_rows_match_this_filter")
+              : t("widgets.details.no_search_console_rows_another_range")}
           </p>
         )}
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border p-3">
@@ -248,7 +254,7 @@ export function SearchConsoleWidget({
                 request({ ...input, startRow: 0 }, () => setPageHistory([]))
               }
             >
-              First page
+              {t("ui.table.first_page")}
             </Button>
             <Button
               variant="outline"
@@ -261,7 +267,7 @@ export function SearchConsoleWidget({
                 setPageHistory((history) => history.slice(0, -1));
               }}
             >
-              Previous page
+              {t("ui.table.previous_page")}
             </Button>
             <Button
               variant="outline"
@@ -274,20 +280,22 @@ export function SearchConsoleWidget({
                 )
               }
             >
-              Next page
+              {t("ui.table.next_page")}
             </Button>
           </div>
         </div>
       </div>
       {selection.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
-          <span className="mr-auto text-sm">{selection.length} selected</span>
+          <span className="mr-auto text-sm">
+            {selection.length} {t("widgets.details.selected")}
+          </span>
           <Button
             variant="ghost"
             disabled={busy}
             onClick={() => setSelected(new Set())}
           >
-            Clear
+            {t("ranks.filters.clear")}
           </Button>
           <Button
             variant="outline"
@@ -295,11 +303,11 @@ export function SearchConsoleWidget({
             onClick={() => setConfirmSave(true)}
           >
             <Save />
-            Save keywords
+            {t("local_seo.keywords_dialog.save")}
           </Button>
           {keywords.length > 100 && (
             <p className="w-full text-xs text-muted-foreground">
-              Select at most 100 unique queries to save at once.
+              {t("widgets.details.select_at_most_100_at_once")}
             </p>
           )}
         </div>
@@ -307,26 +315,26 @@ export function SearchConsoleWidget({
       {confirmSave && selection.length > 0 && (
         <div className="space-y-3 rounded-xl border border-border bg-card p-4">
           <p className="text-sm">
-            Save these queries to this project’s keywords? No tags or rank
-            tracking will be added.
+            {t("widgets.details.save_these_queries_to_no_tags")}
           </p>
           <div className="flex gap-2">
             <Button pending={busy} onClick={save}>
-              Confirm save ({keywords.length})
+              {t("widgets.details.confirm_save")}
+              {keywords.length})
             </Button>
             <Button
               variant="ghost"
               disabled={busy}
               onClick={() => setConfirmSave(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </div>
       )}
       {saved && (
         <p role="status" className="text-sm">
-          Keywords saved to OpenSEO.
+          {t("widgets.details.keywords_saved_to_openseo")}
         </p>
       )}
       {rows.length > 0 && (
@@ -349,8 +357,8 @@ export function SearchConsoleWidget({
         >
           <MessageSquare />
           {host.clientName
-            ? `Ask ${host.clientName} for a plan`
-            : "Ask for a plan"}
+            ? t("widgets.details.ask_value_for_a_plan", { v1: host.clientName })
+            : t("widgets.details.ask_for_a_plan")}
         </Button>
       )}
     </section>
