@@ -143,7 +143,7 @@ export function AuthenticatedAppLayout({
 function MobileTopBar() {
   const { t } = useLocale();
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-2 pt-[calc(--spacing(1.5)+env(safe-area-inset-top,0px))] pb-1.5 md:hidden">
+    <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-2 pt-[calc(--spacing(1.5)+env(safe-area-inset-top,0px))] pb-1.5 md:hidden [@media(display-mode:standalone)]:pt-[calc(--spacing(4.5)+env(safe-area-inset-top,0px))]">
       <div className="flex items-center gap-1">
         <SidebarTrigger aria-label={t("shell.toggle_sidebar")} />
         <Link to="/" className="ml-1 font-semibold text-foreground">
