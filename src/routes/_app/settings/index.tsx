@@ -1,3 +1,5 @@
+import { LanguagePreferenceRadio } from "@/client/components/LanguagePreferenceMenuItems";
+import { useLocale } from "@/client/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ApiKeySettings } from "@/client/features/settings/ApiKeySettings";
@@ -18,6 +20,7 @@ export const Route = createFileRoute("/_app/settings/")({
 });
 
 function PersonalSettings() {
+  const { t } = useLocale();
   const isHosted = isHostedClientAuthMode();
   // API keys need Better Auth accounts (hosted or the standalone Docker
   // edition); the analytics choices only exist on hosted.
@@ -29,6 +32,15 @@ function PersonalSettings() {
         <div className="flex items-center justify-between gap-6">
           <span className="text-sm">Theme</span>
           <ThemePreferenceRadio />
+        </div>
+        <div className="flex items-center justify-between gap-6">
+          <div>
+            <span className="text-sm">{t("settings.language")}</span>
+            <p className="text-xs text-muted-foreground">
+              {t("settings.language_desc")}
+            </p>
+          </div>
+          <LanguagePreferenceRadio showLabels />
         </div>
       </section>
 
