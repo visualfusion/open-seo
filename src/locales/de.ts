@@ -1,3 +1,4 @@
+import { umamiDe } from "./umami.de";
 import type { TranslationDict } from "./en";
 import { uiDe } from "./ui.de";
 import { authDe } from "./auth.de";
@@ -26,6 +27,7 @@ import { projectSettingsDe } from "./projectSettings.de";
 import { savedKeywordsDe } from "./savedKeywords.de";
 import { widgetsDe } from "./widgets.de";
 export const de: TranslationDict = {
+  umami: umamiDe,
   ui: uiDe,
   auth: authDe,
   common: {

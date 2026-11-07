@@ -82,4 +82,23 @@ export const integrationsDetailsDe = {
   value_is_missing_a_permission: "Bei {v1} fehlt eine Berechtigung",
   openseo_didn_t_get_data_because:
     "OpenSEO hat keinen Zugriff auf deine {v1}-Daten erhalten, weil eine Berechtigung bei Google nicht ausgewählt wurde. Versuche es erneut und wähle alle Kästchen aus, bevor du fortfährst.",
+  this_will_also_disconnect: "Dabei wird auch die Verbindung für",
+  from: "getrennt in",
+  project: "Projekt",
+  the_address_you_open_cloud_use:
+    "Die Adresse, unter der du Umami öffnest. Für Umami Cloud verwende https://cloud.umami.is.",
+  a_view_only_umami_factor_sign:
+    "Ein Umami-Nutzer mit Leserechten reicht aus. Zwei-Faktor-Anmeldung wird nicht unterstützt.",
+  this_umami_login_can_any_websites:
+    "Mit dieser Umami-Anmeldung sind keine Websites sichtbar.",
+  umami_website: "Umami-Website",
+  choose_a_website: "Website auswählen",
+  choose_website: "Website auswählen",
+  umami_connected: "Umami verbunden",
+  umami_login_removed: "Umami-Anmeldung entfernt",
+  add_at_most_value_headers: "Füge höchstens {v1} Header hinzu.",
+  remove_umami_login_value: "Umami-Anmeldung {v1} entfernen",
+  couldn_t_check_this_umami_connection:
+    "Die Umami-Verbindung dieses Projekts konnte nicht geprüft werden.",
+  enter_the_umami_username: "Gib den Umami-Benutzernamen ein.",
 };

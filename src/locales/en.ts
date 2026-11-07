@@ -1,3 +1,4 @@
+import { umamiEn } from "./umami.en";
 import { uiEn } from "./ui.en";
 import { authEn } from "./auth.en";
 import { domainEn } from "./domain.en";
@@ -25,6 +26,7 @@ import { projectSettingsEn } from "./projectSettings.en";
 import { savedKeywordsEn } from "./savedKeywords.en";
 import { widgetsEn } from "./widgets.en";
 export const en = {
+  umami: umamiEn,
   ui: uiEn,
   auth: authEn,
   common: {
