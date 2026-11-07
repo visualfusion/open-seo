@@ -1,4 +1,4 @@
-CREATE TABLE `umami_connections` (
+CREATE TABLE IF NOT EXISTS `umami_connections` (
 	`id` text PRIMARY KEY NOT NULL,
 	`project_id` text NOT NULL,
 	`organization_id` text NOT NULL,
@@ -15,10 +15,10 @@ CREATE TABLE `umami_connections` (
 	FOREIGN KEY (`instance_id`) REFERENCES `umami_instances`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `umami_connections_project_idx` ON `umami_connections` (`project_id`);--> statement-breakpoint
-CREATE INDEX `umami_connections_organization_idx` ON `umami_connections` (`organization_id`);--> statement-breakpoint
-CREATE INDEX `umami_connections_instance_idx` ON `umami_connections` (`instance_id`);--> statement-breakpoint
-CREATE TABLE `umami_instances` (
+CREATE UNIQUE INDEX IF NOT EXISTS `umami_connections_project_idx` ON `umami_connections` (`project_id`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `umami_connections_organization_idx` ON `umami_connections` (`organization_id`);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS `umami_connections_instance_idx` ON `umami_connections` (`instance_id`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `umami_instances` (
 	`id` text PRIMARY KEY NOT NULL,
 	`organization_id` text NOT NULL,
 	`base_url` text NOT NULL,
@@ -32,4 +32,4 @@ CREATE TABLE `umami_instances` (
 	FOREIGN KEY (`organization_id`) REFERENCES `organization`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE INDEX `umami_instances_organization_idx` ON `umami_instances` (`organization_id`);
+CREATE INDEX IF NOT EXISTS `umami_instances_organization_idx` ON `umami_instances` (`organization_id`);
