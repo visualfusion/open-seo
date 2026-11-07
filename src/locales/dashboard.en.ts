@@ -32,6 +32,7 @@ export const dashboardEn = {
     run_again: "Run the audit again to see issues.",
     keyword: "Keyword",
     no_search_data: "No search data yet",
+    no_search_data_period: "No search data for this period yet.",
     no_new_keywords: "No new keywords this week",
     view_full_gsc: "View full GSC insights →",
     new_keywords_title: "New keywords",

@@ -2,7 +2,7 @@ import { useLocale } from "@/client/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { QueryError } from "@/client/components/QueryState";
 import { StatusScreen } from "@/client/components/StatusScreen";
@@ -15,12 +15,14 @@ import {
   prefetchUpgradeCheckout,
 } from "@/client/features/billing/checkout";
 import { AnnualPlanDialog } from "@/client/features/billing/AnnualPlanDialog";
+import { PlanChangeAction } from "@/client/features/billing/PlanChange";
+import { UpgradePlanDialog } from "@/client/features/billing/UpgradePlanDialog";
 import { PlanPageAccountMenu } from "@/client/features/billing/PlanPageAccountMenu";
 import {
+  PLAN_FOOTER_LINK_CLASS,
   PlanGuarantee,
   PlanOfferCard,
 } from "@/client/features/billing/PlanOfferCard";
-import { monthlyCreditsFeature } from "@/client/features/billing/plan-offers";
 import {
   TIERS,
   isTier,
@@ -33,18 +35,27 @@ import { getSubscribeRouteState } from "@/client/features/billing/route-state";
 import { normalizeAuthRedirect } from "@/lib/auth-redirect";
 import { useCanManageBilling } from "@/client/features/team/organizationQueries";
 import { SUPPORT_EMAIL } from "@/client/lib/support";
+import { Badge } from "@/client/components/ui/badge";
 import { Button } from "@/client/components/ui/button";
 import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/client/components/ui/toggle-group";
+import { pageHead } from "@/client/lib/pageHead";
+import { isMonthlyPlan } from "@/shared/billing";
 
 // How long the post-checkout "finalizing" screen polls Autumn before giving
 // up and letting the user through anyway, and how often it polls.
 const FINALIZING_TIMEOUT_MS = 30_000;
 const FINALIZING_POLL_MS = 1000;
 
+// The billing period switch is a segmented control: the chosen period sits
+// raised on the muted track.
+const PERIOD_ITEM_CLASS =
+  "h-8 gap-2 rounded-md! px-3 text-muted-foreground hover:bg-transparent aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-sm";
+
 export const Route = createFileRoute("/_authenticated/subscribe")({
+  head: () => pageHead("Choose a plan"),
   // The loader fills the module-scoped query client, so keep it out of server
   // requests: one worker isolate must not cache another account's billing.
   ssr: false,
@@ -94,7 +105,6 @@ function SubscribePage() {
     plan: requestedPlan,
     billing,
   } = Route.useSearch();
-  const highlightedPlan = requestedPlan ?? "base";
   const { data: session } = useSession();
   // The plan whose checkout is opening, so only its button spins.
   const [attachingPlan, setAttachingPlan] = useState<Tier | null>(null);
@@ -104,6 +114,9 @@ function SubscribePage() {
   // it animates closed.
   const [annualPlan, setAnnualPlan] = useState<Tier>("base");
   const [annualDialogOpen, setAnnualDialogOpen] = useState(false);
+  // Kept after closing, like the yearly dialog's plan.
+  const [upgradeTier, setUpgradeTier] = useState<Tier>("pro");
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [finalizingTimedOut, setFinalizingTimedOut] = useState(false);
   const checkoutCompleted = checkout === "success";
@@ -135,9 +148,14 @@ function SubscribePage() {
     hasManagedAccess: account?.hasManagedAccess ?? false,
     planStatus: account?.planStatus ?? "free",
     isUpgradeFlow: isUpgradeFlow === true,
+    isPlanChange:
+      isMonthlyPlan(paidPlanId) &&
+      (isUpgradeFlow === true || requestedPlan !== undefined),
     checkoutCompleted,
     finalizingTimedOut,
   });
+  const isChangingPlan = subscribeRouteState === "changePlan";
+  const highlightedPlan = requestedPlan ?? (isChangingPlan ? null : "base");
 
   // Armed once on landing with checkout=success (not on the finalizing state,
   // which a refetch with no cached data can leave for "loading" and re-enter)
@@ -156,9 +174,9 @@ function SubscribePage() {
       if (checkoutCompleted) {
         captureClientEvent("billing:checkout_success");
       } else if (requestedPlan && paidPlanId) {
-        // A paying customer followed a pricing-page plan link. Switching
-        // plans goes through support for now; say so instead of a silent
-        // redirect.
+        // A paying customer whose plan changes through support (yearly, or
+        // granted by hand) followed a pricing-page plan link; say so
+        // instead of a silent redirect.
         const wanted = TIERS[requestedPlan].offer;
         toast.info(
           paidPlanId === wanted.planId
@@ -271,53 +289,71 @@ function SubscribePage() {
 
   const firstName = session?.user?.name?.split(" ")[0] || "";
   const annual = TIERS[annualPlan];
+  const showYearly = yearly && !isChangingPlan;
 
   return (
-    <div className="w-full max-w-5xl space-y-6">
+    // The top padding clears the pinned Back to app and account buttons.
+    <div className="w-full max-w-5xl space-y-8 pt-12 pb-4">
+      {/* Pinned like the account menu across from it, at the same height. */}
+      {isUpgradeFlow ? (
+        <div className="fixed top-4 left-4 z-20">
+          <Button
+            variant="ghost"
+            onClick={() => void navigate({ to: "/", replace: true })}
+          >
+            <ChevronLeft />
+            {t("ui.details.back_to_app")}
+          </Button>
+        </div>
+      ) : null}
       <PlanPageAccountMenu email={session?.user?.email} />
 
-      <div className="mx-auto max-w-sm space-y-3 text-center">
-        <img
-          src="/transparent-logo.png"
-          alt="OpenSEO"
-          className="mx-auto size-10 rounded-lg"
-        />
-        <h1 className="text-xl font-semibold">
-          {isUpgradeFlow
-            ? t("billing.details.upgrade_your_plan")
-            : firstName
-              ? t("billing.details.welcome_to_openseo_value", { v1: firstName })
-              : t("ui.details.welcome_to_openseo")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("ui.details.seo_on_your_terms_in_one")}
-        </p>
-      </div>
+      <div className="space-y-6">
+        <div className="mx-auto max-w-md space-y-2 text-center">
+          <img
+            src="/transparent-logo.png"
+            alt="OpenSEO"
+            className="mx-auto mb-4 size-10 rounded-lg"
+          />
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {isChangingPlan
+              ? t("billing.details.change_your_plan")
+              : isUpgradeFlow
+                ? t("billing.details.upgrade_your_plan")
+                : firstName
+                  ? t("billing.details.welcome_to_openseo_value", {
+                      v1: firstName,
+                    })
+                  : t("ui.details.welcome_to_openseo")}
+          </h1>
+          <p className="text-sm text-balance text-muted-foreground">
+            {t("ui.details.seo_on_your_terms_in_one")}
+          </p>
+        </div>
 
-      <ToggleGroup
-        variant="outline"
-        spacing={0}
-        value={[yearly ? "yearly" : "monthly"]}
-        onValueChange={(next) => {
-          // A press on the active item empties the group. Keep one item on.
-          if (next[0]) setYearly(next[0] === "yearly");
-        }}
-        className="mx-auto"
-        aria-label={t("ui.details.billing_period")}
-      >
-        <ToggleGroupItem
-          value="monthly"
-          className="px-4 aria-pressed:bg-primary/15 aria-pressed:text-primary"
-        >
-          {t("ui.details.monthly")}
-        </ToggleGroupItem>
-        <ToggleGroupItem
-          value="yearly"
-          className="px-4 aria-pressed:bg-primary/15 aria-pressed:text-primary"
-        >
-          {t("ui.details.yearly_2_months_free")}
-        </ToggleGroupItem>
-      </ToggleGroup>
+        {isChangingPlan ? null : (
+          <ToggleGroup
+            spacing={0}
+            value={[yearly ? "yearly" : "monthly"]}
+            onValueChange={(next) => {
+              // A press on the active item empties the group. Keep one item on.
+              if (next[0]) setYearly(next[0] === "yearly");
+            }}
+            className="mx-auto rounded-lg bg-foreground/[0.06] p-1"
+            aria-label={t("ui.details.billing_period")}
+          >
+            <ToggleGroupItem value="monthly" className={PERIOD_ITEM_CLASS}>
+              {t("ui.details.monthly")}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="yearly" className={PERIOD_ITEM_CLASS}>
+              {t("billing.details.yearly")}
+              <Badge variant="soft">
+                {t("billing.details.two_months_free")}
+              </Badge>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        )}
+      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         {Object.keys(TIERS)
@@ -330,23 +366,26 @@ function SubscribePage() {
                 key={tier}
                 offer={offer}
                 description={t(description)}
-                priceLabel={
-                  yearly
-                    ? t("billing.details.annual_price", {
-                        price: annualPriceUsd.toLocaleString(),
-                      })
-                    : undefined
-                }
-                features={[
-                  ...features.map((feature) => t(feature)),
-                  monthlyCreditsFeature(offer),
-                ]}
+                priceUsd={showYearly ? annualPriceUsd : offer.priceUsd}
+                period={showYearly ? "year" : "month"}
+                features={features.map((feature) => t(feature))}
                 highlighted={tier === highlightedPlan}
               >
-                {canManageBilling ? (
+                {!canManageBilling ? null : isChangingPlan ? (
+                  // Yearly billing is set up by email, so this is monthly.
+                  <PlanChangeAction
+                    offer={offer}
+                    currentPlanId={paidPlanId}
+                    highlighted={tier === highlightedPlan}
+                    onUpgrade={() => {
+                      setUpgradeTier(tier);
+                      setUpgradeDialogOpen(true);
+                    }}
+                  />
+                ) : (
                   <Button
                     className="w-full"
-                    variant={tier === highlightedPlan ? "default" : "secondary"}
+                    variant={tier === highlightedPlan ? "default" : "outline"}
                     pending={attachingPlan === tier}
                     // One checkout at a time: a second one would replace the first.
                     disabled={attachingPlan !== null}
@@ -360,27 +399,34 @@ function SubscribePage() {
                       ? t("ui.details.redirecting")
                       : t("ui.details.subscribe")}
                   </Button>
-                ) : null}
+                )}
               </PlanOfferCard>
             );
           })}
       </div>
 
-      <div className="mx-auto max-w-sm space-y-3">
-        {error ? (
-          <p role="alert" className="text-center text-sm text-destructive">
-            {error}
-          </p>
-        ) : null}
-        {canManageBilling ? null : (
-          <p className="text-center text-sm text-muted-foreground">
-            {t("ui.details.only_the_organization_owner_to_upgrade")}
-          </p>
-        )}
+      {error || !canManageBilling ? (
+        <div className="mx-auto max-w-md space-y-2 text-center text-sm">
+          {error ? (
+            <p role="alert" className="text-destructive">
+              {error}
+            </p>
+          ) : null}
+          {canManageBilling ? null : (
+            <p className="text-muted-foreground">
+              {isChangingPlan
+                ? t("billing.details.only_owner_can_change_plan")
+                : t("ui.details.only_the_organization_owner_to_upgrade")}
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      <div className="space-y-2">
         <PlanGuarantee />
-        <p className="text-center text-xs">
+        <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
           <a
-            className="text-muted-foreground underline decoration-muted-foreground/40 decoration-dotted underline-offset-4 transition-colors hover:text-foreground"
+            className={PLAN_FOOTER_LINK_CLASS}
             href="https://openseo.so/pricing"
             target="_blank"
             rel="noreferrer"
@@ -391,30 +437,18 @@ function SubscribePage() {
             {t("ui.details.how_far_do_usage_credits_go")}{" "}
             <span aria-hidden="true">&#8599;</span>
           </a>
+          <span aria-hidden="true">&middot;</span>
+          <span>
+            {t("ui.details.questions_email")}{" "}
+            <a
+              className={PLAN_FOOTER_LINK_CLASS}
+              href={`mailto:${SUPPORT_EMAIL}`}
+            >
+              {SUPPORT_EMAIL}
+            </a>
+            .
+          </span>
         </p>
-      </div>
-
-      <div className="mx-auto max-w-sm text-center space-y-2">
-        <p className="text-sm text-muted-foreground">
-          {t("ui.details.questions_email")}{" "}
-          <a
-            className="underline underline-offset-2 hover:text-foreground"
-            href={`mailto:${SUPPORT_EMAIL}`}
-          >
-            {SUPPORT_EMAIL}
-          </a>
-          .
-        </p>
-        {isUpgradeFlow ? (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => void navigate({ to: "/", replace: true })}
-          >
-            <ArrowRight className="size-3.5 rotate-180" />
-            {t("ui.details.back_to_app")}
-          </Button>
-        ) : null}
       </div>
 
       <AnnualPlanDialog
@@ -424,6 +458,14 @@ function SubscribePage() {
         annualPriceUsd={annual.annualPriceUsd}
         onSubscribeMonthly={() => void handleSubscribe(annualPlan)}
       />
+
+      {isChangingPlan ? (
+        <UpgradePlanDialog
+          open={upgradeDialogOpen}
+          onOpenChange={setUpgradeDialogOpen}
+          offer={TIERS[upgradeTier].offer}
+        />
+      ) : null}
     </div>
   );
 }

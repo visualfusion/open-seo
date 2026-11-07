@@ -5,10 +5,12 @@ import { useLocale } from "@/client/lib/i18n";
 import { PromptResearchPage } from "@/client/features/ai-visibility/PromptResearchPage";
 import { PromptTrackingWithoutUpgradeButton } from "@/client/features/ai-visibility/shared";
 import { PaidPlanGate } from "@/client/features/billing/PaidPlanGate";
+import { pageHead } from "@/client/lib/pageHead";
 
 export const Route = createFileRoute(
   "/_app/p/$projectId/ai-visibility/research",
 )({
+  head: () => pageHead("Prompt Research"),
   validateSearch: z.object({ q: z.string().trim().max(100).optional() }),
   component: AiResearchRoute,
 });

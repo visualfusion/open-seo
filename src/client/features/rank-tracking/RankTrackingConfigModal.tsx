@@ -17,7 +17,11 @@ import {
 import { Field, FieldLabel } from "@/client/components/ui/field";
 import type { RankTrackingConfig } from "@/types/schemas/rank-tracking";
 import { domainField, normalizeDomain } from "@/types/schemas/domain";
-import { pagesToDepth, estimateRankCheckCredits } from "@/shared/rank-tracking";
+import {
+  estimateRankCheckCredits,
+  pagesToDepth,
+  RANK_CHECK_DURATION_COPY,
+} from "@/shared/rank-tracking";
 import { getLanguageCode } from "@/client/features/keywords/locations";
 import {
   SERP_LANGUAGE_OPTIONS,
@@ -41,6 +45,7 @@ import {
   withBrowserTimeZone,
   type LocalScheduleTime,
 } from "./scheduleTime";
+import { parseDbTimestamp } from "@/client/lib/db-timestamp";
 
 type Props = {
   projectId: string;
@@ -163,7 +168,7 @@ function RankTrackingConfigModalContent({
     schedule: existingConfig?.scheduleInterval ?? "weekly",
     scheduleTime: localScheduleTimeFrom(
       existingConfig?.nextCheckAt
-        ? new Date(existingConfig.nextCheckAt)
+        ? parseDbTimestamp(existingConfig.nextCheckAt)
         : randomScheduleDate(),
     ),
     serpDepth: existingConfig?.serpDepth ?? 40,
@@ -374,7 +379,6 @@ function CostEstimate({
     ["plain keyword"],
     devices,
     serpDepth,
-    schedule === "manual" ? "live" : "queued",
   );
   const checksPerMonth =
     schedule === "daily" ? 30 : schedule === "weekly" ? 4 : 1;
@@ -388,6 +392,7 @@ function CostEstimate({
         </span>{" "}
         {t("ranks.modals.cost_per_keyword_suffix")}
       </div>
+      <div>{RANK_CHECK_DURATION_COPY}</div>
       {schedule !== "manual" && (
         <div>
           {t("ranks.modals.cost_monthly_prefix")}

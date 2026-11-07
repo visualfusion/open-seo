@@ -7,6 +7,10 @@ export const aiVisibilityDetailsDe = {
     "KI-Sichtbarkeit konnte nicht eingerichtet werden. DataForSEO und OpenRouter müssen auf deinem Every-App-Gateway eingerichtet sein. Ein Inhaber oder Administrator führt dazu pnpm everyapp secret set DATAFORSEO_API_KEY OPENROUTER_API_KEY aus. Versuche es danach erneut.",
   we_couldn_t_finish_try_again:
     "KI-Sichtbarkeit konnte nicht eingerichtet werden. Versuche es erneut.",
+  subrequest_limit:
+    "Die Einrichtung erfordert mehr ausgehende Anfragen, als Cloudflare Workers Free erlaubt (50). Aktualisiere auf Workers Paid oder verwende die Docker-Edition und versuche es erneut.",
+  leave_page_note:
+    "Du kannst diese Seite verlassen; die Einrichtung läuft im Hintergrund weiter.",
   what_you_sell_who_and_where: "Was du anbietest, wer es kauft und wo",
   we_couldn_t_save_try_again:
     "Deine Beschreibung konnte nicht gespeichert werden. Versuche es erneut.",

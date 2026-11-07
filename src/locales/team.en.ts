@@ -12,7 +12,8 @@ export const teamEn = {
     transfer_ownership: "Transfer ownership",
     remove_member: "Remove member",
     remove_confirm_title: "Remove {email} from this organization?",
-    remove_confirm_desc: "They lose access immediately.",
+    remove_confirm_desc:
+      "They lose access immediately. Search Console and Google Analytics connections made with their Google account are disconnected.",
     invited: "Invited · expires {date}",
     actions_for_invitation: "Actions for the invitation to {email}",
     resend: "Resend invitation",

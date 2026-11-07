@@ -11,7 +11,12 @@ import { ErrorState } from "@/client/components/ErrorState";
 import { PageHeader } from "@/client/components/PageHeader";
 import { QueryError } from "@/client/components/QueryState";
 import { Button } from "@/client/components/ui/button";
-import { Card, CardContent } from "@/client/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/client/components/ui/card";
 import { Field } from "@/client/components/ui/field";
 import {
   InputGroup,
@@ -26,11 +31,12 @@ import { getStandardErrorMessage } from "@/client/lib/error-messages";
 import { prefetchBillingAccount } from "@/client/features/billing/billingAccountQuery";
 import { AutoReloadSettings } from "@/client/features/billing/AutoReloadSettings";
 import { BillingRow } from "@/client/features/billing/BillingRow";
+import { ChangePlanButton } from "@/client/features/billing/PlanChange";
 import { BillingTabs } from "@/client/features/billing/BillingTabs";
+import { CreditsCard } from "@/client/features/billing/CreditsCard";
 import { parseTopUpAmount } from "@/client/features/billing/HostedBillingContentUtils";
 import { billingUsageQueryOptions } from "@/client/features/billing/useBillingUsage";
 import { useCreditBalance } from "@/client/features/billing/useCreditBalance";
-import { BASE_PLAN_OFFER } from "@/client/features/billing/plan-offers";
 import {
   createBillingPortalSession,
   createTopUpCheckout,
@@ -42,8 +48,10 @@ import {
   TOP_UP_MAX_USD,
   TOP_UP_MIN_USD,
 } from "@/shared/billing";
+import { pageHead } from "@/client/lib/pageHead";
 
 export const Route = createFileRoute("/_app/billing")({
+  head: () => pageHead("Billing"),
   validateSearch: z.object({
     tab: z
       .enum(BILLING_TABS.map((item) => item.value))
@@ -83,17 +91,7 @@ function BillingPage() {
     message: string;
   } | null>(null);
 
-  const {
-    accountQuery,
-    isFreePlan,
-    monthlyRemaining,
-    topUpRemaining,
-    totalRemaining,
-    isOutOfCredits,
-    isLowCredits,
-    refillDate,
-    autoReloadState,
-  } = useCreditBalance();
+  const { accountQuery, isFreePlan, autoReloadState } = useCreditBalance();
   const account = accountQuery.data;
   // The budget counts bought credits too, so a purchase now would sit
   // unspent until it is raised; the notice below the button says so.
@@ -146,11 +144,11 @@ function BillingPage() {
   }
 
   return (
-    <div className="mx-auto box-content max-w-7xl space-y-5 px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
+    <div className="mx-auto box-content max-w-7xl space-y-6 px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
       <PageHeader title={t("billing.details.billing")} />
 
       {accountQuery.isPending ? (
-        <SubscriptionCardSkeleton />
+        <BillingSummarySkeleton />
       ) : !account ? (
         <QueryError
           cause={accountQuery.error}
@@ -169,78 +167,35 @@ function BillingPage() {
             />
           ) : null}
 
-          <Card className="max-w-4xl gap-0 divide-y divide-border py-0">
-            <div className="px-4 py-4">
-              <div className="text-2xl font-semibold tabular-nums">
-                ${totalRemaining.toFixed(2)}{" "}
-                <span className="text-sm font-normal text-muted-foreground">
-                  {t("billing.details.remaining")}
-                </span>
-              </div>
-              {!isFreePlan ? (
-                <div className="mt-1 flex gap-3 text-xs text-muted-foreground">
-                  <span className="tabular-nums">
-                    {t("billing.details.monthly")}
-                    {monthlyRemaining.toFixed(2)}
-                  </span>
-                  <span>&middot;</span>
-                  <span className="tabular-nums">
-                    {t("billing.details.top_ups")}
-                    {topUpRemaining.toFixed(2)}
-                  </span>
+          {/* One column read top to bottom: the plan, then the credits with
+              the ways to get more, then the usage tabs. */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <h2>{t("billing.details.plan")}</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <p className="text-xl font-semibold tracking-tight">
+                    {account.paidPlanId
+                      ? account.paidPlanName
+                      : t("billing.details.free_plan")}
+                  </p>
+                  {account.paidPlanId ? (
+                    <p className="text-sm text-muted-foreground">
+                      ${account.monthlyCreditsUsd.toFixed(2)}{" "}
+                      {t("billing.details.of_credits_each_month")}
+                    </p>
+                  ) : canManageBilling ? (
+                    <p className="text-sm text-muted-foreground">
+                      {t("billing.details.upgrade_to_access_every_each_month")}
+                    </p>
+                  ) : null}
                 </div>
-              ) : null}
-              {isOutOfCredits ? (
-                <p className="mt-2 text-xs text-destructive">
-                  {isFreePlan
-                    ? t("billing.details.you_ve_used_your_plan_to")
-                    : t("billing.details.you_ve_used_this_more_below", {
-                        v1: refillDate
-                          ? t("billing.details.or_wait_for_them_on_value", {
-                              v1: refillDate,
-                            })
-                          : "",
-                      })}
-                </p>
-              ) : isLowCredits ? (
-                <p className="mt-2 text-xs text-amber-600">
-                  {t("billing.details.you_re_running_low_on_credits")}{" "}
-                  {isFreePlan
-                    ? `Upgrade to get $${BASE_PLAN_OFFER.monthlyCreditsUsd}/month.`
-                    : t("billing.details.buy_more_credits_below")}
-                </p>
-              ) : null}
-            </div>
 
-            <BillingRow
-              label={t("billing.details.plan")}
-              summary={
-                account.paidPlanId ? (
-                  <>
-                    <span className="text-foreground">
-                      {account.paidPlanName}
-                    </span>{" "}
-                    &middot; ${account.monthlyCreditsUsd.toFixed(2)}{" "}
-                    {t("billing.details.of_credits_each_month")}
-                  </>
-                ) : (
-                  <>
-                    <span className="text-foreground">
-                      {t("billing.details.free_plan")}
-                    </span>
-                    {canManageBilling ? (
-                      <>
-                        {" "}
-                        {t(
-                          "billing.details.upgrade_to_access_every_each_month",
-                        )}
-                      </>
-                    ) : null}
-                  </>
-                )
-              }
-              action={
-                !canManageBilling ? null : isFreePlan ? (
+                {!canManageBilling ? null : isFreePlan ? (
                   <Button
                     size="sm"
                     nativeButton={false}
@@ -251,26 +206,29 @@ function BillingPage() {
                     {t("billing.details.upgrade_plan_2")}
                   </Button>
                 ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    pending={pendingAction === "plan"}
-                    disabled={pendingAction !== null}
-                    onClick={() =>
-                      void runAction(
-                        "plan",
-                        openPortal,
-                        "We couldn't open the billing portal. Please try again.",
-                      )
-                    }
-                  >
-                    {pendingAction === "plan"
-                      ? t("billing.details.redirecting_to_stripe")
-                      : t("billing.details.manage_subscription")}
-                  </Button>
-                )
-              }
-            >
+                  <div className="flex flex-wrap gap-2">
+                    <ChangePlanButton planId={account.paidPlanId} />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      pending={pendingAction === "plan"}
+                      disabled={pendingAction !== null}
+                      onClick={() =>
+                        void runAction(
+                          "plan",
+                          openPortal,
+                          "We couldn't open the billing portal. Please try again.",
+                        )
+                      }
+                    >
+                      {pendingAction === "plan"
+                        ? t("billing.details.redirecting_to_stripe")
+                        : t("billing.details.manage_subscription")}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               {!canManageBilling ? (
                 <p className="text-sm text-muted-foreground">
                   {t("billing.details.only_the_organization_owner_or_buy")}
@@ -278,111 +236,120 @@ function BillingPage() {
               ) : (
                 actionError("plan")
               )}
-            </BillingRow>
-
-            {/* Owner-only. Buying needs a paid plan; free plans see what one
-                adds, so the base plan's credits aren't read as a cap. */}
-            {canManageBilling ? (
-              <BillingRow
-                label={t("billing.details.top_up_credits")}
-                summary={
-                  isFreePlan
-                    ? t("billing.details.need_more_than_your_paid_plan")
-                    : t("billing.details.never_expire_and_are_monthly_credits")
-                }
-                action={
-                  isFreePlan || buyingCredits ? null : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setBuyingCredits(true)}
-                    >
-                      {t("billing.details.buy_credits")}
-                    </Button>
-                  )
-                }
-              >
-                {!isFreePlan && buyingCredits ? (
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-start gap-2">
-                      <Field data-invalid={showTopUpError} className="w-36">
-                        <InputGroup>
-                          <InputGroupAddon>$</InputGroupAddon>
-                          <InputGroupInput
-                            type="number"
-                            min={TOP_UP_MIN_USD}
-                            max={TOP_UP_MAX_USD}
-                            step={1}
-                            inputMode="numeric"
-                            aria-label={t(
-                              "billing.details.top_up_amount_in_usd",
-                            )}
-                            aria-invalid={showTopUpError}
-                            autoFocus
-                            value={topUpAmount}
-                            onChange={(e) => setTopUpAmount(e.target.value)}
-                          />
-                        </InputGroup>
-                      </Field>
-                      <Button
-                        className="h-10"
-                        pending={pendingAction === "topUp"}
-                        disabled={
-                          !isValidTopUp || pendingAction !== null || budgetSpent
-                        }
-                        onClick={() =>
-                          void runAction(
-                            "topUp",
-                            startTopUpCheckout,
-                            "We couldn't start the checkout. Please try again.",
-                          )
-                        }
-                      >
-                        {pendingAction === "topUp"
-                          ? t("billing.details.redirecting_to_stripe")
-                          : t("billing.details.buy_value_of_credits", {
-                              v1: parsedTopUpAmount,
-                            })}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="h-10"
-                        disabled={pendingAction !== null}
-                        onClick={() => setBuyingCredits(false)}
-                      >
-                        {t("common.cancel")}
-                      </Button>
-                    </div>
-                    {showTopUpError ? (
-                      <p className="text-xs text-destructive">
-                        {t("billing.details.enter_between")}
-                        {TOP_UP_MIN_USD}–${TOP_UP_MAX_USD}.
-                      </p>
-                    ) : null}
-                    {budgetSpent ? (
-                      <p className="text-xs text-muted-foreground">
-                        {t("billing.details.you_ve_hit_your_raise_it")}
-                      </p>
-                    ) : null}
-                    {actionError("topUp")}
-                  </div>
-                ) : null}
-              </BillingRow>
-            ) : null}
-
-            {/* The sync turns auto-reload off when a plan ends; until that
-                lands, an owner who left the plan still sees it, so they can
-                turn it off. */}
-            {canManageBilling &&
-            (!isFreePlan || account.autoReload?.enabled) ? (
-              <AutoReloadSettings />
-            ) : canManageBilling ? (
-              <BillingRow
-                label={t("billing.details.auto_reload")}
-                summary="On a paid plan, buy more automatically when you run low, up to a monthly budget you set."
-              />
-            ) : null}
+            </CardContent>
           </Card>
+
+          {/* Buying is owner-only and needs a paid plan; free plans see what
+              one adds, so the base plan's credits aren't read as a cap. */}
+          <CreditsCard>
+            {canManageBilling ? (
+              <>
+                <BillingRow
+                  label={t("billing.details.top_up_credits")}
+                  summary={
+                    isFreePlan
+                      ? t("billing.details.need_more_than_your_paid_plan")
+                      : t("billing.details.never_expire_and_are_monthly_credits")
+                  }
+                  action={
+                    isFreePlan || buyingCredits ? null : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setBuyingCredits(true)}
+                      >
+                        {t("billing.details.buy_credits")}
+                      </Button>
+                    )
+                  }
+                >
+                  {!isFreePlan && buyingCredits ? (
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-start gap-2">
+                        <Field data-invalid={showTopUpError} className="w-36">
+                          <InputGroup>
+                            <InputGroupAddon>$</InputGroupAddon>
+                            <InputGroupInput
+                              type="number"
+                              min={TOP_UP_MIN_USD}
+                              max={TOP_UP_MAX_USD}
+                              step={1}
+                              inputMode="numeric"
+                              aria-label={t(
+                                "billing.details.top_up_amount_in_usd",
+                              )}
+                              aria-invalid={showTopUpError}
+                              autoFocus
+                              value={topUpAmount}
+                              onChange={(e) => setTopUpAmount(e.target.value)}
+                            />
+                          </InputGroup>
+                        </Field>
+                        <Button
+                          className="h-10"
+                          pending={pendingAction === "topUp"}
+                          disabled={
+                            !isValidTopUp ||
+                            pendingAction !== null ||
+                            budgetSpent
+                          }
+                          onClick={() =>
+                            void runAction(
+                              "topUp",
+                              startTopUpCheckout,
+                              "We couldn't start the checkout. Please try again.",
+                            )
+                          }
+                        >
+                          {pendingAction === "topUp"
+                            ? t("billing.details.redirecting_to_stripe")
+                            : t("billing.details.buy_value_of_credits", {
+                                v1: parsedTopUpAmount,
+                              })}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="h-10"
+                          disabled={pendingAction !== null}
+                          onClick={() => {
+                            setBuyingCredits(false);
+                            // A failed top-up's error belongs to that attempt.
+                            setError((e) => (e?.action === "topUp" ? null : e));
+                          }}
+                        >
+                          {t("common.cancel")}
+                        </Button>
+                      </div>
+                      {showTopUpError ? (
+                        <p className="text-xs text-destructive">
+                          {t("billing.details.enter_between")}
+                          {TOP_UP_MIN_USD}–${TOP_UP_MAX_USD}.
+                        </p>
+                      ) : null}
+                      {budgetSpent ? (
+                        <p className="text-xs text-muted-foreground">
+                          {t("billing.details.you_ve_hit_your_raise_it")}
+                        </p>
+                      ) : null}
+                      {actionError("topUp")}
+                    </div>
+                  ) : null}
+                </BillingRow>
+
+                {/* The sync turns auto-reload off when a plan ends; until that
+                  lands, an owner who left the plan still sees it, so they can
+                  turn it off. */}
+                {!isFreePlan || account.autoReload?.enabled ? (
+                  <AutoReloadSettings />
+                ) : (
+                  <BillingRow
+                    label={t("billing.details.auto_reload")}
+                    summary={t("billing.details.auto_reload_summary")}
+                  />
+                )}
+              </>
+            ) : null}
+          </CreditsCard>
         </>
       )}
 
@@ -408,15 +375,21 @@ function BillingPage() {
   );
 }
 
-/** The billing summary's shape while the billing account loads. */
-function SubscriptionCardSkeleton() {
+/** The Plan and Credits cards' shape while the billing account loads. */
+function BillingSummarySkeleton() {
   return (
-    <Card aria-busy>
-      <CardContent className="space-y-4">
-        <Skeleton className="h-8 w-40" />
-        <Skeleton className="h-4 w-56" />
-        <Skeleton className="h-9 w-full" />
-      </CardContent>
-    </Card>
+    <div aria-busy className="space-y-6">
+      {[0, 1].map((index) => (
+        <Card key={index}>
+          <CardHeader>
+            <Skeleton className="h-5 w-16" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-4 w-56" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { GscPropertySetupHelp, hasNoGscWebsites } from "./GscPropertySetupHelp";
+import { GoogleAccounts, accountLabel, accountStatus } from "./GoogleAccounts";
 import { GoogleAccountRemovalDialog } from "@/client/features/integrations/GoogleAccountRemovalDialog";
 import { QueryError } from "@/client/components/QueryState";
 import { Spinner } from "@/client/components/Spinner";
@@ -15,9 +16,7 @@ import {
   ComboboxLabel,
   ComboboxList,
 } from "@/client/components/ui/combobox";
-import { GSC_SELF_HOSTED_SETUP_DOCS_URL } from "@/shared/gsc";
 import { useState, type ReactNode } from "react";
-import { Plus } from "lucide-react";
 
 const GSC_SETUP_GUIDE_URL =
   "https://openseo.so/blogs/google-search-console-setup";
@@ -52,28 +51,6 @@ type PropertyGroup = {
   label: string;
   items: PropertyOption[];
 };
-
-function accountLabel(account: GooglePickerAccount) {
-  return (
-    account.email ??
-    getTranslation("integrations.details.google_account_value", undefined, {
-      v1: account.accountId.slice(-6),
-    })
-  );
-}
-
-function accountStatus(account: GooglePickerAccount, provider: "gsc" | "ga4") {
-  if (account.requiresReconnect) return "Connection expired";
-  if (account.unavailable) {
-    return account.apiDisabled
-      ? "Search Console API isn't enabled"
-      : "Couldn't load properties";
-  }
-  if (account.properties.length === 0) {
-    return provider === "gsc" ? "No websites found" : "No properties found";
-  }
-  return null;
-}
 
 function matchesProperty(option: PropertyOption, query: string) {
   return `${option.name} ${option.detail ?? ""} ${option.id}`
@@ -266,113 +243,35 @@ export function GooglePropertyPicker({
               )}
             </div>
           )}
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              {t("integrations.details.google_accounts")}
+          <GoogleAccounts
+            inline={readOnly}
+            accounts={accounts}
+            provider={provider}
+            loading={loading}
+            linking={linking}
+            saving={saving}
+            onReconnect={onReconnect}
+            onRetry={onRetry}
+            onRemove={setRemoving}
+          />
+          {provider === "gsc" &&
+          !loading &&
+          !emptyGsc &&
+          accounts.some(
+            (account) => accountStatus(account, provider) !== null,
+          ) ? (
+            <p className="text-xs text-muted-foreground">
+              {t("integrations.details.having_trouble")}{" "}
+              <a
+                href={GSC_SETUP_GUIDE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4"
+              >
+                {t("integrations.details.setup_guide")} ↗
+              </a>
             </p>
-            {accounts.map((account) => {
-              const label = accountLabel(account);
-              const status = loading ? null : accountStatus(account, provider);
-              return (
-                <div
-                  key={account.accountId}
-                  className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm"
-                >
-                  <span className="min-w-0 break-all">
-                    {label}
-                    {status ? (
-                      <span className="text-muted-foreground"> · {status}</span>
-                    ) : null}
-                    {account.apiDisabled ? (
-                      <>
-                        {" "}
-                        <a
-                          href={`${GSC_SELF_HOSTED_SETUP_DOCS_URL}#troubleshooting`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline underline-offset-4"
-                        >
-                          {t("integrations.details.how_to_enable_it")}
-                        </a>
-                      </>
-                    ) : null}
-                  </span>
-                  <span className="flex shrink-0 items-center">
-                    {account.requiresReconnect ? (
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={onReconnect}
-                        aria-label={t("integrations.details.reconnect_value", {
-                          v1: label,
-                        })}
-                        disabled={linking}
-                        aria-busy={linking}
-                      >
-                        {linking
-                          ? t("auth.onboarding.gsc.opening_google")
-                          : t("sam.reconnect")}
-                      </Button>
-                    ) : account.unavailable ? (
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={onRetry}
-                        aria-label={t("integrations.details.retry_value", {
-                          v1: label,
-                        })}
-                      >
-                        {t("ui.error_boundary.try_again")}
-                      </Button>
-                    ) : null}
-                    <Button
-                      variant="ghost"
-                      size="xs"
-                      className="text-destructive"
-                      disabled={saving}
-                      onClick={() => setRemoving(account)}
-                      aria-label={t("integrations.details.remove_value", {
-                        v1: label,
-                      })}
-                    >
-                      {t("ranks.table_ext.remove_action")}
-                    </Button>
-                  </span>
-                </div>
-              );
-            })}
-            <Button
-              variant="ghost"
-              size="xs"
-              className="-ml-2"
-              onClick={onReconnect}
-              disabled={saving || linking}
-              pending={linking}
-            >
-              {linking ? null : <Plus className="size-4" />}
-              {linking
-                ? t("auth.onboarding.gsc.opening_google")
-                : t("integrations.details.add_google_account")}
-            </Button>
-            {provider === "gsc" &&
-            !loading &&
-            !emptyGsc &&
-            accounts.some(
-              (account) => accountStatus(account, provider) !== null,
-            ) ? (
-              <p className="text-xs text-muted-foreground">
-                {t("integrations.details.having_trouble")}{" "}
-                <a
-                  href={GSC_SETUP_GUIDE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline underline-offset-4"
-                >
-                  {t("integrations.details.setup_guide")}
-                </a>
-              </p>
-            ) : null}
-          </div>
+          ) : null}
         </div>
       ) : null}
       {renderActions ? (

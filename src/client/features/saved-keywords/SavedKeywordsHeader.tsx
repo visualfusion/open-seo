@@ -5,8 +5,10 @@ import { ExportMenu } from "@/client/components/ExportMenu";
 import { PageHeader } from "@/client/components/PageHeader";
 import { Button } from "@/client/components/ui/button";
 import { useLocale } from "@/client/lib/i18n";
+import { ImportKeywordsButton } from "./ImportKeywordsDialog";
 
 export function SavedKeywordsHeader({
+  projectId,
   totalCount,
   exporting,
   metricsRefreshing,
@@ -14,6 +16,7 @@ export function SavedKeywordsHeader({
   onExportSheets,
   onRefreshMetrics,
 }: {
+  projectId: string;
   totalCount: number;
   exporting: "csv" | "sheets" | null;
   metricsRefreshing: boolean;
@@ -32,6 +35,7 @@ export function SavedKeywordsHeader({
         description={t("saved_keywords.description")}
         actions={
           <>
+            <ImportKeywordsButton projectId={projectId} />
             <Button
               variant="outline"
               size="sm"

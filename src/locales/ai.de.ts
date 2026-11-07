@@ -42,7 +42,7 @@ export const aiDe = {
     instructions: "Update-Anleitung",
   },
   cloudflare_alert:
-    "Diese Instanz befindet sich hinter Cloudflare Access. MCP-Clients können sich erst verbinden, wenn Managed OAuth in deiner Access-Anwendung aktiviert ist.",
+    "Diese Instanz befindet sich hinter Cloudflare Access, daher verbinden sich MCP-Clients über Managed OAuth in deiner Access-Anwendung. Falls ein Client statt der Verbindung eine Anmeldeseite anzeigt, prüfe, ob Managed OAuth aktiviert ist.",
   cloudflare_guide: "Anleitung",
   mcp_url_label: "MCP-Server-URL für diese Instanz:",
   mcp_url_copied: "MCP-URL kopiert",

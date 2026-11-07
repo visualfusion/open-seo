@@ -1,11 +1,12 @@
 export const keywordsDe = {
   search_bar: {
-    placeholder: "Keyword eingeben",
+    placeholder: "Keyword eingeben oder Muster wie beste * für hunde",
     validation_required: "Bitte gib mindestens ein Keyword ein.",
     validation_max:
       "Bitte gib nicht mehr als {max} Keywords ein (eines pro Zeile).",
     city_tooltip:
       "Suchvolumen für eine Stadt, einen Landkreis oder eine Region abrufen. Für das gesamte Land leer lassen.",
+    city_label: "Stadt",
     city_placeholder: "Stadt (optional)",
     local_volume_cost: "Lokales Volumen kostet ca. ~${cost} pro Suche.",
     aria_label: "Keywords",
@@ -19,6 +20,9 @@ export const keywordsDe = {
       retry: "Wiederholen",
       page_header: "Seite",
       show_top_20: "Top 20 anzeigen",
+      show_top_results: "Top-Ergebnisse anzeigen",
+      fetching_live:
+        "Live-Ergebnisse werden abgerufen… Dies kann bis zu einer Minute dauern.",
       title: "SERP-Analyse",
       organic_results: "{count} organische Ergebnisse",
       no_serp_title: "Noch keine SERP-Details für dieses Keyword verfügbar.",
@@ -102,8 +106,13 @@ export const keywordsDe = {
   },
   overview: {
     vol: "Vol",
+    volume: "Volumen",
+    difficulty: "Schwierigkeit",
     cpc: "CPC",
     comp: "Wettb.",
+    competition: "Wettbewerb",
+    search_trends: "Suchtrends, {range}",
+    last_12_available_months: "Letzte 12 verfügbare Monate",
   },
   empty: {
     no_results_title: "Noch nicht genügend Keyword-Daten für diese Anfrage",

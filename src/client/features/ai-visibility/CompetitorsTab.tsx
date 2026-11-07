@@ -3,7 +3,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { getAiVisibilityResults } from "@/serverFunctions/ai-visibility";
-import type { AiEngine, AiTrackerState } from "@/shared/ai-visibility";
+import {
+  aiBrandLabel,
+  type AiEngine,
+  type AiTrackerState,
+} from "@/shared/ai-visibility";
 import { SkeletonTableRows } from "@/client/components/SkeletonPresets";
 import { DataTableToolbar } from "@/client/components/table/DataTableToolbar";
 import { Badge } from "@/client/components/ui/badge";
@@ -105,7 +109,7 @@ export function CompetitorsTab({
                 <TableCell>
                   <span className="flex items-center gap-2">
                     <DomainFavicon domain={domain} />
-                    {name}
+                    {aiBrandLabel({ name, domain, own })}
                     {own && (
                       <Badge variant="secondary" className="ml-2">
                         {t("ai_visibility.badge_you")}

@@ -180,6 +180,7 @@ export function BacklinksBody({
             isTabLoading={
               data.activeTabQuery.isPending && !data.activeTabFilterError
             }
+            isTabRefreshing={data.activeTabQuery.isPlaceholderData}
             // A failed refetch keeps the loaded rows; a filter budget error hides
             // them because the query never ran for the current filters.
             showTable={

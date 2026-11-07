@@ -61,8 +61,10 @@ import {
   savedKeywordsSearchSchema,
   type SavedKeywordsSearch,
 } from "@/types/schemas/keywords";
+import { pageHead } from "@/client/lib/pageHead";
 
 export const Route = createFileRoute("/_app/p/$projectId/saved")({
+  head: () => pageHead("Saved Keywords"),
   validateSearch: savedKeywordsSearchSchema,
   // The project switcher keeps this page; filter drafts must not follow.
   remountDeps: ({ params }) => params.projectId,
@@ -316,6 +318,7 @@ function SavedKeywordsPage() {
     <div className="overflow-auto px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
       <div className="mx-auto max-w-7xl space-y-4">
         <SavedKeywordsHeader
+          projectId={projectId}
           totalCount={totalCount}
           exporting={exporter.exporting}
           metricsRefreshing={refreshMetricsMutation.isPending}

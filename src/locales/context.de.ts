@@ -27,7 +27,9 @@ export const contextDe = {
     step_counter: "Schritt {current} von {total}",
     duration_note: "Dies kann bis zu einer Minute dauern.",
     review_title_complete: "Projekteinrichtung abschließen",
-    review_title_competitors: "Mitbewerber bearbeiten",
+    review_title_competitors: "Marke und Mitbewerber bearbeiten",
+    brand_name: "Markenname",
+    brand_name_desc: "Nach diesem Namen suchen wir in KI-Antworten.",
     review_subtitle_before: "Du kannst deinen ",
     review_subtitle_after: " jederzeit bearbeiten.",
     preserved_competitors:

@@ -24,6 +24,7 @@ import {
   comparePeriodSchema,
   type ComparePeriod,
 } from "@/types/schemas/rank-tracking-search";
+import { parseDbTimestamp } from "@/client/lib/db-timestamp";
 
 export function RankTrackingDetailHeader({
   config,
@@ -98,7 +99,7 @@ export function RankTrackingDetailHeader({
               {" "}
               &middot;{" "}
               {t("ranks.last_check", {
-                date: new Date(run.lastCheckedAt).toLocaleDateString(),
+                date: parseDbTimestamp(run.lastCheckedAt).toLocaleDateString(),
               })}
             </>
           )}

@@ -112,6 +112,8 @@ export const auditDe = {
   },
   info: "Info",
   how_to_fix: "Behebung",
+  could_not_load_urls: "Die betroffenen URLs konnten nicht geladen werden.",
+  could_not_load_pages: "Die Seiten konnten nicht geladen werden.",
   and_more_export:
     "…und {count} weitere — exportieren Sie die CSV-Datei für die vollständige Liste.",
   redirect: "Weiterleitung",

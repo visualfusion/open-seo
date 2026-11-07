@@ -1,6 +1,9 @@
 export const uiDetailsEn = {
   something_wrong: "Something went wrong. Please try again.",
   no_countries_match: "No countries match.",
+  popular_countries: "Popular",
+  all_countries: "All countries",
+  search_countries: "Search countries",
   try_again: "Try Again",
   home: "Home",
   go_back: "Go Back",
@@ -27,6 +30,7 @@ export const uiDetailsEn = {
     "We couldn't save your analytics setting.",
   recent_search_count: "1 recent search",
   recent_searches_count: "{count} recent searches",
+  recent_searches_heading: "Recent searches",
   remove_from_recent_searches: "Remove from recent searches",
   type_a_city_county_or_region: "Type a city, county, or region",
   unable_to_load_locations: "Unable to load locations",
@@ -53,6 +57,8 @@ export const uiDetailsEn = {
     "These filters exceed the {v1}-condition limit for this view. Remove conditions in Filters{v2}. Your filters have been kept.",
   filter_recovery: " or choose All links (spammy included) from Best links",
   an_admin_sets: "An admin sets",
+  an_admin_sets_secret_deployment:
+    "An admin sets CRAWLER_ACCESS_SECRET to at least 32 random characters in the deployment's environment, then redeploys.",
   with: "with",
   help_with_step: "help with this step",
   saved_value_keywords: "Saved {v1} keywords",

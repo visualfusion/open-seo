@@ -1,10 +1,12 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { ProjectPageHeader } from "@/client/features/projects/ProjectPageHeader";
 import { SettingsTabs } from "@/client/features/projects/SettingsTabs";
+import { pageHead } from "@/client/lib/pageHead";
 
 import { useLocale } from "@/client/lib/i18n";
 
 export const Route = createFileRoute("/_app/p/$projectId/settings")({
+  head: () => pageHead("Project settings"),
   component: ProjectSettingsLayout,
 });
 

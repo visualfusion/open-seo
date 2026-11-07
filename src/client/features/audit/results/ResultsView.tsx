@@ -1,19 +1,30 @@
-import { useMemo } from "react";
+import { MetricsTable } from "@/client/components/MetricsTable";
+import { useMemo, type ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
 import {
   exportIssues,
   exportPages,
   exportPerformance,
 } from "@/client/features/audit/results/export";
-import type { AuditResultsData } from "@/client/features/audit/results/types";
+import type {
+  AuditLighthouseRow,
+  AuditResultsData,
+} from "@/client/features/audit/results/types";
 import { isLighthouseFailure } from "@/client/features/audit/results/AuditResultsTableFilterLogic";
-import { IssuesView } from "@/client/features/audit/results/IssuesView";
+import {
+  IssuesView,
+  resolveIssueSeverity,
+} from "@/client/features/audit/results/IssuesView";
 import { PagesTable } from "@/client/features/audit/results/PagesTable";
 import { ShopifyCrawlWarning } from "@/client/features/audit/results/ShopifyCrawlWarning";
 import { RenderingWarnings } from "@/client/features/audit/results/RenderingWarnings";
-import { StatsStrip } from "@/client/features/audit/results/StatsStrip";
 import { PerformanceTable } from "@/client/features/audit/results/ResultsTables";
-import { BotProtectionAdvice } from "@/client/features/audit/shared";
+import {
+  BotProtectionAdvice,
+  SCORE_TEXT_CLASS,
+  scoreTone,
+  SeverityBadge,
+} from "@/client/features/audit/shared";
 import { ExportMenu } from "@/client/components/ExportMenu";
 import {
   Alert,
@@ -41,22 +52,17 @@ export function ResultsView({
   siteBlocked: boolean;
 }) {
   const { t } = useLocale();
-  const { audit, pages, lighthouse, issues } = data;
-  const crawlStopped = issues.some(
-    (issue) => issue.issueType === "crawl-rate-limited",
+  const { audit, lighthouse, issueGroups } = data;
+  const auditRef = { projectId, auditId: audit.id };
+  const crawlStopped = issueGroups.some(
+    (group) => group.issueType === "crawl-rate-limited",
   );
   const hasPerformanceTab = lighthouse.length > 0;
   const activeTab =
     tab === "performance" && !hasPerformanceTab ? "issues" : tab;
-  const stats = useResultStats(pages, lighthouse);
-  const blockedCount = useMemo(
-    () => pages.filter((page) => page.fetchClass === "blocked").length,
-    [pages],
-  );
-  const rateLimitedCount = useMemo(
-    () => pages.filter((page) => page.fetchClass === "rate_limited").length,
-    [pages],
-  );
+  const lighthouseSummary = useLighthouseSummary(lighthouse);
+  const blockedCount = data.fetchClassCounts.blocked;
+  const rateLimitedCount = data.fetchClassCounts.rate_limited;
 
   // Shopify stores get their own notice instead of the generic advice.
   const shopifyLimited =
@@ -65,22 +71,22 @@ export function ResultsView({
 
   const tabs = (
     <ResultsHeader
-      issueCount={issues.length}
-      pageCount={pages.length}
+      issueCount={data.issueCount}
+      pageCount={data.pageCount}
       lighthouseCount={lighthouse.length}
       hasPerformanceTab={hasPerformanceTab}
       activeTab={activeTab}
       onTabChange={onTabChange}
       onExport={(format) => {
         if (activeTab === "performance") {
-          exportPerformance(lighthouse, pages, format);
+          exportPerformance(lighthouse, format);
           return;
         }
         if (activeTab === "issues") {
-          exportIssues(issues, format);
+          exportIssues(auditRef, format);
           return;
         }
-        exportPages(pages, format);
+        exportPages(auditRef, format);
       }}
     />
   );
@@ -159,18 +165,21 @@ export function ResultsView({
 
       <StatsStrip
         pagesCrawled={audit.pagesCrawled}
-        issues={issues}
+        issueCount={data.issueCount}
+        issueGroups={issueGroups}
         totalLighthouse={lighthouse.length}
-        averageResponseMs={stats.averageResponseMs}
-        lighthouseSummary={stats.lighthouseSummary}
+        averageResponseMs={data.averageResponseMs}
+        lighthouseSummary={lighthouseSummary}
       />
 
-      {activeTab === "issues" && <IssuesView issues={issues} tabs={tabs} />}
+      {activeTab === "issues" && (
+        <IssuesView auditRef={auditRef} issueGroups={issueGroups} tabs={tabs} />
+      )}
       {activeTab === "pages" && (
         <PagesTable
-          pages={pages}
-          startUrl={audit.startUrl}
-          issues={issues}
+          auditRef={auditRef}
+          canonicalHost={data.canonicalHost}
+          totalCount={data.pageCount}
           tabs={tabs}
         />
       )}
@@ -179,7 +188,6 @@ export function ResultsView({
           auditId={audit.id}
           projectId={projectId}
           lighthouse={lighthouse}
-          pages={pages}
           tabs={tabs}
         />
       )}
@@ -187,36 +195,18 @@ export function ResultsView({
   );
 }
 
-function useResultStats(
-  pages: AuditResultsData["pages"],
-  lighthouse: AuditResultsData["lighthouse"],
-) {
-  const averageResponseMs = useMemo(() => {
-    if (pages.length === 0) return 0;
-    const total = pages.reduce(
-      (sum: number, page: AuditResultsData["pages"][number]) =>
-        sum + (page.responseTimeMs ?? 0),
-      0,
-    );
-    return Math.round(total / pages.length);
-  }, [pages]);
-
-  const lighthouseSummary = useMemo(() => {
-    const failed = lighthouse.filter(
-      (row: AuditResultsData["lighthouse"][number]) => isLighthouseFailure(row),
-    ).length;
-    const successful = lighthouse.filter(
-      (row: AuditResultsData["lighthouse"][number]) =>
-        !isLighthouseFailure(row),
-    );
+function useLighthouseSummary(lighthouse: AuditLighthouseRow[]) {
+  return useMemo(() => {
+    const failed = lighthouse.filter((row) => isLighthouseFailure(row)).length;
+    const successful = lighthouse.filter((row) => !isLighthouseFailure(row));
     const averageScore = (
       key: "performanceScore" | "seoScore" | "accessibilityScore",
     ) => {
       const values = successful
-        .map((row: AuditResultsData["lighthouse"][number]) => row[key])
-        .filter((value: number | null): value is number => value != null);
+        .map((row) => row[key])
+        .filter((value): value is number => value != null);
       if (values.length === 0) return null;
-      const total = values.reduce((sum: number, value) => sum + value, 0);
+      const total = values.reduce((sum, value) => sum + value, 0);
       return Math.round(total / values.length);
     };
 
@@ -227,8 +217,6 @@ function useResultStats(
       avgAccessibility: averageScore("accessibilityScore"),
     };
   }, [lighthouse]);
-
-  return { averageResponseMs, lighthouseSummary };
 }
 
 function ResultsHeader({
@@ -288,4 +276,133 @@ function ResultsHeader({
       ))}
     </DataTableTabs>
   );
+}
+interface StatItem {
+  label: string;
+  value: string;
+  valueClass?: string;
+  sub?: ReactNode;
+}
+
+function StatsStrip({
+  pagesCrawled,
+  issueCount,
+  issueGroups,
+  totalLighthouse,
+  averageResponseMs,
+  lighthouseSummary,
+}: {
+  pagesCrawled: number;
+  issueCount: number;
+  issueGroups: AuditResultsData["issueGroups"];
+  totalLighthouse: number;
+  averageResponseMs: number;
+  lighthouseSummary: {
+    failed: number;
+    avgPerformance: number | null;
+    avgSeo: number | null;
+    avgAccessibility: number | null;
+  };
+}) {
+  const { t } = useLocale();
+  const severityCounts = useMemo(() => {
+    const counts = { critical: 0, warning: 0, info: 0 };
+    for (const group of issueGroups) {
+      counts[resolveIssueSeverity(group)] += group.count;
+    }
+    return counts;
+  }, [issueGroups]);
+
+  const items: StatItem[] = [
+    { label: t("audit.stats.pages_crawled"), value: String(pagesCrawled) },
+    {
+      label: t("audit.stats.issues_found"),
+      value: String(issueCount),
+      valueClass: issueCount === 0 ? "text-success" : "",
+      sub: issueCount > 0 && (
+        <span className="flex flex-wrap items-center gap-1">
+          {(["critical", "warning", "info"] as const).map((severity) =>
+            severityCounts[severity] > 0 ? (
+              <SeverityBadge
+                key={severity}
+                severity={severity}
+                title={severity}
+              >
+                {severity === "critical"
+                  ? t("audit.critical")
+                  : severity === "warning"
+                    ? t("audit.warning")
+                    : t("audit.info")}{" "}
+                {severityCounts[severity]}
+              </SeverityBadge>
+            ) : null,
+          )}
+        </span>
+      ),
+    },
+    {
+      label: t("audit.stats.avg_response_time"),
+      value: `${averageResponseMs}ms`,
+    },
+  ];
+
+  if (totalLighthouse > 0) {
+    items.push(
+      {
+        label: t("audit.stats.lighthouse_tests"),
+        value: String(totalLighthouse),
+      },
+      {
+        label: t("audit.stats.lighthouse_performance"),
+        value:
+          lighthouseSummary.avgPerformance == null
+            ? "-"
+            : String(lighthouseSummary.avgPerformance),
+        valueClass: scoreClass(lighthouseSummary.avgPerformance),
+      },
+      {
+        label: t("audit.stats.lighthouse_seo"),
+        value:
+          lighthouseSummary.avgSeo == null
+            ? "-"
+            : String(lighthouseSummary.avgSeo),
+        valueClass: scoreClass(lighthouseSummary.avgSeo),
+      },
+      {
+        label: t("audit.stats.lighthouse_accessibility"),
+        value:
+          lighthouseSummary.avgAccessibility == null
+            ? "-"
+            : String(lighthouseSummary.avgAccessibility),
+        valueClass: scoreClass(lighthouseSummary.avgAccessibility),
+      },
+      {
+        label: t("audit.stats.lighthouse_failures"),
+        value: String(lighthouseSummary.failed),
+        valueClass:
+          lighthouseSummary.failed > 0 ? "text-destructive" : "text-success",
+      },
+    );
+  }
+
+  return (
+    <div className="w-full max-w-xl rounded-lg border border-border bg-card p-3">
+      <MetricsTable
+        rows={items.map((item) => ({
+          label: (
+            <div className="flex flex-wrap items-center gap-2">
+              {item.label}
+              {item.sub || null}
+            </div>
+          ),
+          value: <span className={item.valueClass}>{item.value}</span>,
+        }))}
+      />
+    </div>
+  );
+}
+
+function scoreClass(score: number | null) {
+  const tone = scoreTone(score);
+  return tone ? SCORE_TEXT_CLASS[tone] : "";
 }

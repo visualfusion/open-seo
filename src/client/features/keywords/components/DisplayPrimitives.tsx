@@ -1,4 +1,4 @@
-import { getTranslation, useLocale } from "@/client/lib/i18n";
+import { useLocale } from "@/client/lib/i18n";
 import { Area, AreaChart } from "recharts";
 import {
   ChartGrid,
@@ -25,9 +25,12 @@ export type SortDir = "asc" | "desc";
 export function AreaTrendChart({
   trend,
   label,
+  className = "h-[210px]",
 }: {
   trend: MonthlySearch[];
   label?: string;
+  /** Height utility for the chart. */
+  className?: string;
 }) {
   const { t, locale } = useLocale();
   const chartLabel = label ?? t("keywords.results.filters.search_volume");
@@ -48,8 +51,8 @@ export function AreaTrendChart({
           searchVolume: { label: chartLabel, color: "var(--color-primary)" },
         } satisfies ChartConfig
       }
-      className="h-[210px]"
-      aria-label={getTranslation("ui.details.value_trend_chart", undefined, {
+      className={className}
+      aria-label={t("ui.details.value_trend_chart", {
         v1: chartLabel,
       })}
     >

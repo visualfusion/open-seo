@@ -51,6 +51,7 @@ type SearchPerformanceColumnLabels = {
 
 export function buildDimensionColumns(
   keyLabel: string,
+  showPosition: boolean,
   labels?: SearchPerformanceColumnLabels,
 ): ColumnDef<DimensionRow>[] {
   const clicksLabel = labels?.clicks ?? "Clicks";
@@ -58,7 +59,7 @@ export function buildDimensionColumns(
   const ctrLabel = labels?.ctr ?? "CTR";
   const positionLabel = labels?.position ?? "Position";
 
-  return [
+  const columns: ColumnDef<DimensionRow>[] = [
     dimensionHelper.accessor("key", {
       enableSorting: false,
       header: () => keyLabel,
@@ -93,6 +94,10 @@ export function buildDimensionColumns(
       cell: ({ getValue }) => formatCtr(getValue()),
       meta: rightAligned,
     }),
+  ];
+  if (!showPosition) return columns;
+  return [
+    ...columns,
     dimensionHelper.accessor("position", {
       header: ({ column }) => (
         <SortableHeader column={column} label={positionLabel} align="right" />

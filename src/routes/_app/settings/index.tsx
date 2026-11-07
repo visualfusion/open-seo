@@ -6,6 +6,7 @@ import { ThemePreferenceRadio } from "@/client/components/ThemePreferenceMenuIte
 import { LanguagePreferenceRadio } from "@/client/components/LanguagePreferenceMenuItems";
 import { useLocale } from "@/client/lib/i18n";
 import { everyAppAccountQueryOptions } from "@/client/features/every-app/everyAppAccountQueries";
+import { DeleteAccountSettings } from "@/client/features/settings/DeleteAccountSettings";
 import { McpConnectionsSettings } from "@/client/features/settings/McpConnectionsSettings";
 import { PrivacySettings } from "@/client/features/settings/PrivacySettings";
 import {
@@ -64,6 +65,8 @@ function PersonalSettings() {
           </div>
         </section>
       )}
+
+      {isHosted ? <DeleteAccountSettings /> : null}
     </div>
   );
 }

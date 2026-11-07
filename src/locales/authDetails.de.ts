@@ -28,4 +28,7 @@ export const authDetailsDe = {
     "Die Verbindung konnte nicht gespeichert werden. Versuche es erneut. Falls das Problem anhält, kontaktiere den Support.",
   something_went_wrong_while_try_again:
     "Bei der Kommunikation mit Google ist ein Fehler aufgetreten. Versuche es erneut. Falls das Problem anhält, kontaktiere den Support.",
+  account_being_deleted: "Dieses Konto wird gelöscht",
+  account_being_deleted_desc:
+    "Du hast die Löschung dieses Kontos beantragt, daher ist keine Anmeldung möglich. Um es zu behalten, wende dich vor dem Löschdatum an support@openseo.so.",
 };

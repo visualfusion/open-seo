@@ -1,4 +1,5 @@
 import { getTranslation } from "@/client/lib/i18n";
+import { ACCOUNT_DELETION_SCHEDULED_ERROR } from "@/shared/account-deletion";
 /**
  * Plain-language copy for Google OAuth failures, shared by the connect-surface
  * inline alert (GoogleLinkErrorAlert) and the /auth-error fallback page.
@@ -20,6 +21,11 @@ export function googleAuthErrorCopy(
     : getTranslation("auth.details.google_sign_in");
 
   switch (code) {
+    case ACCOUNT_DELETION_SCHEDULED_ERROR:
+      return {
+        title: getTranslation("auth.details.account_being_deleted"),
+        description: getTranslation("auth.details.account_being_deleted_desc"),
+      };
     case "state_mismatch":
       return {
         title: getTranslation(

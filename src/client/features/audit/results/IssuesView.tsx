@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { sort } from "remeda";
 import {
@@ -9,9 +10,13 @@ import {
 import type { AuditResultsData } from "@/client/features/audit/results/types";
 import { SeverityBadge } from "@/client/features/audit/shared";
 import { EmptyState } from "@/client/components/EmptyState";
+import { QueryState } from "@/client/components/QueryState";
+import { Skeleton } from "@/client/components/ui/skeleton";
+import { getAuditIssues } from "@/serverFunctions/audit";
 import { useLocale } from "@/client/lib/i18n";
 
-type AuditIssueRow = AuditResultsData["issues"][number];
+type IssueGroupSummary = AuditResultsData["issueGroups"][number];
+type AuditRef = { projectId: string; auditId: string };
 
 const MAX_RENDERED_URLS = 100;
 
@@ -27,7 +32,7 @@ interface IssueGroup {
   title: string;
   explanation: string;
   howToFix: string;
-  issues: AuditIssueRow[];
+  count: number;
 }
 
 export function resolveIssueSeverity(issue: {
@@ -41,42 +46,44 @@ export function resolveIssueSeverity(issue: {
     : "info";
 }
 
-function groupIssues(issues: AuditIssueRow[], locale?: string): IssueGroup[] {
-  const groups = new Map<string, IssueGroup>();
-  for (const issue of issues) {
-    let group = groups.get(issue.issueType);
-    if (!group) {
-      const descriptor = getIssueDescriptor(issue.issueType, locale);
-      group = {
-        issueType: issue.issueType,
-        severity: resolveIssueSeverity(issue),
-        title: descriptor?.title ?? issue.issueType,
-        explanation: descriptor?.explanation ?? "",
-        howToFix: descriptor?.howToFix ?? "",
-        issues: [],
-      };
-      groups.set(issue.issueType, group);
-    }
-    group.issues.push(issue);
-  }
+function toIssueGroups(
+  summaries: IssueGroupSummary[],
+  locale?: string,
+): IssueGroup[] {
+  const groups = summaries.map((summary) => {
+    const descriptor = getIssueDescriptor(summary.issueType, locale);
+    return {
+      issueType: summary.issueType,
+      severity: resolveIssueSeverity(summary),
+      title: descriptor?.title ?? summary.issueType,
+      explanation: descriptor?.explanation ?? "",
+      howToFix: descriptor?.howToFix ?? "",
+      count: summary.count,
+    };
+  });
 
   return sort(
-    Array.from(groups.values()),
+    groups,
     (a, b) =>
       ISSUE_SEVERITY_ORDER[a.severity] - ISSUE_SEVERITY_ORDER[b.severity] ||
-      b.issues.length - a.issues.length,
+      b.count - a.count,
   );
 }
 
 export function IssuesView({
-  issues,
+  auditRef,
+  issueGroups,
   tabs,
 }: {
-  issues: AuditIssueRow[];
+  auditRef: AuditRef;
+  issueGroups: IssueGroupSummary[];
   tabs: ReactNode;
 }) {
   const { locale, t } = useLocale();
-  const groups = useMemo(() => groupIssues(issues, locale), [issues, locale]);
+  const groups = useMemo(
+    () => toIssueGroups(issueGroups, locale),
+    [issueGroups, locale],
+  );
 
   const sections = useMemo(
     () =>
@@ -92,7 +99,7 @@ export function IssuesView({
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card">
       {tabs}
-      {issues.length === 0 ? (
+      {groups.length === 0 ? (
         <EmptyState
           variant="plain"
           title={t("audit.no_issues_recorded")}
@@ -101,7 +108,12 @@ export function IssuesView({
       ) : (
         <div>
           {sections.map((section) => (
-            <IssueSection key={section.severity} section={section} t={t} />
+            <IssueSection
+              key={section.severity}
+              auditRef={auditRef}
+              section={section}
+              t={t}
+            />
           ))}
         </div>
       )}
@@ -110,14 +122,16 @@ export function IssuesView({
 }
 
 function IssueSection({
+  auditRef,
   section,
   t,
 }: {
+  auditRef: AuditRef;
   section: { severity: IssueSeverity; groups: IssueGroup[] };
   t: (key: string) => string;
 }) {
   const issueCount = section.groups.reduce(
-    (sum, group) => sum + group.issues.length,
+    (sum, group) => sum + group.count,
     0,
   );
 
@@ -138,7 +152,12 @@ function IssueSection({
       </div>
       <div className="divide-y divide-border">
         {section.groups.map((group) => (
-          <IssueRow key={group.issueType} group={group} t={t} />
+          <IssueRow
+            key={group.issueType}
+            auditRef={auditRef}
+            group={group}
+            t={t}
+          />
         ))}
       </div>
     </div>
@@ -146,9 +165,11 @@ function IssueSection({
 }
 
 function IssueRow({
+  auditRef,
   group,
   t,
 }: {
+  auditRef: AuditRef;
   group: IssueGroup;
   t: (key: string) => string;
 }) {
@@ -172,8 +193,8 @@ function IssueRow({
           {group.title}
         </span>
         <span className="text-xs tabular-nums text-muted-foreground shrink-0">
-          {group.issues.length}{" "}
-          {group.issues.length === 1
+          {group.count}{" "}
+          {group.count === 1
             ? t("audit.page_singular")
             : t("audit.page_plural")}
         </span>
@@ -197,42 +218,77 @@ function IssueRow({
               <span className="text-foreground/80">{group.howToFix}</span>
             </p>
           )}
-          <AffectedUrlList issues={group.issues} />
+          <AffectedUrlList auditRef={auditRef} group={group} />
         </div>
       )}
     </div>
   );
 }
 
-function AffectedUrlList({ issues }: { issues: AuditIssueRow[] }) {
+/** Loads the group's first URLs only when it is opened. */
+function AffectedUrlList({
+  auditRef,
+  group,
+}: {
+  auditRef: AuditRef;
+  group: IssueGroup;
+}) {
   const { t } = useLocale();
-  const rendered = issues.slice(0, MAX_RENDERED_URLS);
-  const remaining = issues.length - rendered.length;
+  const query = useQuery({
+    queryKey: ["audit-issues", auditRef, group.issueType],
+    queryFn: () =>
+      getAuditIssues({
+        data: {
+          ...auditRef,
+          issueType: group.issueType,
+          pageSize: MAX_RENDERED_URLS,
+        },
+      }),
+  });
+  const remaining = group.count - MAX_RENDERED_URLS;
 
   return (
     <div className="max-h-[320px] overflow-y-auto rounded border border-border bg-card">
-      {rendered.map((issue) => (
-        <div
-          key={issue.id}
-          className="px-3 py-1.5 text-sm flex flex-col gap-0.5 border-b border-border last:border-b-0"
-        >
-          <a
-            className="text-foreground/80 truncate hover:underline"
-            href={issue.pageUrl}
-            target="_blank"
-            rel="noreferrer"
-            title={issue.pageUrl}
-          >
-            {issue.pageUrl}
-          </a>
-          <IssueDetails detailsJson={issue.detailsJson} />
-        </div>
-      ))}
-      {remaining > 0 && (
-        <div className="px-3 py-2 text-xs text-muted-foreground">
-          {t("audit.and_more_export", { count: String(remaining) })}
-        </div>
-      )}
+      <QueryState
+        query={query}
+        loading={
+          <div className="space-y-2 p-3">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        }
+        errorFallback={
+          t("audit.could_not_load_urls") || "Could not load the affected URLs"
+        }
+      >
+        {(issues) => (
+          <>
+            {issues.map((issue) => (
+              <div
+                key={issue.id}
+                className="px-3 py-1.5 text-sm flex flex-col gap-0.5 border-b border-border last:border-b-0"
+              >
+                <a
+                  className="text-foreground/80 truncate hover:underline"
+                  href={issue.pageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={issue.pageUrl}
+                >
+                  {issue.pageUrl}
+                </a>
+                <IssueDetails detailsJson={issue.detailsJson} />
+              </div>
+            ))}
+            {remaining > 0 && (
+              <div className="px-3 py-2 text-xs text-muted-foreground">
+                {t("audit.and_more_export", { count: String(remaining) })}
+              </div>
+            )}
+          </>
+        )}
+      </QueryState>
     </div>
   );
 }

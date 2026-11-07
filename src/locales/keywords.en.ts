@@ -1,10 +1,11 @@
 export const keywordsEn = {
   search_bar: {
-    placeholder: "Enter a keyword",
+    placeholder: "Enter a keyword, or a pattern like best * for dogs",
     validation_required: "Please enter at least one keyword.",
     validation_max: "Please enter no more than {max} keywords (one per line).",
     city_tooltip:
       "Get search volume for one city, county, or region. Leave empty for the whole country.",
+    city_label: "City",
     city_placeholder: "City (optional)",
     local_volume_cost: "Local volume adds ~${cost} per search.",
     aria_label: "Keywords",
@@ -18,6 +19,8 @@ export const keywordsEn = {
       retry: "Retry",
       page_header: "Page",
       show_top_20: "Show top 20",
+      show_top_results: "Show top results",
+      fetching_live: "Fetching live results… This can take up to a minute.",
       title: "SERP Analysis",
       organic_results: "{count} organic results",
       no_serp_title: "No SERP details available for this keyword yet.",
@@ -101,8 +104,13 @@ export const keywordsEn = {
   },
   overview: {
     vol: "Vol",
+    volume: "Volume",
+    difficulty: "Difficulty",
     cpc: "CPC",
     comp: "Comp",
+    competition: "Competition",
+    search_trends: "Search trends, {range}",
+    last_12_available_months: "Last 12 available months",
   },
   empty: {
     no_results_title: "Not enough keyword data for this query yet",

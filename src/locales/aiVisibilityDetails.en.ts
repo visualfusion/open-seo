@@ -6,6 +6,9 @@ export const aiVisibilityDetailsEn = {
     "We couldn’t finish setting up AI visibility. It needs DataForSEO and OpenRouter on your Every App gateway: if they aren’t set up yet, an owner or admin runs pnpm everyapp secret set DATAFORSEO_API_KEY OPENROUTER_API_KEY. Then try again.",
   we_couldn_t_finish_try_again:
     "We couldn’t finish setting up AI visibility. Try again.",
+  subrequest_limit:
+    "Setup needs more outgoing requests than Cloudflare Workers Free allows (50). Upgrade to Workers Paid or run the Docker edition, then try again.",
+  leave_page_note: "You can leave this page; setup keeps running.",
   what_you_sell_who_and_where: "What you sell, who buys it, and where",
   we_couldn_t_save_try_again: "We couldn’t save your description. Try again.",
   google_showed_no_ai_this_search:

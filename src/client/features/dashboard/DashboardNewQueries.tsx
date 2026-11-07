@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, Tag } from "lucide-react";
 import { CardShell } from "@/client/components/CardShell";
+import { EmptyState } from "@/client/components/EmptyState";
+import { Button } from "@/client/components/ui/button";
 import { QueryState } from "@/client/components/QueryState";
 import {
   Table,
@@ -13,7 +15,7 @@ import {
 } from "@/client/components/ui/table";
 import { getDashboardEmergingQueries } from "@/serverFunctions/dashboard";
 import { Freshness, DashboardInfo } from "./siteTabParts";
-import { moreDetailsClass } from "./cardParts";
+import { cardTableClass, moreDetailsClass } from "./cardParts";
 import { useLocale } from "@/client/lib/i18n";
 
 export function DashboardNewQueries({
@@ -43,6 +45,7 @@ export function DashboardNewQueries({
         !data.value.connected ? null : (
           <CardShell
             title={t("dashboard.cards.new_keywords_title")}
+            icon={<Tag className="size-5" />}
             titleInfo={
               <DashboardInfo label={t("dashboard.cards.new_keywords_about")}>
                 <p>{t("dashboard.cards.new_keywords_desc")}</p>
@@ -57,6 +60,7 @@ export function DashboardNewQueries({
                 params={{ projectId }}
                 search={{ tab: "keywords" }}
                 className={moreDetailsClass}
+                aria-label={t("dashboard.cards.view_all")}
               >
                 {t("dashboard.cards.view_all")}
               </Link>
@@ -64,45 +68,57 @@ export function DashboardNewQueries({
           >
             <Freshness {...data} />
             {data.value.rows.length ? (
-              <Table>
+              <Table className={cardTableClass}>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("dashboard.cards.keyword")}</TableHead>
-                    <TableHead>{t("dashboard.cards.impressions")}</TableHead>
-                    <TableHead>{t("dashboard.cards.clicks")}</TableHead>
+                    <TableHead className="text-right">{t("dashboard.cards.impressions")}</TableHead>
+                    <TableHead className="text-right">{t("dashboard.cards.clicks")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.value.rows.slice(0, 5).map((row) => (
                     <TableRow key={row.query}>
                       <TableCell className="font-medium">{row.query}</TableCell>
-                      <TableCell>{row.impressions.toLocaleString()}</TableCell>
-                      <TableCell>{row.clicks}</TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {row.impressions.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {row.clicks.toLocaleString()}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             ) : (
-              <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
-                <Search className="size-7 text-muted-foreground" />
-                <h3 className="font-medium">
-                  {data.value.hasSearchData
+              <EmptyState
+                variant="plain"
+                icon={Search}
+                title={
+                  data.value.hasSearchData
                     ? t("dashboard.cards.no_new_keywords")
-                    : t("dashboard.cards.no_search_data")}
-                </h3>
-                <p className="max-w-sm text-sm text-muted-foreground">
-                  {data.value.hasSearchData
+                    : t("dashboard.cards.no_search_data")
+                }
+                description={
+                  data.value.hasSearchData
                     ? t("dashboard.cards.existing_queries_note")
-                    : t("dashboard.cards.no_search_reported")}
-                </p>
-                <Link
-                  to="/p/$projectId/search-performance"
-                  params={{ projectId }}
-                  className="text-sm text-primary hover:underline"
-                >
-                  {t("dashboard.cards.view_full_gsc")}
-                </Link>
-              </div>
+                    : t("dashboard.cards.no_search_reported")
+                }
+                action={
+                  <Button
+                    variant="outline"
+                    nativeButton={false}
+                    render={
+                      <Link
+                        to="/p/$projectId/search-performance"
+                        params={{ projectId }}
+                      />
+                    }
+                  >
+                    {t("dashboard.cards.view_full_gsc")}
+                  </Button>
+                }
+              />
             )}
           </CardShell>
         )

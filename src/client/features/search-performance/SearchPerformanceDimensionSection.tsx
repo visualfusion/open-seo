@@ -13,6 +13,7 @@ export function DimensionSection({
   projectId,
   tableQuery,
   keyLabel,
+  showPosition,
   page,
   pageSize,
   onPageChange,
@@ -25,6 +26,7 @@ export function DimensionSection({
     Awaited<ReturnType<typeof getSearchPerformanceTable>>
   >;
   keyLabel: string;
+  showPosition: boolean;
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
@@ -71,6 +73,7 @@ export function DimensionSection({
         <DimensionTable
           rows={tableData.rows}
           keyLabel={keyLabel}
+          showPosition={showPosition}
           isFiltered={isFiltered}
           isPastEnd={isPastEnd}
           onClearFilters={onClearFilters}

@@ -89,7 +89,13 @@ export const searchPerformanceDe = {
   countries: {
     all: "Alle Länder",
   },
+  types: {
+    web: "Websuche",
+    discover: "Discover",
+    googleNews: "Google News",
+  },
   aria: {
+    search_type: "Suchtyp",
     device_filter: "Gerätefilter",
     country_filter: "Länderfilter",
     date_range: "Datumsbereich",

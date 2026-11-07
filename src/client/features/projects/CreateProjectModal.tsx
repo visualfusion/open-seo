@@ -1,6 +1,6 @@
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { revalidateLogic } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,7 +14,10 @@ import {
   DialogTitle,
 } from "@/client/components/ui/dialog";
 import { FieldDescription } from "@/client/components/ui/field";
-import { setLastProjectId } from "@/client/lib/active-project";
+import {
+  getLastProjectId,
+  setLastProjectId,
+} from "@/client/lib/active-project";
 import {
   getErrorCode,
   getStandardErrorMessage,
@@ -33,6 +36,11 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
   const { t } = useLocale();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  // A new project starts in the market of the project the user is working in.
+  const projects = useQuery(projectsQueryOptions());
+  const currentProject = projects.data?.find(
+    (project) => project.id === getLastProjectId(),
+  );
 
   const createProjectSchema = z.object({
     name: z.string().trim().min(1, t("projects.create.name_required")),
@@ -82,8 +90,10 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
       name: "",
       domain: "",
       market: {
-        locationCode: DEFAULT_LOCATION_CODE,
-        languageCode: getLanguageCode(DEFAULT_LOCATION_CODE),
+        locationCode: currentProject?.locationCode ?? DEFAULT_LOCATION_CODE,
+        languageCode:
+          currentProject?.languageCode ??
+          getLanguageCode(DEFAULT_LOCATION_CODE),
       },
     },
     validationLogic: revalidateLogic(),

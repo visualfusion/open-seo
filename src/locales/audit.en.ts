@@ -107,6 +107,8 @@ export const auditEn = {
   },
   info: "Info",
   how_to_fix: "How to fix",
+  could_not_load_urls: "Could not load the affected URLs",
+  could_not_load_pages: "Could not load the pages",
   and_more_export:
     "…and {count} more — export the issues CSV for the full list.",
   redirect: "redirect",

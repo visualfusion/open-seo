@@ -55,6 +55,9 @@ export const integrationsDetailsDe = {
     "Bitte den Property-Inhaber um vollständigen Zugriff oder bestätige die Inhaberschaft in der Search Console.",
   no_verified_access: "Kein bestätigter Zugriff",
   google_accounts: "Google-Konten",
+  google_accounts_count: "{count} Google-Konten",
+  properties_come_from_these_accounts:
+    "Properties stammen aus diesen Konten.",
   how_to_enable_it: "So aktivierst du es ↗",
   reconnect_value: "{v1} erneut verbinden",
   retry_value: "{v1} erneut versuchen",

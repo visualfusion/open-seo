@@ -30,13 +30,94 @@ import {
   type Report,
   type SearchPerformanceTableRow,
 } from "@/client/features/search-performance/SearchPerformanceColumns";
-import { normalizeExportValue } from "@/client/lib/csv";
+import { normalizeExportValue, type CsvValue } from "@/client/lib/csv";
+import { exportRows } from "@/client/lib/exportRows";
 import { captureClientEvent } from "@/client/lib/posthog";
-import { SEARCH_PERFORMANCE_PAGE_SIZES } from "@/types/schemas/search-performance";
+import {
+  SEARCH_PERFORMANCE_PAGE_SIZES,
+  type SearchPerformanceTableDimension,
+} from "@/types/schemas/search-performance";
 import { saveKeywords } from "@/serverFunctions/keywords";
 import { useLocale } from "@/client/lib/i18n";
+import { TrackRankingsMenu } from "./TrackRankingsMenu";
 
-export * from "./searchPerformanceExport";
+export type ExportTarget = "csv" | "sheets";
+
+type ExportTable = { filename: string; headers: string[]; rows: CsvValue[][] };
+
+function strikingExportTable(report: Report): ExportTable {
+  const stamp = `${report.range.startDate}-to-${report.range.endDate}`;
+  return {
+    filename: `search-performance-striking-distance-${stamp}`,
+    headers: ["Query", "Page", "Impressions", "Clicks", "Position"],
+    rows: report.strikingDistance.map((row) => [
+      row.query,
+      row.page,
+      row.impressions,
+      row.clicks,
+      row.position,
+    ]),
+  };
+}
+
+function dimensionExportTable(
+  dimension: SearchPerformanceTableDimension,
+  rows: SearchPerformanceTableRow[],
+  stamp: string,
+  showPosition: boolean,
+): ExportTable {
+  const isPage = dimension === "page";
+  return {
+    filename: `search-performance-${isPage ? "pages" : "queries"}-${stamp}`,
+    headers: [
+      isPage ? "Page" : "Query",
+      "Clicks",
+      "Impressions",
+      "CTR (%)",
+      ...(showPosition ? ["Position"] : []),
+    ],
+    rows: rows.map((row) => [
+      row.key,
+      row.clicks,
+      row.impressions,
+      // CTR is a 0-1 ratio; exports keep two decimals, which would turn 0.0234
+      // into 0.02. As a percentage the same precision reads 2.34.
+      Math.round(row.ctr * 10_000) / 100,
+      ...(showPosition ? [row.position] : []),
+    ]),
+  };
+}
+
+function runExport(table: ExportTable, target: ExportTarget): Promise<void> {
+  return exportRows({
+    format: target,
+    feature: "search_performance",
+    ...table,
+  });
+}
+
+export function exportStriking(
+  report: Report,
+  target: ExportTarget,
+): Promise<void> {
+  return runExport(strikingExportTable(report), target);
+}
+
+/** Export the full queries/pages dataset (fetched separately, not the visible
+ *  page) so pagination never truncates a download. */
+export function exportDimensionRows(
+  dimension: SearchPerformanceTableDimension,
+  rows: SearchPerformanceTableRow[],
+  range: Report["range"],
+  target: ExportTarget,
+  showPosition: boolean,
+): Promise<void> {
+  const stamp = `${range.startDate}-to-${range.endDate}`;
+  return runExport(
+    dimensionExportTable(dimension, rows, stamp, showPosition),
+    target,
+  );
+}
 
 type Delta = { text: string; improved: boolean } | null;
 
@@ -57,7 +138,14 @@ function positionDelta(current: number, previous: number): Delta {
   };
 }
 
-export function TotalsTable({ report }: { report: Report }) {
+/** Discover and Google News report no position, so it is left out there. */
+export function TotalsTable({
+  report,
+  showPosition,
+}: {
+  report: Report;
+  showPosition: boolean;
+}) {
   const { t } = useLocale();
   const { totals, prevTotals, range } = report;
   const deltaTitle = t("search_performance.totals.compared_with", {
@@ -80,11 +168,15 @@ export function TotalsTable({ report }: { report: Report }) {
       value: formatCtr(totals.ctr),
       delta: percentDelta(totals.ctr, prevTotals.ctr),
     },
-    {
-      label: t("search_performance.totals.position"),
-      value: formatPosition(totals.position),
-      delta: positionDelta(totals.position, prevTotals.position),
-    },
+    ...(showPosition
+      ? [
+          {
+            label: t("search_performance.totals.position"),
+            value: formatPosition(totals.position),
+            delta: positionDelta(totals.position, prevTotals.position),
+          },
+        ]
+      : []),
   ];
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -124,6 +216,7 @@ export function TotalsTable({ report }: { report: Report }) {
 export function DimensionTable({
   rows,
   keyLabel,
+  showPosition,
   isFiltered,
   isPastEnd,
   onClearFilters,
@@ -131,6 +224,7 @@ export function DimensionTable({
 }: {
   rows: SearchPerformanceTableRow[];
   keyLabel: string;
+  showPosition: boolean;
   isFiltered: boolean;
   isPastEnd: boolean;
   onClearFilters: () => void;
@@ -149,8 +243,8 @@ export function DimensionTable({
     [t],
   );
   const columns = useMemo(
-    () => buildDimensionColumns(keyLabel, columnLabels),
-    [keyLabel, columnLabels],
+    () => buildDimensionColumns(keyLabel, showPosition, columnLabels),
+    [keyLabel, showPosition, columnLabels],
   );
   const table = useDataTable({
     data: rows,
@@ -360,6 +454,11 @@ export function StrikingDistanceTable({
             >
               {t("search_performance.striking.save_as_keywords")}
             </TableBulkActionButton>
+            <TrackRankingsMenu
+              projectId={projectId}
+              queries={selectedQueries}
+              onAdded={() => setRowSelection({})}
+            />
           </div>
         }
       />

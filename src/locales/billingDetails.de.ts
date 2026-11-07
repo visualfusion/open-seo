@@ -40,6 +40,8 @@ export const billingDetailsDe = {
   turn_on: "Aktivieren",
   auto_reload_enable: "Automatisches Aufladen aktivieren",
   auto_reload: "Automatisches Aufladen",
+  auto_reload_summary:
+    "Kaufe in einem kostenpflichtigen Tarif automatisch neues Guthaben hinzu, wenn dieses knapp wird – bis zu einem monatlichen Budget deiner Wahl.",
   adds: "· Lädt $",
   when_top_ups_drop_to: "nach, wenn das Zusatzguthaben sinkt auf $",
   of: "von $",
@@ -71,7 +73,9 @@ export const billingDetailsDe = {
     "Stripe sendet den Beleg nach jeder Zahlung an die Rechnungsadresse deines Kontos.",
   we_couldn_t_load_try_again:
     "Deine Rechnungen konnten nicht geladen werden. Versuche es erneut.",
-  no_invoices_yet: "Noch keine Rechnungen vorhanden.",
+  no_invoices_yet: "Noch keine Rechnungen vorhanden",
+  no_invoices_yet_desc:
+    "Rechnungen für deinen Tarif und Guthabenkäufe werden hier angezeigt.",
   invoice: "Rechnung",
   billing_period: "Abrechnungszeitraum",
   amount: "Betrag",
@@ -101,6 +105,12 @@ export const billingDetailsDe = {
   update_it: "die Karte zu aktualisieren",
   add_more: "Guthaben hinzuzufügen",
   upgrade_your_plan: "Tarif upgraden",
+  change_your_plan: "Tarif ändern",
+  two_months_free: "2 Monate gratis",
+  yearly: "Jährlich",
+  per_year: "/Jahr",
+  only_owner_can_change_plan:
+    "Nur der Eigentümer der Organisation kann den Tarif ändern. Bitte ihn darum, falls du einen größeren Tarif benötigst.",
   buy_more_credits: "Guthaben nachkaufen",
   buy_more_credits_below: "Kaufe unten zusätzliches Guthaben.",
   you_ve_used_your_free_credits: "Dein kostenloses Guthaben ist aufgebraucht.",

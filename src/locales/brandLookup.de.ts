@@ -41,6 +41,9 @@ export const brandLookupDe = {
     highlight_desc:
       "Wir markieren, ob das jeweilige Modell diese Marke erwähnt.",
     models_label: "Modelle",
+    model_cant_specify_country: "{label} kann kein Land festlegen.",
+    model_cant_specify_this_country: "{label} kann dieses Land nicht festlegen.",
+    about_model_country_aria: "Über {label} und Länderausrichtung",
     skipped_for_country: "Übersprungen für {country}",
     allow_web_search: "Websuche erlauben",
     web_search_country_aria: "Land für die Websuche",

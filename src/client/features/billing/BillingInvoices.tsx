@@ -1,6 +1,7 @@
 import { useLocale } from "@/client/lib/i18n";
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
-import { Download } from "lucide-react";
+import { Download, ReceiptText } from "lucide-react";
+import { EmptyState } from "@/client/components/EmptyState";
 import { QueryError } from "@/client/components/QueryState";
 import { buttonVariants } from "@/client/components/ui/button";
 import {
@@ -142,9 +143,12 @@ function InvoiceTable() {
 
   if (invoices.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        {t("billing.details.no_invoices_yet")}
-      </p>
+      <EmptyState
+        variant="plain"
+        icon={ReceiptText}
+        title={t("billing.details.no_invoices_yet")}
+        description={t("billing.details.no_invoices_yet_desc")}
+      />
     );
   }
 

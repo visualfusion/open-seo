@@ -27,7 +27,9 @@ export const contextEn = {
     step_counter: "Step {current} of {total}",
     duration_note: "This can take up to a minute.",
     review_title_complete: "Complete project setup",
-    review_title_competitors: "Edit competitors",
+    review_title_competitors: "Edit your brand and competitors",
+    brand_name: "Brand name",
+    brand_name_desc: "We look for this name in AI answers.",
     review_subtitle_before: "You can edit your ",
     review_subtitle_after: " at any time.",
     preserved_competitors:

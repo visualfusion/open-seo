@@ -1,33 +1,29 @@
-import { useLocale } from "@/client/lib/i18n";
-import { SkeletonTableRows } from "@/client/components/SkeletonPresets";
 import { CardShell } from "@/client/components/CardShell";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Area, AreaChart, XAxis, YAxis } from "recharts";
-import { moreDetailsClass } from "@/client/features/dashboard/cardParts";
-import { MetricsTable, percentChange } from "@/client/components/MetricsTable";
+import {
+  cardMetaClass,
+  moreDetailsClass,
+} from "@/client/features/dashboard/cardParts";
+import {
+  MetricRow,
+  MetricsSkeleton,
+  TrendChart,
+} from "@/client/features/dashboard/DashboardMetrics";
+import { percentChange } from "@/client/components/MetricsTable";
 import { Ga4ConnectCard } from "@/client/features/dashboard/Ga4ConnectCard";
 import {
   formatCount,
   formatCtr,
 } from "@/client/features/search-performance/SearchPerformanceColumns";
+import { GoogleAnalyticsLogo } from "@/client/features/integrations/GoogleProductLogos";
 import { getGa4DashboardReport } from "@/serverFunctions/ga4";
-import { Skeleton } from "@/client/components/ui/skeleton";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/client/components/ui/chart";
+import type { ChartConfig } from "@/client/components/ui/chart";
+import { useLocale } from "@/client/lib/i18n";
 
-function formatTrendDay(date: string): string {
-  // Construct in local time: Date.parse("2026-08-01") is UTC midnight, which
-  // toLocaleDateString would render as the previous day west of Greenwich.
-  const [year, month, day] = date.split("-").map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-}
+const sessionsChartConfig = {
+  sessions: { label: "Sessions", color: "var(--chart-1)" },
+} satisfies ChartConfig;
 
 function statValue(
   value: number | null,
@@ -61,7 +57,13 @@ export function Ga4Card({
   // period would otherwise render an all-zero flatline chart in an empty box.
   return (
     <CardShell
-      title={t("dashboard.details.organic_traffic")}
+      title="Google Analytics"
+      icon={<GoogleAnalyticsLogo className="size-5" />}
+      titleInfo={
+        <span className={cardMetaClass}>
+          {t("dashboard.details.organic_search_last_28_days")}
+        </span>
+      }
       action={
         <Link
           to="/p/$projectId/settings"
@@ -73,27 +75,20 @@ export function Ga4Card({
         </Link>
       }
     >
-      <p className="mb-4 text-sm text-muted-foreground">
-        {t("dashboard.details.google_analytics_last_28_days")}
-      </p>
       {reportQuery.isError ? (
         <p className="text-sm text-muted-foreground">
           {t("dashboard.details.couldn_t_load_google_again_shortly")}
         </p>
       ) : !report ? (
-        <div className="space-y-3" aria-busy>
-          <SkeletonTableRows rows={5} columns={3} />
-          <Skeleton className="h-24" />
-        </div>
+        <MetricsSkeleton />
       ) : !report.totals.sessions ? (
         <p className="text-sm text-muted-foreground">
           {t("dashboard.details.no_organic_search_traffic_28_days")}
         </p>
       ) : (
-        <div className="space-y-4">
-          <MetricsTable
-            showChange
-            rows={[
+        <div className="flex flex-1 flex-col gap-4">
+          <MetricRow
+            metrics={[
               {
                 label: t("dashboard.details.sessions"),
                 value: statValue(report.totals.sessions, formatCount),
@@ -101,6 +96,7 @@ export function Ga4Card({
                   report.totals.sessions,
                   report.prevTotals.sessions,
                 ),
+                dotClass: "bg-chart-1",
               },
               {
                 label: t("dashboard.details.active_users"),
@@ -123,61 +119,9 @@ export function Ga4Card({
                   report.prevTotals.keyEvents,
                 ),
               },
-            ].map((metric) => ({
-              label: metric.label,
-              value: metric.value,
-              change:
-                metric.change === null ? undefined : (
-                  <span
-                    className={
-                      metric.change > 0
-                        ? "text-success"
-                        : metric.change < 0
-                          ? "text-destructive"
-                          : "text-muted-foreground"
-                    }
-                  >
-                    {metric.change > 0 ? "+" : ""}
-                    {metric.change}%
-                  </span>
-                ),
-            }))}
+            ]}
           />
-          <ChartContainer
-            config={{
-              sessions: {
-                label: t("dashboard.details.sessions"),
-                color: "var(--color-primary)",
-              },
-            }}
-            className="h-24"
-          >
-            <AreaChart
-              data={report.trend}
-              margin={{ top: 4, right: 0, bottom: 0, left: 0 }}
-            >
-              <XAxis dataKey="date" hide />
-              <YAxis hide domain={[0, "auto"]} />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    labelFormatter={(label: unknown) =>
-                      typeof label === "string" ? formatTrendDay(label) : ""
-                    }
-                    valueFormatter={(value) => formatCount(Number(value))}
-                  />
-                }
-              />
-              <Area
-                type="monotone"
-                dataKey="sessions"
-                stroke="var(--color-sessions)"
-                strokeWidth={2}
-                fill="var(--color-sessions)"
-                fillOpacity={0.08}
-              />
-            </AreaChart>
-          </ChartContainer>
+          <TrendChart config={sessionsChartConfig} data={report.trend} />
         </div>
       )}
     </CardShell>

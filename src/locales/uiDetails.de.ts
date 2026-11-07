@@ -1,6 +1,9 @@
 export const uiDetailsDe = {
   something_wrong: "Ein Fehler ist aufgetreten. Versuche es erneut.",
   no_countries_match: "Keine passenden Länder gefunden.",
+  popular_countries: "Beliebt",
+  all_countries: "Alle Länder",
+  search_countries: "Länder suchen",
   try_again: "Erneut versuchen",
   home: "Startseite",
   go_back: "Zurück",
@@ -27,6 +30,7 @@ export const uiDetailsDe = {
     "Deine Analytics-Einstellung konnte nicht gespeichert werden.",
   recent_search_count: "1 letzte Suche",
   recent_searches_count: "{count} letzte Suchen",
+  recent_searches_heading: "Letzte Suchen",
   remove_from_recent_searches: "Aus letzten Suchen entfernen",
   type_a_city_county_or_region: "Stadt, Landkreis oder Region eingeben",
   unable_to_load_locations: "Orte konnten nicht geladen werden",
@@ -55,6 +59,8 @@ export const uiDetailsDe = {
   filter_recovery:
     " oder wähle Alle Links (einschließlich Spam) statt Beste Links",
   an_admin_sets: "Ein Administrator hinterlegt",
+  an_admin_sets_secret_deployment:
+    "Ein Administrator setzt CRAWLER_ACCESS_SECRET in der Deployment-Umgebung auf mindestens 32 zufällige Zeichen und deployt anschließend neu.",
   with: "mit",
   help_with_step: "bei diesem Schritt helfen",
   saved_value_keywords: "{v1} Keywords gespeichert",

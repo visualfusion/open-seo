@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ProjectPageHeader } from "@/client/features/projects/ProjectPageHeader";
 import { ProjectContextPage } from "@/client/features/projects/project-context/ProjectContextPage";
 import { useLocale } from "@/client/lib/i18n";
+import { pageHead } from "@/client/lib/pageHead";
 
 export const Route = createFileRoute("/_app/p/$projectId/context")({
+  head: () => pageHead("Context"),
   component: ProjectContextRoute,
 });
 

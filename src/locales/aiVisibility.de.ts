@@ -53,8 +53,9 @@ export const aiVisibilityDe = {
   prompt_analysis_fallback: "Prompt-Analyse",
   run_now: "Jetzt ausführen",
   no_matching_prompts:
-    "Keine passenden Prompts gefunden. Füge Prompts hinzu oder passe die Suche an.",
+    "Keine übereinstimmenden Prompts. Füge Prompts hinzu oder passe Suche und Filter an.",
   col_prompts_by_topic: "Prompts nach Thema",
+  col_competitors_named: "Genannte Wettbewerber",
   col_owned_citations: "Eigene Zitate",
   manage_tracking: "Tracking verwalten",
   paused: "Pausiert",

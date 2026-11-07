@@ -2,10 +2,12 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { NavTab, NavTabs } from "@/client/components/NavTabs";
 import { PageHeader } from "@/client/components/PageHeader";
 import { usesBetterAuthClient } from "@/lib/auth-mode";
+import { pageHead } from "@/client/lib/pageHead";
 
 import { useLocale } from "@/client/lib/i18n";
 
 export const Route = createFileRoute("/_app/settings")({
+  head: () => pageHead("Settings"),
   component: SettingsLayout,
 });
 

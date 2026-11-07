@@ -14,6 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { isHostedClientAuthMode } from "@/lib/auth-mode";
 import { getSignInSearch, normalizeAuthRedirect } from "@/lib/auth-redirect";
 import { z } from "zod";
+import { pageHead } from "@/client/lib/pageHead";
 
 const resetPasswordSchema = z
   .object({
@@ -31,6 +32,7 @@ const resetPasswordSearchSchema = authRedirectSearchSchema.extend({
 });
 
 export const Route = createFileRoute("/reset-password")({
+  head: () => pageHead("Reset password"),
   validateSearch: resetPasswordSearchSchema,
   component: ResetPasswordPage,
 });

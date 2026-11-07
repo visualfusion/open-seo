@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { SerpLocationCombobox } from "@/client/components/SerpLocationCombobox";
+import { SerpLocationChip } from "@/client/components/SerpLocationCombobox";
 import { usePrewarmSerpLocations } from "@/client/components/usePrewarmSerpLocations";
 import { useLocale } from "@/client/lib/i18n";
-import { isHostedClientAuthMode } from "@/lib/auth-mode";
-import { LOCAL_VOLUME_COST_USD, applyBillingMarkupUsd } from "@/shared/billing";
 import { getIsoCountryCode } from "@/shared/keyword-locations";
 
 type Props = {
@@ -25,34 +23,16 @@ export function KeywordAreaField({ locationCode, value, onChange }: Props) {
 
   return (
     <div
-      className="col-span-2 w-full lg:w-44 lg:shrink-0"
+      className="min-w-0"
       onFocus={() => setFocused(true)}
       title={t("keywords.search_bar.city_tooltip")}
     >
-      <SerpLocationCombobox
+      <SerpLocationChip
         value={value}
         onChange={onChange}
         countryCode={countryCode}
-        placeholder={t("keywords.search_bar.city_placeholder")}
+        label={t("keywords.search_bar.city_label")}
       />
     </div>
-  );
-}
-
-/**
- * The extra Google Ads lookup a local search makes. Hosted users pay the
- * marked-up price; self-hosted deployments pay DataForSEO directly.
- */
-export function LocalVolumeCostNote() {
-  const { t } = useLocale();
-  const costUsd = isHostedClientAuthMode()
-    ? applyBillingMarkupUsd(LOCAL_VOLUME_COST_USD)
-    : LOCAL_VOLUME_COST_USD;
-  return (
-    <span className="text-xs text-muted-foreground">
-      {t("keywords.search_bar.local_volume_cost", {
-        cost: costUsd.toFixed(2),
-      })}
-    </span>
   );
 }

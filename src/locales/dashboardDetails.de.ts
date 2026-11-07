@@ -61,6 +61,7 @@ export const dashboardDetailsDe = {
   organic_traffic: "Organischer Traffic",
   manage: "Verwalten",
   google_analytics_last_28_days: "Google Analytics · Letzte 28 Tage",
+  organic_search_last_28_days: "Organische Suche · Letzte 28 Tage",
   couldn_t_load_google_again_shortly:
     "Google-Analytics-Daten konnten nicht geladen werden. Versuche es in Kürze erneut.",
   no_organic_search_traffic_28_days:

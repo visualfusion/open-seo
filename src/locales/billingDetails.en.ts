@@ -38,6 +38,8 @@ export const billingDetailsEn = {
   turn_on: "Turn on",
   auto_reload_enable: "Turn on auto-reload",
   auto_reload: "Auto-reload",
+  auto_reload_summary:
+    "On a paid plan, buy more automatically when you run low, up to a monthly budget you set.",
   adds: "· Adds $",
   when_top_ups_drop_to: "when top-ups drop to $",
   of: "of $",
@@ -68,7 +70,9 @@ export const billingDetailsEn = {
     "Stripe sends the receipt to the billing email on your account after each payment.",
   we_couldn_t_load_try_again:
     "We couldn't load your invoices. Please try again.",
-  no_invoices_yet: "No invoices yet.",
+  no_invoices_yet: "No invoices yet",
+  no_invoices_yet_desc:
+    "Invoices for your plan and credit purchases show up here.",
   invoice: "Invoice",
   billing_period: "Billing period",
   amount: "Amount",
@@ -97,6 +101,12 @@ export const billingDetailsEn = {
   update_it: "update it",
   add_more: "add more",
   upgrade_your_plan: "Upgrade your plan",
+  change_your_plan: "Change your plan",
+  two_months_free: "2 months free",
+  yearly: "Yearly",
+  per_year: "/year",
+  only_owner_can_change_plan:
+    "Only the organization owner can change the plan. Ask them if you need a bigger one.",
   buy_more_credits: "Buy more credits",
   buy_more_credits_below: "Buy more credits below.",
   you_ve_used_your_free_credits: "You’ve used your free credits.",

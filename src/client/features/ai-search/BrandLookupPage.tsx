@@ -89,8 +89,6 @@ export function BrandLookupPage({
           query: trimmedInitialQuery,
           competitors: initialCompetitors,
           scope: initialScope,
-          locationCode: 2840,
-          languageCode: "en",
         },
       }),
     enabled: hasActiveQuery && planStatus === "paid",

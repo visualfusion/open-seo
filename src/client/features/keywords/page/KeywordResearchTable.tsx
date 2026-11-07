@@ -18,6 +18,7 @@ import {
 } from "@/client/features/keywords/components";
 import { SortableHeader } from "@/client/components/table/SortableHeader";
 import { ScoreBadge } from "@/client/components/table/ScoreBadge";
+import { Spinner } from "@/client/components/ui/spinner";
 import { formatNumber } from "@/client/features/keywords/utils";
 import { useLocale } from "@/client/lib/i18n";
 import type { KeywordResearchDisplayRow } from "@/client/features/keywords/groupSharedVolumeRows";
@@ -34,6 +35,8 @@ type Props = {
   isFiltered: boolean;
   resetFilters: () => void;
   handleRowClick: (row: KeywordResearchRow) => void;
+  /** The keyword whose SERP is loading, marked on its row. */
+  serpLoadingKeyword: string | null;
   toolbar: ReactNode;
   footer: ReactNode;
 };
@@ -51,6 +54,7 @@ export function KeywordResearchTable({
   isFiltered,
   resetFilters,
   handleRowClick,
+  serpLoadingKeyword,
   toolbar,
   footer,
 }: Props) {
@@ -81,10 +85,10 @@ export function KeywordResearchTable({
         ),
         cell: ({ row }) => (
           <div
-            className={`min-w-48 md:min-w-0 ${row.original.parentKeyword ? "pl-4" : ""}`}
+            className={`flex min-w-48 items-center gap-1.5 md:min-w-0 ${row.original.parentKeyword ? "pl-4" : ""}`}
           >
             <span
-              className={`block whitespace-normal break-words capitalize md:truncate ${row.original.parentKeyword ? "font-normal" : "font-medium"}`}
+              className={`block min-w-0 whitespace-normal break-words capitalize md:truncate ${row.original.parentKeyword ? "font-normal" : "font-medium"}`}
               title={
                 row.original.parentKeyword
                   ? t("keywords.results.table.shared_volume_tooltip", {
@@ -96,6 +100,12 @@ export function KeywordResearchTable({
             >
               {row.original.keyword}
             </span>
+            {row.original.keyword === serpLoadingKeyword ? (
+              <Spinner
+                className="size-3.5 shrink-0 text-muted-foreground"
+                aria-label="Loading SERP results"
+              />
+            ) : null}
           </div>
         ),
         // From md, the keyword column takes the free width and truncates, so
@@ -182,7 +192,7 @@ export function KeywordResearchTable({
         },
       }),
     ];
-  }, [selectAnchorRef, sortDir, sortField, t, toggleSort]);
+  }, [selectAnchorRef, serpLoadingKeyword, sortDir, sortField, t, toggleSort]);
   const table = useDataTable({
     data: filteredRows,
     columns,
@@ -205,6 +215,7 @@ export function KeywordResearchTable({
   return (
     <DataTable
       table={table}
+      className="flex flex-1 flex-col"
       toolbar={toolbar}
       footer={footer}
       empty={{ title: t("keywords.results.table.no_keywords") }}

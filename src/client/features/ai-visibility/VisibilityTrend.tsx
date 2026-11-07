@@ -17,7 +17,12 @@ import {
 import type { AiTrend, AiTrendMetric } from "@/shared/ai-visibility";
 import { EngineLabel } from "./EngineLabel";
 import { trendSeries, VisibilityTrendChart } from "./VisibilityTrendChart";
-import { AiQueryError, type AiTrendDays, aiTrendQueryOptions } from "./shared";
+import {
+  AiQueryError,
+  aiTrendQueryOptions,
+  DEFAULT_AI_TREND_DAYS,
+  type AiTrendDays,
+} from "./shared";
 
 const rate = (value: number | null) =>
   value === null ? "—" : `${Math.round(value)}%`;
@@ -51,7 +56,7 @@ export function VisibilityTrend({
   collecting: boolean;
 }) {
   const { t } = useLocale();
-  const [days, setDays] = useState<AiTrendDays>(7);
+  const [days, setDays] = useState<AiTrendDays>(DEFAULT_AI_TREND_DAYS);
   const query = useQuery(aiTrendQueryOptions(projectId, days));
   const trend = query.data;
   const message = trend && notice(trend, collecting, t);

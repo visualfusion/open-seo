@@ -9,6 +9,7 @@ import {
   PROSE_MAX_CHARS,
   type ProjectContextSectionKey,
 } from "@/types/schemas/projectContext";
+import { BrandNameSection } from "./BrandNameSection";
 import { CompetitorsSection } from "./CompetitorsSection";
 import { KeyPagesSection } from "./KeyPagesSection";
 import {
@@ -67,6 +68,11 @@ export function ProjectContextPage({ projectId }: { projectId: string }) {
           <p className="text-sm text-muted-foreground">
             {t("context.description")}
           </p>
+
+          <BrandNameSection
+            projectId={projectId}
+            brandName={context.brandName}
+          />
 
           <ProseSections
             projectId={projectId}

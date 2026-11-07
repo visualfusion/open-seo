@@ -14,7 +14,8 @@ import {
   Field,
   FieldDescription,
   FieldLabel,
-  FieldTitle,
+  FieldLegend,
+  FieldSet,
 } from "@/client/components/ui/field";
 import { Input } from "@/client/components/ui/input";
 import { Label } from "@/client/components/ui/label";
@@ -28,6 +29,7 @@ import {
 } from "@/client/components/ui/combobox";
 import {
   WEB_SEARCH_COUNTRY_CODES,
+  ignoresWebSearchCountry,
   supportsWebSearchCountry,
 } from "@/shared/prompt-search-countries";
 import { Textarea } from "@/client/components/ui/textarea";
@@ -70,6 +72,24 @@ const SORTED_COUNTRY_ITEMS = sortBy(
   (item) => item.label,
 );
 
+function getCountryNote(
+  model: PromptExplorerModel,
+  form: FormValues,
+  t: (key: string, params?: Record<string, string>) => string,
+) {
+  if (!form.webSearch || form.webSearchCountryCode === "default") return null;
+  const label = formatModelLabel(model);
+  if (ignoresWebSearchCountry(model)) {
+    return t("brand_lookup.prompt_explorer.model_cant_specify_country", {
+      label,
+    });
+  }
+  if (supportsWebSearchCountry(model, form.webSearchCountryCode)) return null;
+  return t("brand_lookup.prompt_explorer.model_cant_specify_this_country", {
+    label,
+  });
+}
+
 export function PromptExplorerForm({
   form,
   onPromptChange,
@@ -105,10 +125,13 @@ export function PromptExplorerForm({
       item.value === form.webSearchCountryCode ||
       form.models.some((model) => supportsWebSearchCountry(model, item.value)),
   );
+  // Every model, not only selected ones: a model that becomes selectable only
+  // after a country change must not be checkable while it would be skipped.
   const unsupportedModels =
     form.webSearch && form.webSearchCountryCode !== "default"
-      ? form.models.filter(
+      ? PROMPT_EXPLORER_MODELS.filter(
           (model) =>
+            !ignoresWebSearchCountry(model) &&
             !supportsWebSearchCountry(model, form.webSearchCountryCode),
         )
       : [];
@@ -167,37 +190,54 @@ export function PromptExplorerForm({
               </FieldDescription>
             </Field>
 
-            <Field>
-              <FieldTitle>
+            <FieldSet className="gap-0">
+              <FieldLegend variant="label" className="mb-2">
                 {t("brand_lookup.prompt_explorer.models_label")}
-              </FieldTitle>
-              <div className="flex flex-wrap items-start gap-x-5 gap-y-2 pt-1.5">
-                {PROMPT_EXPLORER_MODELS.map((model) => (
-                  <Label key={model} className="font-normal">
-                    <Checkbox
-                      checked={form.models.includes(model)}
-                      onCheckedChange={() => toggleModel(model)}
-                    />
-                    <span>
-                      {formatModelLabel(model)}
-                      {unsupportedModels.includes(model) &&
-                      form.webSearchCountryCode !== "default" ? (
-                        <span className="block text-xs text-muted-foreground">
-                          {t(
-                            "brand_lookup.prompt_explorer.skipped_for_country",
-                            {
-                              country: formatCountryLabel(
-                                form.webSearchCountryCode,
-                              ),
-                            },
-                          )}
-                        </span>
+              </FieldLegend>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1.5">
+                {PROMPT_EXPLORER_MODELS.map((model) => {
+                  const unsupported = unsupportedModels.includes(model);
+                  const countryNote = getCountryNote(model, form, t);
+                  return (
+                    <div key={model} className="flex items-center gap-1.5">
+                      <Label
+                        className={cn(
+                          "font-normal",
+                          unsupported &&
+                            "cursor-not-allowed text-muted-foreground",
+                        )}
+                      >
+                        <Checkbox
+                          checked={form.models.includes(model) && !unsupported}
+                          disabled={unsupported}
+                          onCheckedChange={() => toggleModel(model)}
+                        />
+                        {formatModelLabel(model)}
+                      </Label>
+                      {countryNote ? (
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <button
+                                type="button"
+                                aria-label={t(
+                                  "brand_lookup.prompt_explorer.about_model_country_aria",
+                                  { label: formatModelLabel(model) },
+                                )}
+                                className="text-muted-foreground"
+                              />
+                            }
+                          >
+                            <Info className="size-3.5" />
+                          </TooltipTrigger>
+                          <TooltipContent>{countryNote}</TooltipContent>
+                        </Tooltip>
                       ) : null}
-                    </span>
-                  </Label>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
-            </Field>
+            </FieldSet>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">

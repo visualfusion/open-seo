@@ -28,4 +28,7 @@ export const authDetailsEn = {
     "We couldn't save the connection. Please try again — if it keeps failing, contact support.",
   something_went_wrong_while_try_again:
     "Something went wrong while talking to Google. Please try again — if it keeps failing, contact support.",
+  account_being_deleted: "This account is being deleted",
+  account_being_deleted_desc:
+    "You asked us to delete this account, so it can't be signed in to. To keep it, email support@openseo.so before the deletion date.",
 };

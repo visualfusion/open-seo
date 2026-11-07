@@ -12,6 +12,7 @@ import { getErrorCode } from "@/client/lib/error-messages";
 import { isEveryAppClientAuthMode } from "@/lib/auth-mode";
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
 import { WebsiteResearchProgress } from "@/client/features/projects/WebsiteResearchProgress";
+import { OpenRouterKeyGate } from "./OpenRouterKeyGate";
 import { WebsiteSetupReview } from "@/client/features/projects/WebsiteSetupReview";
 import { startAiResearchSetup } from "@/serverFunctions/ai-visibility";
 import { updateProjectContext } from "@/serverFunctions/projectContext";
@@ -29,12 +30,12 @@ import {
 } from "./shared";
 
 /**
- * AI visibility needs research keywords or a tracker. A project with a website
- * but neither confirms the spend here, then the server runs setup once: website
- * research and the onboarding competitor review when the overview or
- * competitors are missing, otherwise one keyword and prompt generation. The
- * run lives on the server, so leaving or reloading the page finds it again.
- * Both paths end on the page that started setup.
+ * AI visibility needs a tracker. A project with a website but none confirms
+ * the spend here, then the server runs setup once: website research and the
+ * onboarding competitor review when the overview or competitors are missing,
+ * otherwise one keyword and prompt generation, reusing keywords already saved.
+ * The run lives on the server, so leaving or reloading the page finds it
+ * again. Both paths end on the page that started setup.
  */
 export function AiResearchSetupGate({
   projectId,
@@ -138,105 +139,114 @@ export function AiResearchSetupGate({
       />
     );
   if (status === "ready" && !finishing) return children;
-  if (setup.data.review)
-    return (
-      <div className="grid min-h-[calc(100dvh-8rem)] place-items-center">
-        <WebsiteSetupReview
-          projectId={projectId}
-          research={setup.data.review}
-          saving={save.isPending}
-          error={save.isError}
-          onSave={(accepted) => save.mutate(accepted)}
-        />
-      </div>
-    );
-  if (status === "running" || start.isPending || finishing)
-    return (
-      <div className="grid min-h-[calc(100dvh-8rem)] place-items-center">
-        <WebsiteResearchProgress
-          missingOverview={setup.data.missingOverview}
-          missingCompetitors={setup.data.missingCompetitors}
-          note="You can leave this page; setup keeps running."
-        />
-      </div>
-    );
-  const failed = status === "failed" || start.isError;
-  const unreadable =
-    !start.isError && setup.data.failure === "website_unreadable";
+  const data = setup.data;
+  // Saved results open without an OpenRouter key; only setup needs one.
   return (
-    <div className="grid min-h-[calc(100dvh-8rem)] place-items-center">
-      <Card className="w-full max-w-2xl py-6 md:py-8">
-        <CardContent className="space-y-6 px-6 md:px-8">
-          <div>
-            <div className="mb-4 flex size-10 items-center justify-center rounded-lg border border-border bg-muted">
-              <Sparkles className="size-5" />
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {t("context.website_setup.title")}
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              {t("context.website_setup.subtitle")}
-            </p>
-          </div>
-          {getErrorCode(start.error) === "INSUFFICIENT_CREDITS" ? (
-            <InsufficientCreditsError
-              title={t(
-                "ai_visibility.details.we_couldn_t_set_up_ai_visibility",
-              )}
-            />
-          ) : (
-            failed && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  {unreadable
-                    ? t("ai_visibility.details.we_couldn_t_read_protection_may")
-                    : isEveryAppClientAuthMode()
-                      ? t("ai_visibility.details.we_couldn_t_finish_it_needs")
-                      : t("ai_visibility.details.we_couldn_t_finish_try_again")}
-                </AlertDescription>
-              </Alert>
-            )
-          )}
-          {unreadable && (
-            <Field>
-              <FieldLabel htmlFor="business-overview">
-                {t("ai_visibility.details.what_you_sell_who_and_where")}
-              </FieldLabel>
-              <Textarea
-                id="business-overview"
-                value={overview}
-                onChange={(event) => setOverview(event.target.value)}
-                maxLength={PROSE_MAX_CHARS}
-                rows={4}
-              />
-              {saveOverview.isError && (
-                <p className="text-sm text-destructive">
-                  {t("ai_visibility.details.we_couldn_t_save_try_again")}
-                </p>
-              )}
-            </Field>
-          )}
-          <div className="space-y-3">
-            <Button
-              size="lg"
-              className="w-full"
-              pending={saveOverview.isPending}
-              onClick={() =>
-                overview.trim() ? saveOverview.mutate() : start.mutate()
-              }
-            >
-              {failed
-                ? t("ui.error_boundary.try_again")
-                : t("context.website_setup.submit")}
-            </Button>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {isEveryAppClientAuthMode()
-                ? t("context.website_setup.footnote_gateway")
-                : t("context.website_setup.footnote_credits")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <OpenRouterKeyGate projectId={projectId}>{renderSetup()}</OpenRouterKeyGate>
   );
+
+  function renderSetup() {
+    if (data.review)
+      return (
+        <div className="grid min-h-[calc(100dvh-8rem)] place-items-center">
+          <WebsiteSetupReview
+            projectId={projectId}
+            research={data.review}
+            saving={save.isPending}
+            error={save.isError}
+            onSave={(accepted) => save.mutate(accepted)}
+          />
+        </div>
+      );
+    if (status === "running" || start.isPending || finishing)
+      return (
+        <div className="grid min-h-[calc(100dvh-8rem)] place-items-center">
+          <WebsiteResearchProgress
+            missingOverview={data.missingOverview}
+            missingCompetitors={data.missingCompetitors}
+            note={t("ai_visibility.details.leave_page_note") || "You can leave this page; setup keeps running."}
+          />
+        </div>
+      );
+    const failed = status === "failed" || start.isError;
+    const unreadable = !start.isError && data.failure === "website_unreadable";
+    return (
+      <div className="grid min-h-[calc(100dvh-8rem)] place-items-center">
+        <Card className="w-full max-w-2xl py-6 md:py-8">
+          <CardContent className="space-y-6 px-6 md:px-8">
+            <div>
+              <div className="mb-4 flex size-10 items-center justify-center rounded-lg border border-border bg-muted">
+                <Sparkles className="size-5" />
+              </div>
+              <h1 className="text-2xl font-semibold tracking-tight">
+                {t("context.website_setup.title")}
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                {t("context.website_setup.subtitle")}
+              </p>
+            </div>
+            {getErrorCode(start.error) === "INSUFFICIENT_CREDITS" ? (
+              <InsufficientCreditsError
+                title={t(
+                  "ai_visibility.details.we_couldn_t_set_up_ai_visibility",
+                )}
+              />
+            ) : (
+              failed && (
+                <Alert variant="destructive">
+                  <AlertDescription>
+                    {unreadable
+                      ? t("ai_visibility.details.we_couldn_t_read_protection_may")
+                      : !start.isError && data.failure === "subrequest_limit"
+                        ? t("ai_visibility.details.subrequest_limit")
+                        : isEveryAppClientAuthMode()
+                          ? t("ai_visibility.details.we_couldn_t_finish_it_needs")
+                          : t("ai_visibility.details.we_couldn_t_finish_try_again")}
+                  </AlertDescription>
+                </Alert>
+              )
+            )}
+            {unreadable && (
+              <Field>
+                <FieldLabel htmlFor="business-overview">
+                  {t("ai_visibility.details.what_you_sell_who_and_where")}
+                </FieldLabel>
+                <Textarea
+                  id="business-overview"
+                  value={overview}
+                  onChange={(event) => setOverview(event.target.value)}
+                  maxLength={PROSE_MAX_CHARS}
+                  rows={4}
+                />
+                {saveOverview.isError && (
+                  <p className="text-sm text-destructive">
+                    {t("ai_visibility.details.we_couldn_t_save_try_again")}
+                  </p>
+                )}
+              </Field>
+            )}
+            <div className="space-y-3">
+              <Button
+                size="lg"
+                className="w-full"
+                pending={saveOverview.isPending}
+                onClick={() =>
+                  overview.trim() ? saveOverview.mutate() : start.mutate()
+                }
+              >
+                {failed
+                  ? t("ui.error_boundary.try_again")
+                  : t("context.website_setup.submit")}
+              </Button>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {isEveryAppClientAuthMode()
+                  ? t("context.website_setup.footnote_gateway")
+                  : t("context.website_setup.footnote_credits")}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 }

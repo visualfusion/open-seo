@@ -9,6 +9,9 @@ export const projectSettingsEn = {
     scan_notice_everyapp: "Adding your website starts a 50-page site audit.",
     scan_notice:
       "Adding your website starts a 50-page scan with JavaScript rendering. Rendering uses your credits.",
+    brand_keeping: "We’ll keep tracking “{name}”.",
+    brand_changing: "We’ll start checking for “{renamed}” in AI search.",
+    brand_keep_action: "Keep tracking “{name}”",
     domain: "Domain",
     optional: "(optional)",
     market_help:

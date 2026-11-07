@@ -68,7 +68,11 @@ export const ranksEn = {
     max_length_error: "Keywords must be at most {max} characters long.",
     check_confirm_title_one: "Check 1 keyword?",
     check_confirm_title: "Check {count} keywords?",
-    check_confirm_button: "Run check",
+    check_confirm_button: "Start check",
+    check_confirm_items:
+      "{keywords} keyword{s1} × {devices} device{s2}",
+    check_confirm_cost_up_to: "Costs up to",
+    scheduled_tracking_wont_change: "Your scheduled tracking won't change.",
     check_confirm_desc:
       "{keywords} keywords × {devices} devices = {total} SERP checks. Results in ~{eta}.",
     check_confirm_cost: "Costs up to ${cost}.",
@@ -149,13 +153,19 @@ export const ranksEn = {
     free_plan_link: "upgrade to the paid plan",
     free_plan_suffix: ".",
     run_stale:
-      "This run may be unresponsive and will be cleaned up automatically.",
+      "This check stopped responding. You can start a new one to replace it.",
     run_insufficient_credits: "Your last rank check didn't run",
+    run_takes_hour_bold: "This check takes about an hour",
+    run_takes_hour_desc:
+      "because Google's results have been unreliable lately. You can leave this page while it's running.",
+    run_couldnt_finish_bold: "We couldn't finish your last check.",
+    run_couldnt_finish_desc:
+      "Google's results have been unreliable for all rank trackers lately. Please try again later.",
     run_failed_bold: "Last check failed.",
-    run_incomplete_bold: "Your last check was incomplete.",
+    run_incomplete_bold: "Some keywords couldn't be checked.",
     run_incomplete_desc:
-      "We couldn't confirm a result for some keywords, so they show their previous position.",
-    changes_bold: "Rank tracking now retries some results.",
+      "Google's results have been unreliable for all rank trackers lately, so these show their last known position.",
+    changes_bold: "Rank tracking now reads every keyword several times.",
     changes_desc:
       "Since September, Google has been serving incomplete results to all rank trackers.",
     changes_link: "Read what changed",
@@ -235,6 +245,11 @@ export const ranksEn = {
   vs_90_days: "vs. 90 days ago",
   next_check: "Next check: {time}",
   last_check: "Last check: {date}",
+  last_check_incomplete: "Last check incomplete",
+  last_check_incomplete_desc: "Some results from the last check are missing.",
+  check_skipped_budget_spent:
+    "Scheduled check skipped: monthly auto-reload budget reached",
+  check_skipped_out_of_credits: "Scheduled check skipped: out of credits",
   estimated_cost: "up to ${cost}/check",
   comparison_period: "Comparison period",
   configure: "Configure",

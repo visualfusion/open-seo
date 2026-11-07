@@ -242,6 +242,12 @@ export function TrackingCostReview({
                   },
                 )}
               </FieldDescription>
+              {/* Pausing keeps the next check, so only a tracker never scheduled has none. */}
+              {mode === "check" && tracker.nextCheckAt && (
+                <FieldDescription>
+                  Your scheduled tracking doesn't change.
+                </FieldDescription>
+              )}
             </Field>
             {start.error && <AiQueryError error={start.error} />}
           </>

@@ -24,6 +24,7 @@ import {
   toAuthCallbackURL,
 } from "@/lib/auth-redirect";
 import { z } from "zod";
+import { pageHead } from "@/client/lib/pageHead";
 
 const signInSchema = z.object({
   email: z
@@ -36,6 +37,7 @@ const signInSchema = z.object({
 });
 
 export const Route = createFileRoute("/_auth/sign-in")({
+  head: () => pageHead("Sign in"),
   validateSearch: authRedirectSearchSchema,
   component: SignInPage,
 });

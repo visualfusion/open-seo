@@ -1,8 +1,10 @@
 import { createFileRoute, Outlet, useParams } from "@tanstack/react-router";
 import { BackLink, PageHeader } from "@/client/components/PageHeader";
 import { useLocale } from "@/client/lib/i18n";
+import { pageHead } from "@/client/lib/pageHead";
 
 export const Route = createFileRoute("/_app/p/$projectId/rank-tracking")({
+  head: () => pageHead("Rank Tracking"),
   component: RankTrackingLayout,
 });
 

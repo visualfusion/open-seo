@@ -32,7 +32,7 @@ export const TIERS = {
   },
   agency: {
     offer: AGENCY_PLAN_OFFER,
-    annualPriceUsd: 2000,
+    annualPriceUsd: 1000,
     description: "billing.details.tier_agency_description",
     features: [
       "billing.details.tier_feature_pro",

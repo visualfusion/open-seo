@@ -28,7 +28,10 @@ import {
   TabsTrigger,
 } from "@/client/components/ui/tabs";
 import { getAiVisibilityAnswer } from "@/serverFunctions/ai-visibility";
-import { type AiAnswer } from "@/shared/ai-visibility";
+import {
+  aiBrandLabel,
+  type AiAnswer,
+} from "@/shared/ai-visibility";
 import { DomainFavicon } from "./DomainFavicon";
 
 /** The selected engine's answer lives in the prompt page, beside its sources. */
@@ -206,7 +209,7 @@ function AnswerEvidence({ answer }: { answer: AiAnswer }) {
                   >
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <DomainFavicon domain={brand.domain} />
-                      {brand.name}
+                      {aiBrandLabel(brand)}
                       {brand.own && (
                         <Badge variant="secondary" size="sm">
                           {t("ai_visibility.badge_you")}

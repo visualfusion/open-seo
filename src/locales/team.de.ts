@@ -12,7 +12,8 @@ export const teamDe = {
     transfer_ownership: "Inhaberschaft übertragen",
     remove_member: "Mitglied entfernen",
     remove_confirm_title: "„{email}“ aus dieser Organisation entfernen?",
-    remove_confirm_desc: "Der Zugriff wird sofort entzogen.",
+    remove_confirm_desc:
+      "Der Zugriff wird sofort entzogen. Mit dem jeweiligen Google-Konto verknüpfte Search Console- und Google Analytics-Verbindungen werden getrennt.",
     invited: "Eingeladen · läuft ab am {date}",
     actions_for_invitation: "Aktionen für die Einladung an {email}",
     resend: "Einladung erneut senden",

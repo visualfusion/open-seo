@@ -78,6 +78,9 @@ export const aiResearchKeywordsQueryOptions = (projectId: string) =>
 
 export type AiTrendDays = 7 | 28 | 90;
 
+/** Long enough to show a trend on a weekly schedule. */
+export const DEFAULT_AI_TREND_DAYS: AiTrendDays = 28;
+
 export const aiTrendQueryOptions = (projectId: string, days: AiTrendDays) =>
   queryOptions({
     queryKey: [...aiVisibilityKey(projectId), "results", "trend", days],

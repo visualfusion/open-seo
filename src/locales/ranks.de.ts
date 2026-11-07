@@ -71,7 +71,11 @@ export const ranksDe = {
     max_length_error: "Keywords dürfen maximal {max} Zeichen lang sein.",
     check_confirm_title_one: "1 Keyword prüfen?",
     check_confirm_title: "{count} Keywords prüfen?",
-    check_confirm_button: "Jetzt ausführen",
+    check_confirm_button: "Prüfung starten",
+    check_confirm_items:
+      "{keywords} Keyword{s1} × {devices} Gerät{s2}",
+    check_confirm_cost_up_to: "Kostet bis zu",
+    scheduled_tracking_wont_change: "Dein geplantes Tracking ändert sich dadurch nicht.",
     check_confirm_desc:
       "{keywords} Keywords × {devices} Geräte = {total} SERP-Prüfungen. Ergebnisse in ~{eta}.",
     check_confirm_cost: "Kostet bis zu ${cost}.",
@@ -154,17 +158,24 @@ export const ranksDe = {
     free_plan_link: "auf den kostenpflichtigen Tarif upgradest",
     free_plan_suffix: ".",
     run_stale:
-      "Dieser Durchlauf reagiert möglicherweise nicht mehr und wird automatisch bereinigt.",
+      "Diese Prüfung reagiert nicht mehr. Du kannst eine neue starten, um sie zu ersetzen.",
     run_insufficient_credits:
       "Deine letzte Ranking-Prüfung wurde nicht ausgeführt",
+    run_takes_hour_bold: "Diese Prüfung dauert ca. eine Stunde,",
+    run_takes_hour_desc:
+      "da Googles Ergebnisse in letzter Zeit unzuverlässig waren. Du kannst diese Seite während des Laufs verlassen.",
+    run_couldnt_finish_bold:
+      "Deine letzte Prüfung konnte nicht abgeschlossen werden.",
+    run_couldnt_finish_desc:
+      "Googles Ergebnisse waren in letzter Zeit für alle Rank-Tracker unzuverlässig. Bitte versuche es später erneut.",
     run_failed_bold: "Letzte Prüfung fehlgeschlagen.",
-    run_incomplete_bold: "Deine letzte Prüfung war unvollständig.",
+    run_incomplete_bold: "Einige Keywords konnten nicht geprüft werden.",
     run_incomplete_desc:
-      "Für einige Keywords konnte kein Ergebnis bestätigt werden, daher wird ihre vorherige Position angezeigt.",
-    changes_bold: "Das Rank-Tracking prüft einige Ergebnisse jetzt mehrfach.",
+      "Googles Ergebnisse waren in letzter Zeit für alle Rank-Tracker unzuverlässig, daher wird ihre zuletzt bekannte Position angezeigt.",
+    changes_bold: "Das Rank-Tracking liest jedes Keyword jetzt mehrfach ab.",
     changes_desc:
       "Seit September liefert Google unvollständige Ergebnisse an alle Rank-Tracker aus.",
-    changes_link: "Mehr erfahren",
+    changes_link: "Erfahre, was sich geändert hat",
     paused_bold: "Geplante Prüfungen sind pausiert",
     paused_desc:
       " während sich unser Datenanbieter von einer Störung erholt. Sie werden automatisch nachgeholt, sobald der Dienst wieder verfügbar ist.",
@@ -242,6 +253,12 @@ export const ranksDe = {
   vs_90_days: "vs. vor 90 Tagen",
   next_check: "Nächster: {time}",
   last_check: "Letzter: {date}",
+  last_check_incomplete: "Letzte Prüfung unvollständig",
+  last_check_incomplete_desc: "Einige Ergebnisse der letzten Prüfung fehlen.",
+  check_skipped_budget_spent:
+    "Geplante Prüfung übersprungen: monatliches Auto-Reload-Budget erreicht",
+  check_skipped_out_of_credits:
+    "Geplante Prüfung übersprungen: keine Credits mehr",
   estimated_cost: "bis zu ${cost}/Prüfung",
   comparison_period: "Vergleichszeitraum",
   configure: "Konfigurieren",

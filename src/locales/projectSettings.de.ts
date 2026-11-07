@@ -10,6 +10,9 @@ export const projectSettingsDe = {
       "Das Hinzufügen deiner Website startet ein 50-Seiten-Website-Audit.",
     scan_notice:
       "Das Hinzufügen deiner Website startet einen Scan von bis zu 50 Seiten mit JavaScript-Rendering. Das Rendering verbraucht dein Kontingent.",
+    brand_keeping: "Wir tracken weiterhin „{name}“.",
+    brand_changing: "Wir prüfen in der KI-Suche ab jetzt auf „{renamed}“.",
+    brand_keep_action: "Weiterhin „{name}“ tracken",
     domain: "Domain",
     optional: "(optional)",
     market_help:

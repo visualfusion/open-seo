@@ -11,12 +11,10 @@ import { useLocale } from "@/client/lib/i18n";
 export function RenderingWarnings({ data }: { data: AuditResultsData }) {
   const { t } = useLocale();
   const rendered = data.audit.config.renderJavaScript;
-  const hasShells = data.issues.some(
-    (issue) => issue.issueType === "javascript-rendering-suspected",
+  const hasShells = data.issueGroups.some(
+    (group) => group.issueType === "javascript-rendering-suspected",
   );
-  const unreadCount = data.pages.filter(
-    (page) => page.fetchClass === "error",
-  ).length;
+  const unreadCount = data.fetchClassCounts.error;
 
   return (
     <>

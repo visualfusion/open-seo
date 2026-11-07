@@ -1,12 +1,19 @@
 import { GoogleSearchConsoleLogo } from "@/client/features/integrations/GoogleProductLogos";
 import { startAudit } from "@/serverFunctions/audit";
+import { EmptyState } from "@/client/components/EmptyState";
 import { QueryError } from "@/client/components/QueryState";
-import { LoaderCircle, ScanSearch } from "lucide-react";
+import { Globe, LoaderCircle, ScanSearch } from "lucide-react";
 import { CardShell } from "@/client/components/CardShell";
 import { Progress } from "@/client/components/ui/progress";
 import { Button } from "@/client/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useState } from "react";
 import { Check } from "lucide-react";
 import { GoogleConnectionCard } from "@/client/features/integrations/GoogleConnectionCard";
 import { SeverityBadge } from "@/client/features/audit/shared";
@@ -19,12 +26,21 @@ import {
   formatPosition,
 } from "@/client/features/search-performance/SearchPerformanceColumns";
 import { getSearchPerformanceReport } from "@/serverFunctions/searchPerformance";
+import { DateRangeSelect } from "@/client/features/search-performance/SearchPerformanceSelects";
 import {
+  cardMetaClass,
+  cardTableClass,
   formatDay,
   moreDetailsClass,
-  MetricsTableSkeleton,
 } from "@/client/features/dashboard/cardParts";
+import {
+  MetricRow,
+  MetricsSkeleton,
+  TrendChart,
+} from "@/client/features/dashboard/DashboardMetrics";
 import { percentChange } from "@/client/components/MetricsTable";
+import type { ChartConfig } from "@/client/components/ui/chart";
+import type { SearchPerformanceDateRange } from "@/types/schemas/search-performance";
 import {
   Table,
   TableBody,
@@ -41,6 +57,11 @@ const issueTitles: Record<string, string | undefined> = Object.fromEntries(
   Object.entries(AUDIT_ISSUE_TYPES).map(([key, value]) => [key, value.title]),
 );
 
+const gscChartConfig = {
+  clicks: { label: "Clicks", color: "var(--chart-1)" },
+  impressions: { label: "Impressions", color: "var(--chart-2)" },
+} satisfies ChartConfig;
+
 export function GscCard({
   projectId,
   connected,
@@ -51,14 +72,15 @@ export function GscCard({
   siteUrl: string | null;
 }) {
   const { t } = useLocale();
+  const [dateRange, setDateRange] =
+    useState<SearchPerformanceDateRange>("last_28_days");
   const reportQuery = useQuery({
-    queryKey: ["dashboardGscReport", projectId, siteUrl],
+    queryKey: ["dashboardGscReport", projectId, siteUrl, dateRange],
     queryFn: () =>
-      getSearchPerformanceReport({
-        data: { projectId, dateRange: "last_28_days" },
-      }),
+      getSearchPerformanceReport({ data: { projectId, dateRange } }),
     enabled: connected,
     staleTime: 10 * 60_000,
+    placeholderData: keepPreviousData,
   });
   const report = reportQuery.data;
 
@@ -76,40 +98,36 @@ export function GscCard({
     <CardShell
       title={t("dashboard.cards.gsc_title")}
       icon={<GoogleSearchConsoleLogo className="size-5" />}
+      titleInfo={
+        <DateRangeSelect
+          value={dateRange}
+          onChange={setDateRange}
+          triggerClassName="border-transparent bg-transparent pl-2 pr-1.5 font-normal text-muted-foreground hover:bg-foreground/5"
+        />
+      }
       action={
         <Link
           to="/p/$projectId/search-performance"
           params={{ projectId }}
+          search={{ range: dateRange }}
           className={moreDetailsClass}
         >
           {t("dashboard.cards.gsc_view_insights")}
         </Link>
       }
     >
-      <p className="mb-4 text-sm font-medium text-muted-foreground">
-        {t("dashboard.cards.last_28_days")}
-      </p>
       {reportQuery.isError ? (
         <p className="text-sm text-muted-foreground">
           {t("dashboard.cards.gsc_error")}
         </p>
       ) : !report ? (
-        <MetricsTableSkeleton />
+        <MetricsSkeleton />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("dashboard.cards.metric")}</TableHead>
-              <TableHead className="text-right">
-                {t("dashboard.cards.value")}
-              </TableHead>
-              <TableHead className="text-right">
-                {t("dashboard.cards.change")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[
+        <div
+          className={`flex flex-1 flex-col gap-4 transition-opacity ${reportQuery.isPlaceholderData ? "opacity-50" : ""}`}
+        >
+          <MetricRow
+            metrics={[
               {
                 label: t("dashboard.cards.clicks"),
                 value: formatCount(report.totals.clicks),
@@ -117,6 +135,7 @@ export function GscCard({
                   report.totals.clicks,
                   report.prevTotals.clicks,
                 ),
+                dotClass: "bg-chart-1",
               },
               {
                 label: t("dashboard.cards.impressions"),
@@ -125,6 +144,7 @@ export function GscCard({
                   report.totals.impressions,
                   report.prevTotals.impressions,
                 ),
+                dotClass: "bg-chart-2",
               },
               {
                 label: t("dashboard.cards.ctr"),
@@ -136,27 +156,22 @@ export function GscCard({
                 value: formatPosition(report.totals.position),
                 change: null,
               },
-            ].map((metric) => (
-              <TableRow key={metric.label}>
-                <TableCell>{metric.label}</TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {metric.value}
-                </TableCell>
-                <TableCell
-                  className={`text-right tabular-nums ${metric.change === null || metric.change === 0 ? "text-muted-foreground" : metric.change > 0 ? "text-success" : "text-destructive"}`}
-                >
-                  {metric.change === null
-                    ? "—"
-                    : `${metric.change > 0 ? "+" : ""}${metric.change}%`}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            ]}
+          />
+          {report.totals.impressions > 0 ? (
+            <TrendChart config={gscChartConfig} data={report.trend} />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("dashboard.cards.no_search_data_period")}
+            </p>
+          )}
+        </div>
       )}
     </CardShell>
   );
 }
+
+const siteHealthIcon = <Globe className="size-5" />;
 
 export function AuditHealthCard({
   projectId,
@@ -187,38 +202,39 @@ export function AuditHealthCard({
   });
   if (!audit)
     return (
-      <CardShell title={t("dashboard.cards.site_health")}>
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 py-6 text-center">
-          <ScanSearch className="size-7 text-muted-foreground" />
-          <h3 className="font-medium">
-            {t("dashboard.cards.find_holding_back")}
-          </h3>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            {t("dashboard.cards.scan_desc")}
-          </p>
-          {domain ? (
-            <Button disabled={scan.isPending} onClick={() => scan.mutate()}>
-              {scan.isPending
-                ? t("dashboard.cards.starting_scan")
-                : t("dashboard.cards.scan_website")}
-            </Button>
-          ) : (
-            <Button
-              nativeButton={false}
-              render={
-                <Link to="/p/$projectId/settings" params={{ projectId }} />
-              }
-            >
-              {t("dashboard.cards.add_website")}
-            </Button>
-          )}
-          {scan.isError && (
-            <QueryError
-              error={scan.error}
-              fallback={t("dashboard.details.scan_start_failed")}
-            />
-          )}
-        </div>
+      <CardShell title={t("dashboard.cards.site_health")} icon={siteHealthIcon}>
+        <EmptyState
+          variant="plain"
+          icon={ScanSearch}
+          title={t("dashboard.cards.find_holding_back")}
+          description={t("dashboard.cards.scan_desc")}
+          action={
+            <>
+              {domain ? (
+                <Button disabled={scan.isPending} onClick={() => scan.mutate()}>
+                  {scan.isPending
+                    ? t("dashboard.cards.starting_scan")
+                    : t("dashboard.cards.scan_website")}
+                </Button>
+              ) : (
+                <Button
+                  nativeButton={false}
+                  render={
+                    <Link to="/p/$projectId/settings" params={{ projectId }} />
+                  }
+                >
+                  {t("dashboard.cards.add_website")}
+                </Button>
+              )}
+              {scan.isError && (
+                <QueryError
+                  error={scan.error}
+                  fallback={t("dashboard.details.scan_start_failed")}
+                />
+              )}
+            </>
+          }
+        />
       </CardShell>
     );
 
@@ -234,6 +250,7 @@ export function AuditHealthCard({
     return (
       <CardShell
         title={t("dashboard.cards.site_health")}
+        icon={siteHealthIcon}
         action={
           <Link
             to="/p/$projectId/audit"
@@ -298,6 +315,15 @@ export function AuditHealthCard({
   return (
     <CardShell
       title={t("dashboard.cards.site_health")}
+      icon={siteHealthIcon}
+      titleInfo={
+        audit.status === "completed" ? (
+          <span className={cardMetaClass}>
+            {audit.pagesCrawled} {t("dashboard.cards.pages_checked")} ·{" "}
+            {formatDay(audit.startedAt)}
+          </span>
+        ) : null
+      }
       action={
         <Link
           to="/p/$projectId/audit"
@@ -314,12 +340,6 @@ export function AuditHealthCard({
           {t("dashboard.cards.scan_not_finished")}
         </p>
       )}
-      {audit.status === "completed" && (
-        <p className="mb-4 text-sm text-muted-foreground">
-          {audit.pagesCrawled} {t("dashboard.cards.pages_checked")} ·{" "}
-          {formatDay(audit.startedAt)}
-        </p>
-      )}
       {audit.topIssues.length === 0 ? (
         audit.status === "completed" ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -332,7 +352,7 @@ export function AuditHealthCard({
           </p>
         )
       ) : (
-        <Table>
+        <Table className={cardTableClass}>
           <TableHeader>
             <TableRow>
               <TableHead>{t("audit.issues")}</TableHead>

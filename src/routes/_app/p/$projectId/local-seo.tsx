@@ -1,11 +1,13 @@
 import { createFileRoute, Outlet, useParams } from "@tanstack/react-router";
 import { BackLink, PageHeader } from "@/client/components/PageHeader";
 import { useLocale } from "@/client/lib/i18n";
+import { pageHead } from "@/client/lib/pageHead";
 import leafletCss from "leaflet/dist/leaflet.css?url";
 import localRankMapCss from "@/client/features/local-seo/local-rank-map.css?url";
 
 export const Route = createFileRoute("/_app/p/$projectId/local-seo")({
   head: () => ({
+    ...pageHead("Local SEO"),
     links: [
       { rel: "stylesheet", href: leafletCss },
       { rel: "stylesheet", href: localRankMapCss },

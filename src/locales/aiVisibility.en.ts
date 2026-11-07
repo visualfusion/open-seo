@@ -52,8 +52,9 @@ export const aiVisibilityEn = {
   prompt_analysis_fallback: "Prompt analysis",
   run_now: "Run now",
   no_matching_prompts:
-    "No matching prompts. Add prompts or adjust your search.",
+    "No matching prompts. Add prompts or adjust your search and filter.",
   col_prompts_by_topic: "Prompts by topic",
+  col_competitors_named: "Competitors named",
   col_owned_citations: "Owned citations",
   manage_tracking: "Manage tracking",
   paused: "Paused",

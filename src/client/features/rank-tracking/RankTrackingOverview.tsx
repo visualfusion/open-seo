@@ -27,6 +27,8 @@ import {
   TrendEmptyState,
   TrendRangeToggle,
 } from "./RankTrackingTrendChart";
+import { parseDbTimestamp } from "@/client/lib/db-timestamp";
+
 
 export function RankTrackingOverview({
   device,
@@ -91,7 +93,7 @@ export function RankTrackingOverview({
   const chartData = useMemo(
     () =>
       (trend ?? []).map((p) => ({
-        checkedAt: new Date(p.checkedAt).getTime(),
+        checkedAt: parseDbTimestamp(p.checkedAt).getTime(),
         top3: p.top3,
         top4to10: p.top4to10,
         top11to20: p.top11to20,

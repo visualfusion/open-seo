@@ -14,6 +14,7 @@ import { Spinner } from "@/client/components/ui/spinner";
 import { useLocale } from "@/client/lib/i18n";
 import { getAuditCapabilities } from "@/serverFunctions/audit";
 import type { IssueSeverity } from "@/shared/audit-issues";
+import { parseDbTimestamp } from "@/client/lib/db-timestamp";
 
 export function extractPathname(url: string): string {
   try {
@@ -31,18 +32,8 @@ export function extractHostname(url: string): string {
   }
 }
 
-// SQLite's current_timestamp default is UTC but has no timezone marker; treat
-// it as UTC rather than letting the browser parse it as local time.
-function parseTimestamp(dateStr: string): Date {
-  return new Date(
-    /^\d{4}-\d{2}-\d{2} /.test(dateStr)
-      ? `${dateStr.replace(" ", "T")}Z`
-      : dateStr,
-  );
-}
-
 export function formatDate(dateStr: string, locale = "en"): string {
-  return parseTimestamp(dateStr).toLocaleDateString(
+  return parseDbTimestamp(dateStr).toLocaleDateString(
     locale === "de" ? "de-DE" : "en-US",
     {
       month: "short",
@@ -53,7 +44,7 @@ export function formatDate(dateStr: string, locale = "en"): string {
 }
 
 export function formatStartedAt(dateStr: string, locale = "en"): string {
-  return parseTimestamp(dateStr).toLocaleString(
+  return parseDbTimestamp(dateStr).toLocaleString(
     locale === "de" ? "de-DE" : "en-US",
     {
       month: "short",

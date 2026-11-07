@@ -17,6 +17,7 @@ import {
 } from "@/lib/auth-mode";
 import { getSignInSearch, normalizeAuthRedirect } from "@/lib/auth-redirect";
 import { z } from "zod";
+import { pageHead } from "@/client/lib/pageHead";
 
 const verificationIssueSchema = z
   .enum(["invalid_token", "token_expired", "user_not_found", "unknown"])
@@ -28,6 +29,7 @@ const verifyEmailSearchSchema = authRedirectSearchSchema.extend({
 });
 
 export const Route = createFileRoute("/verify-email")({
+  head: () => pageHead("Verify email"),
   validateSearch: verifyEmailSearchSchema,
   component: VerifyEmailPage,
 });

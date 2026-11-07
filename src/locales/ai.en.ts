@@ -42,7 +42,7 @@ export const aiEn = {
     instructions: "Update instructions",
   },
   cloudflare_alert:
-    "This instance is behind Cloudflare Access. MCP clients cannot connect until Managed OAuth is enabled on your Access application.",
+    "This instance is behind Cloudflare Access, so MCP clients connect through Managed OAuth on your Access application. If a client gets a login page instead of connecting, check that Managed OAuth is on.",
   cloudflare_guide: "Setup guide",
   mcp_url_label: "MCP server URL for this instance:",
   mcp_url_copied: "MCP URL copied",
