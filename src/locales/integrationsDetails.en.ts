@@ -54,8 +54,7 @@ export const integrationsDetailsEn = {
   no_verified_access: "No verified access",
   google_accounts: "Google accounts",
   google_accounts_count: "{count} Google accounts",
-  properties_come_from_these_accounts:
-    "Properties come from these accounts.",
+  properties_come_from_these_accounts: "Properties come from these accounts.",
   how_to_enable_it: "How to enable it ↗",
   reconnect_value: "Reconnect {v1}",
   retry_value: "Retry {v1}",

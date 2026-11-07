@@ -30,94 +30,18 @@ import {
   type Report,
   type SearchPerformanceTableRow,
 } from "@/client/features/search-performance/SearchPerformanceColumns";
-import { normalizeExportValue, type CsvValue } from "@/client/lib/csv";
-import { exportRows } from "@/client/lib/exportRows";
+import { normalizeExportValue } from "@/client/lib/csv";
 import { captureClientEvent } from "@/client/lib/posthog";
-import {
-  SEARCH_PERFORMANCE_PAGE_SIZES,
-  type SearchPerformanceTableDimension,
-} from "@/types/schemas/search-performance";
+import { SEARCH_PERFORMANCE_PAGE_SIZES } from "@/types/schemas/search-performance";
 import { saveKeywords } from "@/serverFunctions/keywords";
 import { useLocale } from "@/client/lib/i18n";
 import { TrackRankingsMenu } from "./TrackRankingsMenu";
 
-export type ExportTarget = "csv" | "sheets";
-
-type ExportTable = { filename: string; headers: string[]; rows: CsvValue[][] };
-
-function strikingExportTable(report: Report): ExportTable {
-  const stamp = `${report.range.startDate}-to-${report.range.endDate}`;
-  return {
-    filename: `search-performance-striking-distance-${stamp}`,
-    headers: ["Query", "Page", "Impressions", "Clicks", "Position"],
-    rows: report.strikingDistance.map((row) => [
-      row.query,
-      row.page,
-      row.impressions,
-      row.clicks,
-      row.position,
-    ]),
-  };
-}
-
-function dimensionExportTable(
-  dimension: SearchPerformanceTableDimension,
-  rows: SearchPerformanceTableRow[],
-  stamp: string,
-  showPosition: boolean,
-): ExportTable {
-  const isPage = dimension === "page";
-  return {
-    filename: `search-performance-${isPage ? "pages" : "queries"}-${stamp}`,
-    headers: [
-      isPage ? "Page" : "Query",
-      "Clicks",
-      "Impressions",
-      "CTR (%)",
-      ...(showPosition ? ["Position"] : []),
-    ],
-    rows: rows.map((row) => [
-      row.key,
-      row.clicks,
-      row.impressions,
-      // CTR is a 0-1 ratio; exports keep two decimals, which would turn 0.0234
-      // into 0.02. As a percentage the same precision reads 2.34.
-      Math.round(row.ctr * 10_000) / 100,
-      ...(showPosition ? [row.position] : []),
-    ]),
-  };
-}
-
-function runExport(table: ExportTable, target: ExportTarget): Promise<void> {
-  return exportRows({
-    format: target,
-    feature: "search_performance",
-    ...table,
-  });
-}
-
-export function exportStriking(
-  report: Report,
-  target: ExportTarget,
-): Promise<void> {
-  return runExport(strikingExportTable(report), target);
-}
-
-/** Export the full queries/pages dataset (fetched separately, not the visible
- *  page) so pagination never truncates a download. */
-export function exportDimensionRows(
-  dimension: SearchPerformanceTableDimension,
-  rows: SearchPerformanceTableRow[],
-  range: Report["range"],
-  target: ExportTarget,
-  showPosition: boolean,
-): Promise<void> {
-  const stamp = `${range.startDate}-to-${range.endDate}`;
-  return runExport(
-    dimensionExportTable(dimension, rows, stamp, showPosition),
-    target,
-  );
-}
+export {
+  type ExportTarget,
+  exportStriking,
+  exportDimensionRows,
+} from "./searchPerformanceExports";
 
 type Delta = { text: string; improved: boolean } | null;
 

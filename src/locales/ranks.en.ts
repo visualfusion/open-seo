@@ -69,8 +69,7 @@ export const ranksEn = {
     check_confirm_title_one: "Check 1 keyword?",
     check_confirm_title: "Check {count} keywords?",
     check_confirm_button: "Start check",
-    check_confirm_items:
-      "{keywords} keyword{s1} × {devices} device{s2}",
+    check_confirm_items: "{keywords} keyword{s1} × {devices} device{s2}",
     check_confirm_cost_up_to: "Costs up to",
     scheduled_tracking_wont_change: "Your scheduled tracking won't change.",
     check_confirm_desc:

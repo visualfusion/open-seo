@@ -72,10 +72,10 @@ export const ranksDe = {
     check_confirm_title_one: "1 Keyword prüfen?",
     check_confirm_title: "{count} Keywords prüfen?",
     check_confirm_button: "Prüfung starten",
-    check_confirm_items:
-      "{keywords} Keyword{s1} × {devices} Gerät{s2}",
+    check_confirm_items: "{keywords} Keyword{s1} × {devices} Gerät{s2}",
     check_confirm_cost_up_to: "Kostet bis zu",
-    scheduled_tracking_wont_change: "Dein geplantes Tracking ändert sich dadurch nicht.",
+    scheduled_tracking_wont_change:
+      "Dein geplantes Tracking ändert sich dadurch nicht.",
     check_confirm_desc:
       "{keywords} Keywords × {devices} Geräte = {total} SERP-Prüfungen. Ergebnisse in ~{eta}.",
     check_confirm_cost: "Kostet bis zu ${cost}.",

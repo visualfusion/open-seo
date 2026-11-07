@@ -107,7 +107,10 @@ export function RecentSearches<TItem extends { timestamp: number }>({
 
   if (embedded) {
     return (
-      <section className="space-y-2 pt-2" aria-label={t("ui.details.recent_searches_heading")}>
+      <section
+        className="space-y-2 pt-2"
+        aria-label={t("ui.details.recent_searches_heading")}
+      >
         <h2 className="flex items-center gap-2 text-sm text-muted-foreground">
           <History className="size-4" aria-hidden />
           {t("ui.details.recent_searches_heading")}

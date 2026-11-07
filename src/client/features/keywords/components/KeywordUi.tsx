@@ -28,7 +28,7 @@ function formatTrendRange(
           ? new Date(m.year, m.month - 1, 1).toLocaleDateString("de-DE", {
               month: "short",
             })
-          : MONTH_SHORT_LABELS[m.month - 1] ?? `M${m.month}`;
+          : (MONTH_SHORT_LABELS[m.month - 1] ?? `M${m.month}`);
       return `${monthName} ${m.year}`;
     },
   );

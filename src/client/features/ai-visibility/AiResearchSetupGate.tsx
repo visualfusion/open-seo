@@ -164,7 +164,10 @@ export function AiResearchSetupGate({
           <WebsiteResearchProgress
             missingOverview={data.missingOverview}
             missingCompetitors={data.missingCompetitors}
-            note={t("ai_visibility.details.leave_page_note") || "You can leave this page; setup keeps running."}
+            note={
+              t("ai_visibility.details.leave_page_note") ||
+              "You can leave this page; setup keeps running."
+            }
           />
         </div>
       );
@@ -196,12 +199,18 @@ export function AiResearchSetupGate({
                 <Alert variant="destructive">
                   <AlertDescription>
                     {unreadable
-                      ? t("ai_visibility.details.we_couldn_t_read_protection_may")
+                      ? t(
+                          "ai_visibility.details.we_couldn_t_read_protection_may",
+                        )
                       : !start.isError && data.failure === "subrequest_limit"
                         ? t("ai_visibility.details.subrequest_limit")
                         : isEveryAppClientAuthMode()
-                          ? t("ai_visibility.details.we_couldn_t_finish_it_needs")
-                          : t("ai_visibility.details.we_couldn_t_finish_try_again")}
+                          ? t(
+                              "ai_visibility.details.we_couldn_t_finish_it_needs",
+                            )
+                          : t(
+                              "ai_visibility.details.we_couldn_t_finish_try_again",
+                            )}
                   </AlertDescription>
                 </Alert>
               )

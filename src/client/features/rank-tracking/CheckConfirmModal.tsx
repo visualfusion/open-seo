@@ -54,7 +54,9 @@ export function CheckConfirmModal({
         ) : null}
         <span>
           {RANK_CHECK_DURATION_COPY}
-          {isScheduled ? ` ${t("ranks.modals.scheduled_tracking_wont_change")}` : null}
+          {isScheduled
+            ? ` ${t("ranks.modals.scheduled_tracking_wont_change")}`
+            : null}
         </span>
       </span>
     </ConfirmDialog>

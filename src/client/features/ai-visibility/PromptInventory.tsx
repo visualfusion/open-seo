@@ -340,30 +340,52 @@ export function PromptInventory({
         />
       )}
       {archiving && (
-        <ConfirmDialog
-          title={t("ai_visibility.details.archive_value", {
-            v1: archiving.kind,
-          })}
-          confirmLabel="Archive"
-          destructive
-          onConfirm={() => {
-            onReduce({ archivePromptIds: archiving.promptIds });
-            setArchiving(null);
-          }}
+        <ArchiveConfirmDialog
+          archiving={archiving}
           onClose={() => setArchiving(null)}
-        >
-          {archiving.kind === "topic"
-            ? t(
-                "ai_visibility.details.this_stops_tracking_every_prompt_in_value",
-                { v1: archiving.name },
-              )
-            : t("ai_visibility.details.this_stops_tracking_value", {
-                v1: archiving.name,
-              })}{" "}
-          {t("ai_visibility.details.you_can_t_view_answer_history")}
-        </ConfirmDialog>
+          onReduce={onReduce}
+        />
       )}
     </>
+  );
+}
+
+function ArchiveConfirmDialog({
+  archiving,
+  onClose,
+  onReduce,
+}: {
+  archiving: {
+    kind: "prompt" | "topic";
+    name: string;
+    promptIds: string[];
+  };
+  onClose: () => void;
+  onReduce: (patch: AiTrackerPatch) => void;
+}) {
+  const { t } = useLocale();
+  return (
+    <ConfirmDialog
+      title={t("ai_visibility.details.archive_value", {
+        v1: archiving.kind,
+      })}
+      confirmLabel="Archive"
+      destructive
+      onConfirm={() => {
+        onReduce({ archivePromptIds: archiving.promptIds });
+        onClose();
+      }}
+      onClose={onClose}
+    >
+      {archiving.kind === "topic"
+        ? t("ai_visibility.details.this_stops_tracking_every_prompt_in_value", {
+            v1: archiving.name,
+          })
+        : t("ai_visibility.details.this_stops_tracking_value", {
+            v1: archiving.name,
+          })}{" "}
+      {t("ai_visibility.details.you_can_t_view_answer_history")}
+    </ConfirmDialog>
   );
 }
 
@@ -382,4 +404,3 @@ export function promptHasResults(
     )
   );
 }
-

@@ -34,7 +34,8 @@ export const dashboardDe = {
     run_again: "Audit erneut ausführen, um Probleme zu sehen.",
     keyword: "Keyword",
     no_search_data: "Noch keine Suchdaten vorhanden",
-    no_search_data_period: "Noch keine Suchdaten für diesen Zeitraum vorhanden.",
+    no_search_data_period:
+      "Noch keine Suchdaten für diesen Zeitraum vorhanden.",
     no_new_keywords: "Keine neuen Keywords diese Woche",
     view_full_gsc: "Vollständige GSC Insights ansehen →",
     new_keywords_title: "Neue Keywords",

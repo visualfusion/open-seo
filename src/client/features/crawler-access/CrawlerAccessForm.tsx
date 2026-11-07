@@ -33,11 +33,7 @@ export function CrawlerAccessSetupHint() {
       </>
     );
   }
-  return (
-    <>
-      {t("ui.details.an_admin_sets_secret_deployment")}
-    </>
-  );
+  return <>{t("ui.details.an_admin_sets_secret_deployment")}</>;
 }
 
 /** Whether to show the setup hint, once the server has said. */

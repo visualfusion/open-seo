@@ -72,8 +72,12 @@ export function DashboardNewQueries({
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("dashboard.cards.keyword")}</TableHead>
-                    <TableHead className="text-right">{t("dashboard.cards.impressions")}</TableHead>
-                    <TableHead className="text-right">{t("dashboard.cards.clicks")}</TableHead>
+                    <TableHead className="text-right">
+                      {t("dashboard.cards.impressions")}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {t("dashboard.cards.clicks")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

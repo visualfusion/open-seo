@@ -269,7 +269,9 @@ export function PagesTable({
       error={
         pagesQuery.isError ? (
           <QueryError
-            fallback={t("audit.could_not_load_pages") || "Could not load the pages"}
+            fallback={
+              t("audit.could_not_load_pages") || "Could not load the pages"
+            }
             onRetry={() => void pagesQuery.refetch()}
             isRetrying={pagesQuery.isFetching}
           />
