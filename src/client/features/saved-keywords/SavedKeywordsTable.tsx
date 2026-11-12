@@ -25,6 +25,11 @@ import {
 
 const columnHelper = createColumnHelper<SavedKeywordRow>();
 
+const RIGHT_ALIGNED = {
+  headerClassName: "text-right",
+  cellClassName: "text-right tabular-nums",
+} as const;
+
 export function SavedKeywordsTable({
   rows,
   rowSelection,
@@ -63,18 +68,28 @@ export function SavedKeywordsTable({
       }),
       columnHelper.accessor("searchVolume", {
         header: ({ column }) => (
-          <SortableHeader column={column} label={t("ranks.search_volume")} />
+          <SortableHeader
+            column={column}
+            label={t("ranks.search_volume")}
+            align="right"
+          />
         ),
         cell: ({ getValue }) => formatSavedKeywordNumber(getValue()),
+        meta: RIGHT_ALIGNED,
       }),
       columnHelper.accessor("cpc", {
         header: ({ column }) => (
-          <SortableHeader column={column} label={t("ranks.cpc")} />
+          <SortableHeader
+            column={column}
+            label={t("ranks.cpc")}
+            align="right"
+          />
         ),
         cell: ({ getValue }) => {
           const value = getValue();
           return value == null ? "-" : `$${value.toFixed(2)}`;
         },
+        meta: RIGHT_ALIGNED,
       }),
       columnHelper.accessor("competition", {
         header: ({ column }) => (
@@ -82,12 +97,14 @@ export function SavedKeywordsTable({
             column={column}
             label={t("saved_keywords.details.competition")}
             helpText={t("keywords.results.table.columns.competition_help")}
+            align="right"
           />
         ),
         cell: ({ getValue }) => {
           const value = getValue();
           return value == null ? "-" : value.toFixed(2);
         },
+        meta: RIGHT_ALIGNED,
       }),
       columnHelper.accessor("keywordDifficulty", {
         header: ({ column }) => (
@@ -95,9 +112,11 @@ export function SavedKeywordsTable({
             column={column}
             label={t("ranks.kd")}
             helpText={t("ranks.tooltips.kd")}
+            align="right"
           />
         ),
         cell: ({ getValue }) => <ScoreBadge value={getValue()} />,
+        meta: { headerClassName: "text-right", cellClassName: "text-right" },
       }),
       columnHelper.accessor("intent", {
         header: () => "Intent",

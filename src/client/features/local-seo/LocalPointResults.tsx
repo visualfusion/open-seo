@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/client/components/ui/table";
-import { LocalPointStatus } from "@/shared/local-seo";
+import { LocalPointStatus, localPointOffsetKm } from "@/shared/local-seo";
 import { useLocale } from "@/client/lib/i18n";
 import type { LocalGridDisplayPoint } from "./LocalRankGrid";
 
@@ -25,15 +25,14 @@ export function LocalPointResults({
   results,
   cid,
   placeId,
-  gridSize,
-  spacingKm,
+  center,
 }: {
   point: LocalGridDisplayPoint;
   results: PointResult[];
   cid: string | null;
   placeId: string | null;
-  gridSize: number;
-  spacingKm: number;
+  /** The tracked listing, which every check's grid is centered on. */
+  center: { latitude: number; longitude: number };
 }) {
   const { locale, t } = useLocale();
   return (
@@ -43,7 +42,7 @@ export function LocalPointResults({
           {t("local_seo.point_results.title")}
         </CardTitle>
         <CardAction className="row-span-1 self-center text-xs text-muted-foreground">
-          {searchedFrom(point, gridSize, spacingKm, t)}
+          {searchedFrom(point, center, t)}
         </CardAction>
       </CardHeader>
       <div className="min-h-0 flex-1 overflow-y-auto border-t border-border">
@@ -115,13 +114,10 @@ export function LocalPointResults({
 /** Where a point's search ran, e.g. "Searched 2 km north, 2 km west of your listing". */
 function searchedFrom(
   point: LocalGridDisplayPoint,
-  gridSize: number,
-  spacingKm: number,
+  center: { latitude: number; longitude: number },
   t: (key: string, params?: Record<string, string | number>) => string,
 ) {
-  const center = (gridSize - 1) / 2;
-  const north = (center - point.row) * spacingKm;
-  const east = (point.col - center) * spacingKm;
+  const { north, east } = localPointOffsetKm(center, point);
   const parts = [
     north &&
       `${Math.abs(north)} km ${north > 0 ? t("local_seo.point_results.north") : t("local_seo.point_results.south")}`,

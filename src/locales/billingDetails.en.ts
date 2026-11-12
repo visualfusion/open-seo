@@ -2,6 +2,8 @@ export const billingDetailsEn = {
   or: "or",
   or_wait_for_them_on_value: ", or wait for them to refill on {v1}",
   yearly_plans_are_set_for_now: "Yearly plans are set up by email for now",
+  switch_yearly_support_desc:
+    "Email {email} and we'll move you to the {plan} at ${price}/year. We'll credit the rest of your month toward it.",
   and_we_ll_move_you_to_the: "and we’ll move you to the",
   at: "at $",
   year_paying_yearly_in_coming_soon:

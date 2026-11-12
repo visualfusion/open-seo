@@ -117,6 +117,13 @@ export const authEn = {
     submit: "Create account",
   },
   oauth_consent: {
+    load_failed: "We couldn't load this request.",
+    allow_app_title: "Allow {app} to access your OpenSEO account?",
+    this_app: "this app",
+    switch_account: "Switch account",
+    redirects_to: "Redirects to",
+    allow: "Allow",
+    deny: "Deny",
     scope_read_label: "Read your OpenSEO data",
     scope_read_desc: "Projects, keyword reports, and audit results.",
     scope_act_label: "Act on your behalf via MCP",

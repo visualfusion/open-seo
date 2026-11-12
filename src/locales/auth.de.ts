@@ -123,6 +123,13 @@ export const authDe = {
     submit: "Konto erstellen",
   },
   oauth_consent: {
+    load_failed: "Diese Anfrage konnte nicht geladen werden.",
+    allow_app_title: "{app} Zugriff auf dein OpenSEO-Konto gewähren?",
+    this_app: "dieser App",
+    switch_account: "Konto wechseln",
+    redirects_to: "Weiterleitung an",
+    allow: "Erlauben",
+    deny: "Ablehnen",
     scope_read_label: "Deine OpenSEO-Daten lesen",
     scope_read_desc: "Projekte, Keyword-Berichte und Audit-Ergebnisse.",
     scope_act_label: "In deinem Namen über MCP handeln",

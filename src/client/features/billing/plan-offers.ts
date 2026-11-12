@@ -45,13 +45,6 @@ export const AGENCY_PLAN_OFFER: PlanOffer = {
   monthlyCreditsUsd: 120,
 };
 
-/** The tiers /subscribe offers, cheapest first. */
-export const TIER_PLAN_OFFERS = [
-  BASE_PLAN_OFFER,
-  PRO_PLAN_OFFER,
-  AGENCY_PLAN_OFFER,
-] as const;
-
 export function monthlyCreditsFeature(offer: PlanOffer) {
   return getTranslation(
     "billing.details.includes_value_of_usage_credits_each_month",
