@@ -2,6 +2,7 @@
 .github
 .claude
 .logs
+backups
 **/.wrangler
 **/node_modules
 **/dist
