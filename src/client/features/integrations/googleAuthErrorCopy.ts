@@ -63,7 +63,9 @@ export function googleAuthErrorCopy(
           undefined,
           { v1: what },
         ),
-        description: getTranslation("auth.details.permission_screen_was_closed"),
+        description: getTranslation(
+          "auth.details.permission_screen_was_closed",
+        ),
       };
     case "scope_not_granted":
       return {
