@@ -7,10 +7,15 @@ export const authDe = {
     privacy_link: "Datenschutzerklärung",
     terms_suffix: " zu.",
     opening_google: "Google wird geöffnet...",
+    opening_chatgpt: "ChatGPT wird geöffnet…",
     continue_email: "Mit E-Mail fortfahren",
     email_invalid: "Gib eine gültige E-Mail-Adresse ein.",
     continue_google: "Mit Google fortfahren",
+    continue_chatgpt: "Mit ChatGPT fortfahren",
     by_continuing_google: "Wenn du mit Google fortfährst",
+    by_continuing_google_or_chatgpt:
+      "Wenn du mit Google oder ChatGPT fortfährst",
+    or: "oder",
     email_label: "E-Mail-Adresse",
     email_placeholder: "E-Mail-Adresse...",
     password_label: "Passwort",
@@ -37,6 +42,12 @@ export const authDe = {
       "Die Registrierung mit Google ist derzeit nicht verfügbar.",
     sign_in_unavailable:
       "Die Anmeldung mit Google ist derzeit nicht verfügbar.",
+  },
+  social_auth: {
+    sign_up_unavailable:
+      "Die Registrierung mit {provider} ist derzeit nicht verfügbar.",
+    sign_in_unavailable:
+      "Die Anmeldung mit {provider} ist derzeit nicht verfügbar.",
   },
   onboarding: {
     gsc: {
@@ -123,6 +134,13 @@ export const authDe = {
     submit: "Konto erstellen",
   },
   oauth_consent: {
+    load_failed: "Diese Anfrage konnte nicht geladen werden.",
+    allow_app_title: "{app} Zugriff auf dein OpenSEO-Konto gewähren?",
+    this_app: "dieser App",
+    switch_account: "Konto wechseln",
+    redirects_to: "Weiterleitung an",
+    allow: "Erlauben",
+    deny: "Ablehnen",
     scope_read_label: "Deine OpenSEO-Daten lesen",
     scope_read_desc: "Projekte, Keyword-Berichte und Audit-Ergebnisse.",
     scope_act_label: "In deinem Namen über MCP handeln",
@@ -250,6 +268,21 @@ export const authDe = {
     resent_toast: "Eine neue E-Mail ist unterwegs.",
     resending: "E-Mail wird gesendet...",
     resend: "E-Mail erneut senden",
+  },
+  stripe_projects: {
+    login: {
+      expired_title: "Dieser Link ist abgelaufen",
+      expired_helper:
+        "Anmelde-Links funktionieren einmalig und sind zehn Minuten gültig.",
+      expired_alert_prefix: "Führe ",
+      expired_alert_suffix: " erneut aus, um einen neuen Link zu erhalten.",
+      sign_in_another: "Auf andere Weise anmelden",
+      title: "Bei OpenSEO anmelden",
+      helper:
+        "Du hast diesen Link über Stripe Projects geöffnet. Du wirst als {email} angemeldet.",
+      continue_as: "Fortfahren als {email}",
+      not_your_account: "Nicht dein Konto? Schließe diese Seite.",
+    },
   },
   details: authDetailsDe,
 };

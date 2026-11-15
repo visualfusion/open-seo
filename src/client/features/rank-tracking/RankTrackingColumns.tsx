@@ -21,6 +21,11 @@ import type { SelectionAnchor } from "@/client/components/table/tableSelection";
 export const RANK_TRACKING_HEADER_CLASS =
   "text-xs uppercase tracking-wide text-muted-foreground";
 
+const RIGHT_ALIGNED = {
+  headerClassName: "text-right",
+  cellClassName: "text-right tabular-nums",
+} as const;
+
 // Local configs fetch volume scoped to the tracked city, so the header must
 // say which number the user is looking at — national volume can overstate
 // local demand by orders of magnitude.
@@ -47,6 +52,7 @@ function makeVolumeColumn(
             : t("ranks.tooltips.volume")
         }
         className={RANK_TRACKING_HEADER_CLASS}
+        align="right"
       />
     ),
     size: 90,
@@ -54,6 +60,7 @@ function makeVolumeColumn(
       <VolumeCell value={getValue<number | undefined>() ?? null} />
     ),
     sortUndefined: "last",
+    meta: RIGHT_ALIGNED,
   };
 }
 
@@ -67,6 +74,7 @@ function makeKdColumn(t: (key: string) => string): ColumnDef<RankTrackingRow> {
         label={t("ranks.kd")}
         title={t("ranks.tooltips.kd")}
         className={RANK_TRACKING_HEADER_CLASS}
+        align="right"
       />
     ),
     size: 70,
@@ -74,6 +82,7 @@ function makeKdColumn(t: (key: string) => string): ColumnDef<RankTrackingRow> {
       <ScoreBadge value={getValue<number | undefined>() ?? null} />
     ),
     sortUndefined: "last",
+    meta: { headerClassName: "text-right", cellClassName: "text-right" },
   };
 }
 
@@ -87,6 +96,7 @@ function makeCpcColumn(t: (key: string) => string): ColumnDef<RankTrackingRow> {
         label={t("ranks.cpc")}
         title={t("ranks.tooltips.cpc")}
         className={RANK_TRACKING_HEADER_CLASS}
+        align="right"
       />
     ),
     size: 80,
@@ -94,6 +104,7 @@ function makeCpcColumn(t: (key: string) => string): ColumnDef<RankTrackingRow> {
       <CpcCell value={getValue<number | undefined>() ?? null} />
     ),
     sortUndefined: "last",
+    meta: RIGHT_ALIGNED,
   };
 }
 
@@ -120,6 +131,7 @@ function makeKeywordColumn(
         label={t("ranks.keyword")}
         title={t("ranks.tooltips.keyword")}
         className={RANK_TRACKING_HEADER_CLASS}
+        align="right"
       />
     ),
     cell: ({ row }) => (
@@ -209,6 +221,7 @@ function makeDeviceColumn(
     maxSize: 140,
     cell: ({ row }) => <DeviceRankCell result={row.original[device]} />,
     sortUndefined: "last",
+    meta: RIGHT_ALIGNED,
   };
 }
 

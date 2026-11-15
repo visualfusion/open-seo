@@ -142,7 +142,7 @@ export const settingsDe = {
   connected_agents_success: "Agent getrennt",
   connected_agents_title: "Verbundene Agenten",
   connected_agents_desc:
-    "KI-Clients, die über OAuth bei OpenSEO angemeldet sind.",
+    "KI-Clients, die über OAuth bei OpenSEO angemeldet oder über Stripe Projects hinzugefügt wurden.",
   connected_agents_error: "Verbundene Agenten konnten nicht geladen werden.",
   connected_agents_empty: "Noch keine Agenten verbunden.",
   connected_agents_client: "Client",
@@ -153,6 +153,8 @@ export const settingsDe = {
   connected_agents_disconnect_confirm: "Trennen",
   connected_agents_disconnect_warning:
     "Der Agent muss sich erneut bei OpenSEO anmelden.",
+  connected_agents_disconnect_stripe_warning:
+    "Stripe kann keine neuen Schlüssel mehr erstellen, und zuvor erstellte Schlüssel funktionieren nicht mehr. Führe stripe projects add openseo/api aus, um die Verbindung wiederherzustellen.",
   privacy_updates_error: "Wir konnten deine E-Mail-Auswahl nicht speichern.",
   privacy_title: "Datenschutz und E-Mails",
   privacy_analytics: "Nutzungsanalyse",

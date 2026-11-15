@@ -19,6 +19,7 @@ import { getIsoCountryCode } from "@/shared/keyword-locations";
 import { useLocale } from "@/client/lib/i18n";
 import { cleanKeywords, LocalKeywordFields } from "./LocalKeywordFields";
 import { LocalListingChoices, type Listing } from "./LocalListingChoices";
+import { localAreaItems, LOCAL_AREAS, type LocalArea } from "./localAreas";
 
 const ListingMap = lazy(() => import("./LocalListingMap"));
 
@@ -193,24 +194,6 @@ function ListingLookup({
   );
 }
 
-// Grid size and spacing as the area a customer would recognize. The width is
-// (gridSize - 1) × spacing, and each point is one paid search per keyword.
-const AREAS = {
-  neighborhood: {
-    key: "area_neighborhood",
-    gridSize: 3,
-    spacingKm: 1,
-  },
-  town: { key: "area_town", gridSize: 3, spacingKm: 2 },
-  city: { key: "area_city", gridSize: 5, spacingKm: 2 },
-  metro: {
-    key: "area_metro",
-    gridSize: 5,
-    spacingKm: 5,
-  },
-} as const;
-type Area = keyof typeof AREAS;
-
 function TrackerSettings({
   projectId,
   listing,
@@ -236,10 +219,10 @@ function TrackerSettings({
   const form = useAppForm({
     defaultValues: {
       keywords: suggestedKeywords.length ? suggestedKeywords : [""],
-      area: "town" as Area,
+      area: "town" as LocalArea,
     },
     onSubmit: async ({ value }) => {
-      const area = AREAS[value.area];
+      const area = LOCAL_AREAS[value.area];
       await create.mutateAsync({
         projectId,
         business,
@@ -291,10 +274,7 @@ function TrackerSettings({
               <field.SelectField
                 label={t("local_seo.area_to_check")}
                 description={t("local_seo.area_to_check_desc")}
-                items={Object.entries(AREAS).map(([value, { key }]) => ({
-                  value,
-                  label: t(`local_seo.${key}`),
-                }))}
+                items={localAreaItems(t)}
               />
             )}
           </form.AppField>

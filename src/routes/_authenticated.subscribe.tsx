@@ -18,11 +18,8 @@ import { AnnualPlanDialog } from "@/client/features/billing/AnnualPlanDialog";
 import { PlanChangeAction } from "@/client/features/billing/PlanChange";
 import { UpgradePlanDialog } from "@/client/features/billing/UpgradePlanDialog";
 import { PlanPageAccountMenu } from "@/client/features/billing/PlanPageAccountMenu";
-import {
-  PLAN_FOOTER_LINK_CLASS,
-  PlanGuarantee,
-  PlanOfferCard,
-} from "@/client/features/billing/PlanOfferCard";
+import { PlanOfferCard } from "@/client/features/billing/PlanOfferCard";
+import { SubscribeFooter } from "@/client/features/billing/SubscribeFooter";
 import {
   TIERS,
   isTier,
@@ -78,10 +75,11 @@ export const Route = createFileRoute("/_authenticated/subscribe")({
     plan: isTier(search.plan) ? search.plan : undefined,
     billing: search.billing === "yearly" ? "yearly" : undefined,
   }),
-  loaderDeps: ({ search: { upgrade, checkout, plan } }) => ({
+  loaderDeps: ({ search: { upgrade, checkout, plan, billing } }) => ({
     upgrade,
     checkout,
     plan,
+    billing,
   }),
   // Start the billing read alongside the session check, not after it. Upgrade
   // links outside Billing land here with ?upgrade=true, and hovering one
@@ -89,11 +87,17 @@ export const Route = createFileRoute("/_authenticated/subscribe")({
   loader: ({ deps }) => {
     prefetchBillingAccount();
     if (deps.upgrade && deps.checkout !== "success") {
-      prefetchUpgradeCheckout(TIERS[deps.plan ?? "base"].offer.planId);
+      prefetchUpgradeCheckout(
+        checkoutPlanId(deps.plan ?? "base", deps.billing === "yearly"),
+      );
     }
   },
   component: SubscribePage,
 });
+
+function checkoutPlanId(tier: Tier, yearly: boolean) {
+  return yearly ? TIERS[tier].annual.planId : TIERS[tier].offer.planId;
+}
 
 function SubscribePage() {
   const { t } = useLocale();
@@ -110,8 +114,8 @@ function SubscribePage() {
   const [attachingPlan, setAttachingPlan] = useState<Tier | null>(null);
   // The pricing page's Yearly switch carries over with ?billing=yearly.
   const [yearly, setYearly] = useState(billing === "yearly");
-  // The yearly dialog keeps its last plan so its text doesn't blank out while
-  // it animates closed.
+  // The yearly dialog, for a subscriber who picks a yearly plan, keeps its
+  // last plan so its text doesn't blank out while it animates closed.
   const [annualPlan, setAnnualPlan] = useState<Tier>("base");
   const [annualDialogOpen, setAnnualDialogOpen] = useState(false);
   // Kept after closing, like the yearly dialog's plan.
@@ -267,7 +271,7 @@ function SubscribePage() {
     setAttachingPlan(tier);
 
     try {
-      await openUpgradeCheckout(TIERS[tier].offer.planId);
+      await openUpgradeCheckout(checkoutPlanId(tier, yearly));
     } catch (err) {
       setError(
         getStandardErrorMessage(
@@ -288,8 +292,6 @@ function SubscribePage() {
   }
 
   const firstName = session?.user?.name?.split(" ")[0] || "";
-  const annual = TIERS[annualPlan];
-  const showYearly = yearly && !isChangingPlan;
 
   return (
     // The top padding clears the pinned Back to app and account buttons.
@@ -359,28 +361,28 @@ function SubscribePage() {
         {Object.keys(TIERS)
           .filter(isTier)
           .map((tier) => {
-            const { offer, annualPriceUsd, description, features } =
-              TIERS[tier];
+            const { offer, annual, description, features } = TIERS[tier];
             return (
               <PlanOfferCard
                 key={tier}
                 offer={offer}
                 description={t(description)}
-                priceUsd={showYearly ? annualPriceUsd : offer.priceUsd}
-                period={showYearly ? "year" : "month"}
+                priceUsd={yearly ? annual.priceUsd : offer.priceUsd}
+                period={yearly ? "year" : "month"}
                 features={features.map((feature) => t(feature))}
                 highlighted={tier === highlightedPlan}
               >
                 {!canManageBilling ? null : isChangingPlan ? (
-                  // Yearly billing is set up by email, so this is monthly.
                   <PlanChangeAction
                     offer={offer}
                     currentPlanId={paidPlanId}
                     highlighted={tier === highlightedPlan}
+                    yearly={yearly}
                     onUpgrade={() => {
                       setUpgradeTier(tier);
                       setUpgradeDialogOpen(true);
                     }}
+                    onSwitchToYearly={() => openAnnualDialog(tier)}
                   />
                 ) : (
                   <Button
@@ -389,11 +391,7 @@ function SubscribePage() {
                     pending={attachingPlan === tier}
                     // One checkout at a time: a second one would replace the first.
                     disabled={attachingPlan !== null}
-                    onClick={() =>
-                      yearly
-                        ? openAnnualDialog(tier)
-                        : void handleSubscribe(tier)
-                    }
+                    onClick={() => void handleSubscribe(tier)}
                   >
                     {attachingPlan === tier
                       ? t("ui.details.redirecting")
@@ -405,58 +403,17 @@ function SubscribePage() {
           })}
       </div>
 
-      {error || !canManageBilling ? (
-        <div className="mx-auto max-w-md space-y-2 text-center text-sm">
-          {error ? (
-            <p role="alert" className="text-destructive">
-              {error}
-            </p>
-          ) : null}
-          {canManageBilling ? null : (
-            <p className="text-muted-foreground">
-              {isChangingPlan
-                ? t("billing.details.only_owner_can_change_plan")
-                : t("ui.details.only_the_organization_owner_to_upgrade")}
-            </p>
-          )}
-        </div>
-      ) : null}
-
-      <div className="space-y-2">
-        <PlanGuarantee />
-        <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-          <a
-            className={PLAN_FOOTER_LINK_CLASS}
-            href="https://openseo.so/pricing"
-            target="_blank"
-            rel="noreferrer"
-            onClick={() =>
-              captureClientEvent("billing:pricing_estimator_click")
-            }
-          >
-            {t("ui.details.how_far_do_usage_credits_go")}{" "}
-            <span aria-hidden="true">&#8599;</span>
-          </a>
-          <span aria-hidden="true">&middot;</span>
-          <span>
-            {t("ui.details.questions_email")}{" "}
-            <a
-              className={PLAN_FOOTER_LINK_CLASS}
-              href={`mailto:${SUPPORT_EMAIL}`}
-            >
-              {SUPPORT_EMAIL}
-            </a>
-            .
-          </span>
-        </p>
-      </div>
+      <SubscribeFooter
+        error={error}
+        canManageBilling={canManageBilling}
+        isChangingPlan={isChangingPlan}
+      />
 
       <AnnualPlanDialog
         open={annualDialogOpen}
         onOpenChange={setAnnualDialogOpen}
-        planName={annual.offer.name}
-        annualPriceUsd={annual.annualPriceUsd}
-        onSubscribeMonthly={() => void handleSubscribe(annualPlan)}
+        planName={TIERS[annualPlan].offer.name}
+        annualPriceUsd={TIERS[annualPlan].annual.priceUsd}
       />
 
       {isChangingPlan ? (

@@ -31,4 +31,16 @@ export const authDetailsDe = {
   account_being_deleted: "Dieses Konto wird gelöscht",
   account_being_deleted_desc:
     "Du hast die Löschung dieses Kontos beantragt, daher ist keine Anmeldung möglich. Um es zu behalten, wende dich vor dem Löschdatum an support@openseo.so.",
+  sign_in: "Anmeldung",
+  the_sign_in_provider: "dem Anmelde-Anbieter",
+  account_already_exists: "Für diese E-Mail existiert bereits ein Konto",
+  account_already_exists_desc:
+    "Melde dich so an wie bisher. Falls das mit E-Mail und Passwort war und du deine E-Mail nie bestätigt hast, bestätige sie zuerst.",
+  verify_email_chatgpt_first: "Bestätige zuerst deine E-Mail bei ChatGPT",
+  verify_email_chatgpt_first_desc:
+    "OpenAI hat die E-Mail-Adresse deines ChatGPT-Kontos noch nicht verifiziert, daher können wir daraus kein OpenSEO-Konto erstellen. Bestätige sie in ChatGPT oder melde dich mit Google oder E-Mail an.",
+  permission_screen_was_closed:
+    "Der Berechtigungsdialog wurde geschlossen oder abgelehnt. Du kannst es jederzeit erneut versuchen.",
+  something_went_wrong_talking_provider:
+    "Bei der Kommunikation mit {v1} ist ein Fehler aufgetreten. Bitte versuche es erneut – falls das Problem weiterhin besteht, kontaktiere den Support.",
 };

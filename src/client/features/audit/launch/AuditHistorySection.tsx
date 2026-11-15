@@ -98,7 +98,9 @@ function AuditHistoryTable({
               <TableCell>
                 <StatusBadge status={audit.status} />
               </TableCell>
-              <TableCell>{audit.pagesTotal || audit.pagesCrawled}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {audit.pagesTotal || audit.pagesCrawled}
+              </TableCell>
               <TableCell>
                 {audit.ranLighthouse ? (
                   <Badge variant="outline" size="sm">

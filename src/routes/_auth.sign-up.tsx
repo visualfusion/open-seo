@@ -20,7 +20,7 @@ import {
 } from "@/client/features/auth/TurnstileWidget";
 import { passwordSchema } from "@/client/features/auth/passwordSchema";
 import { signUpStatusQueryOptions } from "@/client/features/auth/signUpStatus";
-import { useGoogleAuth } from "@/client/features/auth/useGoogleAuth";
+import { useSocialAuth } from "@/client/features/auth/useSocialAuth";
 import { getFormError } from "@/client/lib/forms";
 import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
@@ -73,9 +73,8 @@ function SignUpPage() {
   const { t } = useLocale();
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const { redirectTo, isHostedMode, isBetterAuthMode } = useAuthPageState(
-    search.redirect,
-  );
+  const { redirectTo, isHostedMode, isBetterAuthMode, chatGptEnabled } =
+    useAuthPageState(search.redirect);
   const onboardingSearch = new URLSearchParams();
   if (search.domain) onboardingSearch.set("domain", search.domain);
   for (const name of UTM_PARAMS) {
@@ -89,7 +88,8 @@ function SignUpPage() {
         ? `/onboarding?${onboardingSearch.toString()}`
         : "/onboarding";
   const [showEmailForm, setShowEmailForm] = useState(search.method === "email");
-  const google = useGoogleAuth({ redirectTo, postSignupRedirect });
+  const google = useSocialAuth("google", { redirectTo, postSignupRedirect });
+  const chatGpt = useSocialAuth("chatgpt", { redirectTo, postSignupRedirect });
 
   // Sent from a "Continue with Google" button: go straight to Google. `method`
   // leaves the URL first, so Back from Google's page shows the buttons here
@@ -298,20 +298,21 @@ function SignUpPage() {
           <AuthMethodChooser
             googleLabel={t("auth.common.continue_google")}
             disabled={!isHostedMode}
-            isBusy={google.isStarting}
-            onContinueWithGoogle={() => {
-              void google.start();
-            }}
+            google={google}
+            chatGpt={chatGptEnabled ? chatGpt : undefined}
             onContinueWithEmail={() => {
               setShowEmailForm(true);
               google.clearError();
+              chatGpt.clearError();
             }}
           />
           {isHostedMode ? (
             <TermsAgreementNotice action={t("auth.common.by_continuing")} />
           ) : null}
-          {google.error ? (
-            <p className="text-sm text-destructive">{google.error}</p>
+          {(google.error ?? chatGpt.error) ? (
+            <p className="text-sm text-destructive">
+              {google.error ?? chatGpt.error}
+            </p>
           ) : null}
         </>
       ) : (
