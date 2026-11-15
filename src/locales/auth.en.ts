@@ -7,10 +7,14 @@ export const authEn = {
     privacy_link: "Privacy Policy",
     terms_suffix: ".",
     opening_google: "Opening Google...",
+    opening_chatgpt: "Opening ChatGPT...",
     continue_email: "Continue with email",
     email_invalid: "Enter a valid email address.",
     continue_google: "Continue with Google",
+    continue_chatgpt: "Continue with ChatGPT",
     by_continuing_google: "By continuing with Google",
+    by_continuing_google_or_chatgpt: "By continuing with Google or ChatGPT",
+    or: "or",
     email_label: "Email address",
     email_placeholder: "Email address...",
     password_label: "Password",
@@ -35,6 +39,10 @@ export const authEn = {
   google_auth: {
     sign_up_unavailable: "Google sign up is not available right now.",
     sign_in_unavailable: "Google sign in is not available right now.",
+  },
+  social_auth: {
+    sign_up_unavailable: "{provider} sign up is not available right now.",
+    sign_in_unavailable: "{provider} sign in is not available right now.",
   },
   onboarding: {
     gsc: {
@@ -240,6 +248,20 @@ export const authEn = {
     resent_toast: "A new email is on the way.",
     resending: "Sending email...",
     resend: "Resend email",
+  },
+  stripe_projects: {
+    login: {
+      expired_title: "This link has expired",
+      expired_helper: "Sign-in links work once and last ten minutes.",
+      expired_alert_prefix: "Run ",
+      expired_alert_suffix: " again for a new one.",
+      sign_in_another: "Sign in another way",
+      title: "Sign in to OpenSEO",
+      helper:
+        "You opened this from Stripe Projects. You'll be signed in as {email}.",
+      continue_as: "Continue as {email}",
+      not_your_account: "Not your account? Close this page.",
+    },
   },
   details: authDetailsEn,
 };

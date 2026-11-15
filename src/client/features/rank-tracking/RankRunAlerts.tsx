@@ -2,7 +2,10 @@ import { AlertTriangle, Clock } from "lucide-react";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { InsufficientCreditsError } from "@/client/features/billing/InsufficientCreditsError";
 import { useLocale } from "@/client/lib/i18n";
-import { isOutOfCreditsRunError } from "@/shared/rank-tracking";
+import {
+  isOutOfCreditsRunError,
+  RANK_CHECK_DELAYED_ERROR,
+} from "@/shared/rank-tracking";
 import type { useRankRunPolling } from "./useRankRunPolling";
 
 function ReadWhatChangedLink() {
@@ -19,7 +22,7 @@ function ReadWhatChangedLink() {
   );
 }
 
-/** The latest rank check's state: running, stale, failed, or incomplete. */
+/** The latest rank check's state: running, delayed, stale, failed, or incomplete. */
 export function RankRunAlerts({
   run,
 }: {
@@ -34,6 +37,22 @@ export function RankRunAlerts({
         <AlertTriangle />
         <AlertDescription className="text-foreground">
           {t("ranks.alerts.run_stale")}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (run.isDelayed) {
+    return (
+      <Alert variant="warning">
+        <Clock />
+        <AlertDescription className="text-foreground">
+          <p>
+            <span className="font-medium">
+              {t("ranks.alerts.delayed_run_title")}
+            </span>{" "}
+            {t("ranks.alerts.delayed_run_desc")}
+          </p>
         </AlertDescription>
       </Alert>
     );
@@ -60,6 +79,25 @@ export function RankRunAlerts({
       <InsufficientCreditsError
         title={t("ranks.alerts.run_insufficient_credits")}
       />
+    );
+  }
+
+  if (
+    run.status === "failed" &&
+    run.errorMessage === RANK_CHECK_DELAYED_ERROR
+  ) {
+    return (
+      <Alert variant="warning">
+        <AlertTriangle />
+        <AlertDescription className="text-foreground">
+          <p>
+            <span className="font-medium">
+              {t("ranks.alerts.delayed_error_title")}
+            </span>{" "}
+            {t("ranks.alerts.delayed_error_desc")}
+          </p>
+        </AlertDescription>
+      </Alert>
     );
   }
 

@@ -157,6 +157,12 @@ export const ranksEn = {
     run_takes_hour_bold: "This check takes about an hour",
     run_takes_hour_desc:
       "because Google's results have been unreliable lately. You can leave this page while it's running.",
+    delayed_run_title: "This check is delayed",
+    delayed_run_desc:
+      "because our search data provider is slow. We'll keep waiting for up to 6 hours. You can leave this page.",
+    delayed_error_title: "We couldn't finish your last check.",
+    delayed_error_desc:
+      "Our search data provider didn't return Google's results within 6 hours. Please try again later.",
     run_couldnt_finish_bold: "We couldn't finish your last check.",
     run_couldnt_finish_desc:
       "Google's results have been unreliable for all rank trackers lately. Please try again later.",

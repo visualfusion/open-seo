@@ -164,6 +164,13 @@ export const ranksDe = {
     run_takes_hour_bold: "Diese Prüfung dauert ca. eine Stunde,",
     run_takes_hour_desc:
       "da Googles Ergebnisse in letzter Zeit unzuverlässig waren. Du kannst diese Seite während des Laufs verlassen.",
+    delayed_run_title: "Diese Prüfung verzögert sich",
+    delayed_run_desc:
+      ", da unser Suchdaten-Provider derzeit langsam antwortet. Wir warten bis zu 6 Stunden weiter. Du kannst diese Seite verlassen.",
+    delayed_error_title:
+      "Deine letzte Prüfung konnte nicht abgeschlossen werden.",
+    delayed_error_desc:
+      "Unser Suchdaten-Provider hat die Google-Ergebnisse nicht innerhalb von 6 Stunden geliefert. Bitte versuche es später erneut.",
     run_couldnt_finish_bold:
       "Deine letzte Prüfung konnte nicht abgeschlossen werden.",
     run_couldnt_finish_desc:

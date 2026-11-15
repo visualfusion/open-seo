@@ -136,7 +136,8 @@ export const settingsEn = {
   },
   connected_agents_success: "Agent disconnected",
   connected_agents_title: "Connected agents",
-  connected_agents_desc: "AI clients signed in to OpenSEO with OAuth.",
+  connected_agents_desc:
+    "AI clients signed in to OpenSEO with OAuth or added through Stripe Projects.",
   connected_agents_error: "We couldn't load your connected agents.",
   connected_agents_empty: "No agents connected yet.",
   connected_agents_client: "Client",
@@ -147,6 +148,8 @@ export const settingsEn = {
   connected_agents_disconnect_confirm: "Disconnect",
   connected_agents_disconnect_warning:
     "It will have to sign in to OpenSEO again.",
+  connected_agents_disconnect_stripe_warning:
+    "Stripe can't create new keys, and the keys it created stop working. Run stripe projects add openseo/api to connect again.",
   privacy_updates_error: "We couldn't save your email choice.",
   privacy_title: "Privacy and emails",
   privacy_analytics: "Usage analytics",

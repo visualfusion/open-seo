@@ -24,13 +24,14 @@ import {
   revokeMcpConnection,
 } from "@/serverFunctions/mcp-connections";
 
+type McpConnection = Awaited<ReturnType<typeof listMcpConnections>>[number];
+
 export function McpConnectionsSettings() {
   const queryClient = useQueryClient();
   const { t } = useLocale();
-  const [disconnecting, setDisconnecting] = useState<{
-    id: string;
-    clientName: string;
-  } | null>(null);
+  const [disconnecting, setDisconnecting] = useState<McpConnection | null>(
+    null,
+  );
   const { hasMultiple: showOrganization, organizationName } =
     useOrganizations();
 
@@ -40,9 +41,19 @@ export function McpConnectionsSettings() {
   });
 
   const disconnectMutation = useMutation({
-    mutationFn: (grantId: string) => revokeMcpConnection({ data: { grantId } }),
-    onSuccess: () => {
-      captureClientEvent("mcp:connection_revoked");
+    mutationFn: (connection: McpConnection) =>
+      revokeMcpConnection({
+        data:
+          connection.kind === "oauth"
+            ? { kind: "oauth", grantId: connection.id }
+            : {
+                kind: "stripe",
+                organizationId: connection.organizationId,
+                stripeAccountId: connection.stripeAccountId,
+              },
+      }),
+    onSuccess: (_, connection) => {
+      captureClientEvent("mcp:connection_revoked", { kind: connection.kind });
       toast.success(t("settings.connected_agents_success"));
       setDisconnecting(null);
       void queryClient.invalidateQueries({ queryKey: ["mcpConnections"] });
@@ -102,12 +113,7 @@ export function McpConnectionsSettings() {
                         >
                           <DropdownMenuItem
                             variant="destructive"
-                            onClick={() =>
-                              setDisconnecting({
-                                id: connection.id,
-                                clientName: connection.clientName,
-                              })
-                            }
+                            onClick={() => setDisconnecting(connection)}
                           >
                             <Unplug />
                             {t("settings.connected_agents_disconnect")}
@@ -132,9 +138,11 @@ export function McpConnectionsSettings() {
           destructive
           pending={disconnectMutation.isPending}
           onClose={() => setDisconnecting(null)}
-          onConfirm={() => disconnectMutation.mutate(disconnecting.id)}
+          onConfirm={() => disconnectMutation.mutate(disconnecting)}
         >
-          {t("settings.connected_agents_disconnect_warning")}
+          {disconnecting.kind === "oauth"
+            ? t("settings.connected_agents_disconnect_warning")
+            : t("settings.connected_agents_disconnect_stripe_warning")}
         </ConfirmDialog>
       ) : null}
     </section>

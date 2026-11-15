@@ -31,4 +31,16 @@ export const authDetailsEn = {
   account_being_deleted: "This account is being deleted",
   account_being_deleted_desc:
     "You asked us to delete this account, so it can't be signed in to. To keep it, email support@openseo.so before the deletion date.",
+  sign_in: "Sign-in",
+  the_sign_in_provider: "the sign-in provider",
+  account_already_exists: "This email already has an account",
+  account_already_exists_desc:
+    "Sign in the way you did before. If that was email and password and you never confirmed your email, confirm it first.",
+  verify_email_chatgpt_first: "Verify your email with ChatGPT first",
+  verify_email_chatgpt_first_desc:
+    "OpenAI hasn't verified the email on your ChatGPT account, so we can't create an OpenSEO account from it. Verify it in ChatGPT, or sign up with Google or email.",
+  permission_screen_was_closed:
+    "The permission screen was closed or declined. Try again whenever you're ready.",
+  something_went_wrong_talking_provider:
+    "Something went wrong while talking to {v1}. Please try again — if it keeps failing, contact support.",
 };

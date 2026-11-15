@@ -13,7 +13,7 @@ import {
   useAuthPageState,
 } from "@/client/features/auth/AuthPage";
 import { signUpStatusQueryOptions } from "@/client/features/auth/signUpStatus";
-import { useGoogleAuth } from "@/client/features/auth/useGoogleAuth";
+import { useSocialAuth } from "@/client/features/auth/useSocialAuth";
 import { getFormError } from "@/client/lib/forms";
 import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { captureClientEvent } from "@/client/lib/posthog";
@@ -23,6 +23,7 @@ import {
   getVerifyEmailSearch,
   toAuthCallbackURL,
 } from "@/lib/auth-redirect";
+import { asksForChatGptSignIn } from "@/shared/chatgpt-sign-in";
 import { z } from "zod";
 import { pageHead } from "@/client/lib/pageHead";
 
@@ -36,6 +37,8 @@ const signInSchema = z.object({
     .min(1, { error: () => getTranslation("auth.sign_in.password_required") }),
 });
 
+const CHATGPT_AUTO_STARTED_KEY = "chatgpt-sign-in-auto-started";
+
 export const Route = createFileRoute("/_auth/sign-in")({
   head: () => pageHead("Sign in"),
   validateSearch: authRedirectSearchSchema,
@@ -46,8 +49,13 @@ function SignInPage() {
   const { t } = useLocale();
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const { redirectTo, oauthQuery, isHostedMode, isBetterAuthMode } =
-    useAuthPageState(search.redirect);
+  const {
+    redirectTo,
+    oauthQuery,
+    isHostedMode,
+    isBetterAuthMode,
+    chatGptEnabled,
+  } = useAuthPageState(search.redirect);
   const [showEmailForm, setShowEmailForm] = useState(false);
   // The standalone Docker edition has accounts but no Google sign-in and no
   // emailed password reset: go straight to the email form. Accounts come from
@@ -55,7 +63,26 @@ function SignInPage() {
   // visitor is sent to create the admin account instead.
   const emailOnly = isBetterAuthMode && !isHostedMode;
   const emailFormVisible = showEmailForm || emailOnly;
-  const google = useGoogleAuth({ redirectTo });
+  const google = useSocialAuth("google", { redirectTo });
+  const chatGpt = useSocialAuth("chatgpt", { redirectTo });
+  // Someone who chose "Continue with ChatGPT" in ChatGPT's connect window has
+  // already picked how to sign in, so start it without another click. Once
+  // per connection: coming back here (the browser's back button) shows the
+  // buttons, so nobody is trapped bouncing to ChatGPT.
+  useEffect(() => {
+    if (!chatGptEnabled || !asksForChatGptSignIn(redirectTo)) return;
+    try {
+      if (sessionStorage.getItem(CHATGPT_AUTO_STARTED_KEY) === redirectTo) {
+        return;
+      }
+      sessionStorage.setItem(CHATGPT_AUTO_STARTED_KEY, redirectTo);
+    } catch {
+      // Without sessionStorage nothing stops the bounce, so leave the click.
+      return;
+    }
+    void chatGpt.start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- start is a new function each render
+  }, [chatGptEnabled, redirectTo]);
   const signUpStatus = useQuery({
     ...signUpStatusQueryOptions(),
     enabled: emailOnly,
@@ -171,22 +198,27 @@ function SignInPage() {
           <AuthMethodChooser
             googleLabel={t("auth.common.continue_google")}
             disabled={!isHostedMode}
-            isBusy={google.isStarting}
-            onContinueWithGoogle={() => {
-              void google.start();
-            }}
+            google={google}
+            chatGpt={chatGptEnabled ? chatGpt : undefined}
             onContinueWithEmail={() => {
               setShowEmailForm(true);
               google.clearError();
+              chatGpt.clearError();
             }}
           />
           {isHostedMode ? (
             <TermsAgreementNotice
-              action={t("auth.common.by_continuing_google")}
+              action={
+                chatGptEnabled
+                  ? t("auth.common.by_continuing_google_or_chatgpt")
+                  : t("auth.common.by_continuing_google")
+              }
             />
           ) : null}
-          {google.error ? (
-            <p className="text-sm text-destructive">{google.error}</p>
+          {(google.error ?? chatGpt.error) ? (
+            <p className="text-sm text-destructive">
+              {google.error ?? chatGpt.error}
+            </p>
           ) : null}
         </>
       ) : (
