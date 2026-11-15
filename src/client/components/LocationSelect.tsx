@@ -96,12 +96,12 @@ function groupLocationOptions(
   allCountriesLabel: string,
   locale: Locale,
 ) {
-  const rest = LOCATION_OPTIONS.filter((option) => option.code !== selected?.code).map(
-    (option) => ({
-      ...option,
-      label: countryLabel(option.code, locale) ?? option.label,
-    }),
-  );
+  const rest = LOCATION_OPTIONS.filter(
+    (option) => option.code !== selected?.code,
+  ).map((option) => ({
+    ...option,
+    label: countryLabel(option.code, locale) ?? option.label,
+  }));
   const groups: LocationGroup[] = [
     // The selected country needs no heading: it sits first with its check.
     { value: "", items: selected ? [selected] : [] },

@@ -3,9 +3,10 @@ import { FormDialog } from "@/client/components/FormDialog";
 import { useAppForm } from "@/client/components/form/useAppForm";
 import { QueryError } from "@/client/components/QueryState";
 import { Button } from "@/client/components/ui/button";
+import { useLocale } from "@/client/lib/i18n";
 import { updateLocalArea } from "@/serverFunctions/local-seo";
 import {
-  LOCAL_AREA_ITEMS,
+  localAreaItems,
   LOCAL_AREAS,
   localAreaOf,
   type LocalArea,
@@ -20,6 +21,7 @@ export function LocalAreaDialog({
   tracker: { id: string; gridSize: number; spacingKm: number };
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const current = localAreaOf(tracker);
   const save = useMutation({
@@ -48,12 +50,12 @@ export function LocalAreaDialog({
   });
   return (
     <FormDialog
-      title="Change area"
+      title={t("local_seo.change_area")}
       onClose={onClose}
       actions={
         <>
           <Button variant="outline" disabled={save.isPending} onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <form.Subscribe selector={(state) => state.values.area}>
             {(area) => (
@@ -63,7 +65,7 @@ export function LocalAreaDialog({
                 pending={save.isPending}
                 disabled={area === current}
               >
-                Save area
+                {t("local_seo.save_area")}
               </Button>
             )}
           </form.Subscribe>
@@ -75,16 +77,19 @@ export function LocalAreaDialog({
           <form.AppField name="area">
             {(field) => (
               <field.SelectField
-                label="Area to check"
-                description="New checks search this area. Earlier results are kept."
-                items={LOCAL_AREA_ITEMS}
+                label={t("local_seo.area_to_check")}
+                description={t("local_seo.change_area_desc")}
+                items={localAreaItems(t)}
               />
             )}
           </form.AppField>
         </form.Form>
       </form.AppForm>
       {save.isError && (
-        <QueryError error={save.error} fallback="Could not save this area." />
+        <QueryError
+          error={save.error}
+          fallback={t("local_seo.save_area_failed")}
+        />
       )}
     </FormDialog>
   );

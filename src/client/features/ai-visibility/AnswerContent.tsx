@@ -28,10 +28,7 @@ import {
   TabsTrigger,
 } from "@/client/components/ui/tabs";
 import { getAiVisibilityAnswer } from "@/serverFunctions/ai-visibility";
-import {
-  aiBrandLabel,
-  type AiAnswer,
-} from "@/shared/ai-visibility";
+import { aiBrandLabel, type AiAnswer } from "@/shared/ai-visibility";
 import { DomainFavicon } from "./DomainFavicon";
 
 /** The selected engine's answer lives in the prompt page, beside its sources. */

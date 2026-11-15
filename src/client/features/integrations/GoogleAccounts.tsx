@@ -41,9 +41,7 @@ export function accountStatus(
     return getTranslation("integrations.details.connection_expired");
   if (account.unavailable) {
     return account.apiDisabled
-      ? getTranslation(
-          "integrations.details.search_console_api_isn_t_enabled",
-        )
+      ? getTranslation("integrations.details.search_console_api_isn_t_enabled")
       : getTranslation("integrations.details.couldn_t_load_properties");
   }
   if (account.properties.length === 0) {
@@ -107,7 +105,9 @@ export function GoogleAccounts({
         </PopoverTrigger>
         <PopoverContent align="start" className="w-80">
           <PopoverHeader>
-            <PopoverTitle>{t("integrations.details.google_accounts")}</PopoverTitle>
+            <PopoverTitle>
+              {t("integrations.details.google_accounts")}
+            </PopoverTitle>
             <PopoverDescription>
               {t("integrations.details.properties_come_from_these_accounts")}
             </PopoverDescription>

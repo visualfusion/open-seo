@@ -81,6 +81,21 @@ export const localSeoDe = {
   failed_to_load_tracking: "Local-Tracking-Daten konnten nicht geladen werden",
   area_label: "{points} Punkte über {distance} km",
   mobile: "Mobile",
+  change_area: "Bereich ändern",
+  save_area: "Bereich speichern",
+  change_area_desc:
+    "Neue Prüfungen durchsuchen diesen Bereich. Frühere Ergebnisse bleiben erhalten.",
+  save_area_failed: "Dieser Bereich konnte nicht gespeichert werden.",
+  delete_wait_for_check:
+    "Warte, bis die laufende Prüfung abgeschlossen ist, bevor du dieses Unternehmen löschst.",
+  business_deleted: "Unternehmen gelöscht",
+  open_business: "{title} öffnen",
+  delete_business: "Unternehmen löschen",
+  delete_business_named: "{title} löschen",
+  delete_business_question: "{title} löschen?",
+  delete: "Löschen",
+  delete_business_warning:
+    "Keywords und Ranking-Verlauf werden ebenfalls gelöscht. Das kann nicht rückgängig gemacht werden.",
   manage_keywords: "Keywords verwalten",
   checking_rankings: "Rankings werden geprüft…",
   check_rankings: "Rankings prüfen",

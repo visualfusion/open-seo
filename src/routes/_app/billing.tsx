@@ -249,7 +249,9 @@ function BillingPage() {
                   summary={
                     isFreePlan
                       ? t("billing.details.need_more_than_your_paid_plan")
-                      : t("billing.details.never_expire_and_are_monthly_credits")
+                      : t(
+                          "billing.details.never_expire_and_are_monthly_credits",
+                        )
                   }
                   action={
                     isFreePlan || buyingCredits ? null : (

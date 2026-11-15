@@ -54,8 +54,7 @@ export const integrationsDetailsEn = {
   no_verified_access: "No verified access",
   google_accounts: "Google accounts",
   google_accounts_count: "{count} Google accounts",
-  properties_come_from_these_accounts:
-    "Properties come from these accounts.",
+  properties_come_from_these_accounts: "Properties come from these accounts.",
   how_to_enable_it: "How to enable it ↗",
   reconnect_value: "Reconnect {v1}",
   retry_value: "Retry {v1}",
@@ -80,4 +79,22 @@ export const integrationsDetailsEn = {
   value_is_missing_a_permission: "{v1} is missing a permission",
   openseo_didn_t_get_data_because:
     "OpenSEO didn't get access to your {v1} data because a box on Google's permission screen wasn't checked. Try again and check every box before you continue.",
+  this_will_also_disconnect: "This will also disconnect",
+  from: "from",
+  project: "project",
+  the_address_you_open_cloud_use:
+    "The address you open Umami at. For Umami Cloud, use https://cloud.umami.is.",
+  a_view_only_umami_factor_sign:
+    "A view-only Umami user is enough. Two-factor sign-in isn't supported.",
+  this_umami_login_can_any_websites: "This Umami login can’t see any websites.",
+  umami_website: "Umami website",
+  choose_a_website: "Choose a website",
+  choose_website: "Choose website",
+  umami_connected: "Umami connected",
+  umami_login_removed: "Umami login removed",
+  add_at_most_value_headers: "Add at most {v1} headers.",
+  remove_umami_login_value: "Remove Umami login {v1}",
+  couldn_t_check_this_umami_connection:
+    "Couldn't check this project's Umami connection.",
+  enter_the_umami_username: "Enter the Umami username.",
 };

@@ -2,6 +2,8 @@ export const billingDetailsDe = {
   or: "oder",
   or_wait_for_them_on_value: " oder warte auf die Aufladung am {v1}",
   yearly_plans_are_set_for_now: "Jahresabos richten wir derzeit per E-Mail ein",
+  switch_yearly_support_desc:
+    "Schreib an {email}. Wir stellen dein Abo für {price} $ pro Jahr auf {plan} um und rechnen den Rest deines bezahlten Monats an.",
   and_we_ll_move_you_to_the: "und wir stellen dein Abo um auf",
   at: "für $",
   year_paying_yearly_in_coming_soon:

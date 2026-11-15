@@ -206,9 +206,7 @@ export function KeywordResearchPage(input: Props) {
         <PageHeader
           title={t("keywords.title")}
           description={
-            controller.hasSearched
-              ? undefined
-              : t("keywords.description")
+            controller.hasSearched ? undefined : t("keywords.description")
           }
           backLink={
             controller.hasSearched ? (

@@ -29,7 +29,6 @@ import {
 } from "./RankTrackingTrendChart";
 import { parseDbTimestamp } from "@/client/lib/db-timestamp";
 
-
 export function RankTrackingOverview({
   device,
   projectId,

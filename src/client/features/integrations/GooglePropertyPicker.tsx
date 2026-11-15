@@ -1,4 +1,4 @@
-import { getTranslation, useLocale } from "@/client/lib/i18n";
+import { useLocale } from "@/client/lib/i18n";
 import { GscPropertySetupHelp, hasNoGscWebsites } from "./GscPropertySetupHelp";
 import { GoogleAccounts, accountLabel, accountStatus } from "./GoogleAccounts";
 import { GoogleAccountRemovalDialog } from "@/client/features/integrations/GoogleAccountRemovalDialog";
