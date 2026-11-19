@@ -4,6 +4,14 @@ import { z } from "zod";
 import { revalidateLogic } from "@tanstack/react-form";
 import { useAppForm } from "@/client/components/form/useAppForm";
 import { FormDialog } from "@/client/components/FormDialog";
+import {
+  cleanKeywords,
+  KeywordFields,
+} from "@/client/components/KeywordFields";
+import {
+  MAX_LOCAL_KEYWORD_LENGTH,
+  MAX_LOCAL_KEYWORDS,
+} from "@/types/schemas/local-seo";
 import { Button } from "@/client/components/ui/button";
 import { Skeleton } from "@/client/components/ui/skeleton";
 import { QueryError } from "@/client/components/QueryState";
@@ -17,9 +25,9 @@ import { Field, FieldError, FieldLabel } from "@/client/components/ui/field";
 import { useProjectMarket } from "@/client/features/projects/useProjectMarket";
 import { getIsoCountryCode } from "@/shared/keyword-locations";
 import { useLocale } from "@/client/lib/i18n";
-import { cleanKeywords, LocalKeywordFields } from "./LocalKeywordFields";
 import { LocalListingChoices, type Listing } from "./LocalListingChoices";
 import { localAreaItems, LOCAL_AREAS, type LocalArea } from "./localAreas";
+import { LocalCenterField } from "./LocalCenterField";
 
 const ListingMap = lazy(() => import("./LocalListingMap"));
 
@@ -220,12 +228,14 @@ function TrackerSettings({
     defaultValues: {
       keywords: suggestedKeywords.length ? suggestedKeywords : [""],
       area: "town" as LocalArea,
+      center: { latitude: business.latitude, longitude: business.longitude },
     },
     onSubmit: async ({ value }) => {
       const area = LOCAL_AREAS[value.area];
       await create.mutateAsync({
         projectId,
-        business,
+        // The tracker's coordinates are the grid's center.
+        business: { ...business, ...value.center },
         keywords: cleanKeywords(value.keywords),
         gridSize: area.gridSize,
         spacingKm: area.spacingKm,
@@ -263,7 +273,11 @@ function TrackerSettings({
         <form.Form id="local-tracker-settings" className="space-y-4">
           <form.Field name="keywords">
             {(field) => (
-              <LocalKeywordFields
+              <KeywordFields
+                label="Keywords to track"
+                placeholder="e.g. pizza delivery"
+                max={MAX_LOCAL_KEYWORDS}
+                maxLength={MAX_LOCAL_KEYWORD_LENGTH}
                 value={field.state.value}
                 onChange={field.handleChange}
               />
@@ -278,6 +292,25 @@ function TrackerSettings({
               />
             )}
           </form.AppField>
+          <form.Subscribe selector={(state) => state.values.area}>
+            {(area) => (
+              <form.Field name="center">
+                {(field) => (
+                  <LocalCenterField
+                    projectId={projectId}
+                    center={field.state.value}
+                    grid={LOCAL_AREAS[area]}
+                    onChange={field.handleChange}
+                    note={
+                      business.address
+                        ? undefined
+                        : "The selected listing has no public address, so Google's location may be different."
+                    }
+                  />
+                )}
+              </form.Field>
+            )}
+          </form.Subscribe>
         </form.Form>
       </form.AppForm>
       {create.isError && (

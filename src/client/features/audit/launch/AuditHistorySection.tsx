@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { UseQueryResult } from "@tanstack/react-query";
-import { ScanSearch, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { AuditChecksIllustration } from "@/client/components/EmptyIllustrations";
 import type { getAuditHistory } from "@/serverFunctions/audit";
 import { EmptyState } from "@/client/components/EmptyState";
 import { QueryState } from "@/client/components/QueryState";
@@ -62,8 +63,9 @@ function AuditHistoryTable({
   if (history.length === 0) {
     return (
       <EmptyState
-        icon={ScanSearch}
+        illustration={<AuditChecksIllustration />}
         title={t("audit.history.no_audits_title")}
+        description="Ein Audit durchsucht deine Seiten nach defekten Links, fehlenden Titeln und Seiten, die Google nicht indexieren kann."
       />
     );
   }

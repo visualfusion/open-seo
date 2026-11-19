@@ -1,11 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormDialog } from "@/client/components/FormDialog";
+import {
+  cleanKeywords,
+  KeywordFields,
+} from "@/client/components/KeywordFields";
+import {
+  MAX_LOCAL_KEYWORD_LENGTH,
+  MAX_LOCAL_KEYWORDS,
+} from "@/types/schemas/local-seo";
 import { useAppForm } from "@/client/components/form/useAppForm";
 import { QueryError } from "@/client/components/QueryState";
 import { Button } from "@/client/components/ui/button";
 import { updateLocalKeywords } from "@/serverFunctions/local-seo";
 import { useLocale } from "@/client/lib/i18n";
-import { cleanKeywords, LocalKeywordFields } from "./LocalKeywordFields";
 
 export function LocalKeywordsDialog({
   projectId,
@@ -57,7 +64,11 @@ export function LocalKeywordsDialog({
         <form.Form id="local-keywords" className="space-y-4">
           <form.Field name="keywords">
             {(field) => (
-              <LocalKeywordFields
+              <KeywordFields
+                label="Keywords to track"
+                placeholder="e.g. pizza delivery"
+                max={MAX_LOCAL_KEYWORDS}
+                maxLength={MAX_LOCAL_KEYWORD_LENGTH}
                 value={field.state.value}
                 onChange={field.handleChange}
                 description={t("local_seo.keywords_dialog.field_description")}

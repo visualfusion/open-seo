@@ -512,6 +512,13 @@
       "when": 1794000000000,
       "tag": "0072_umami_connections",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "6",
+      "when": 1795027967479,
+      "tag": "0073_project_embeds",
+      "breakpoints": true
     }
   ]
 }

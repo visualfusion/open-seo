@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
-import { Link2 } from "lucide-react";
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { useLocale } from "@/client/lib/i18n";
 import {
@@ -21,7 +20,9 @@ import type { BacklinksPageData } from "./useBacklinksPageData";
 import { SearchTabStrip } from "@/client/features/search-tabs/SearchTabStrip";
 import { QueryError } from "@/client/components/QueryState";
 import { Card } from "@/client/components/ui/card";
+import { BacklinksIllustration } from "@/client/components/EmptyIllustrations";
 import { RecentSearches } from "@/client/components/RecentSearches";
+import { SuggestedSites } from "@/client/features/projects/SuggestedSites";
 import {
   RESEARCH_SCOPE_LABELS,
   toScopeSearchParam,
@@ -41,6 +42,7 @@ type BacklinksBodyProps = {
   onPageChange: (nextPage: number) => void;
   onPageSizeChange: (nextPageSize: number) => void;
   onRemoveHistoryItem: (timestamp: number) => void;
+  onSearchSite: (target: string) => void;
   onSortingChange: OnChangeFn<SortingState>;
   onTabChange: (tab: BacklinksSearchState["tab"]) => void;
   onViewChange: (view: "all" | undefined) => void;
@@ -60,6 +62,7 @@ export function BacklinksBody({
   onPageChange,
   onPageSizeChange,
   onRemoveHistoryItem,
+  onSearchSite,
   onSortingChange,
   onTabChange,
   onViewChange,
@@ -100,8 +103,21 @@ export function BacklinksBody({
         items={history}
         loaded={historyLoaded}
         onRemove={onRemoveHistoryItem}
-        emptyIcon={Link2}
+        emptyIllustration={<BacklinksIllustration />}
         emptyTitle={t("backlinks.empty_title")}
+        emptyDescription="Prüfe eine Wettbewerber-Website, um ihre Backlinks zu sehen, oder deine eigene Website für gewonnene und verlorene Links."
+        emptyAction={
+          <SuggestedSites
+            projectId={projectId}
+            renderLink={(domain, props) => (
+              <button
+                type="button"
+                onClick={() => onSearchSite(domain)}
+                {...props}
+              />
+            )}
+          />
+        }
         getTitle={(item) => item.target}
         getSubtitle={(item) =>
           t(`domain.scopes.${item.scope}`) || RESEARCH_SCOPE_LABELS[item.scope]

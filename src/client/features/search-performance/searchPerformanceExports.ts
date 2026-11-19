@@ -25,9 +25,11 @@ function strikingExportTable(report: Report): ExportTable {
   };
 }
 
+type ExportRow = Omit<SearchPerformanceTableRow, "prevClicks">;
+
 function dimensionExportTable(
   dimension: SearchPerformanceTableDimension,
-  rows: SearchPerformanceTableRow[],
+  rows: ExportRow[],
   stamp: string,
   showPosition: boolean,
 ): ExportTable {
@@ -72,7 +74,7 @@ export function exportStriking(
  *  page) so pagination never truncates a download. */
 export function exportDimensionRows(
   dimension: SearchPerformanceTableDimension,
-  rows: SearchPerformanceTableRow[],
+  rows: ExportRow[],
   range: Report["range"],
   target: ExportTarget,
   showPosition: boolean,

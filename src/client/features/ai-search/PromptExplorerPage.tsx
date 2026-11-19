@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { identity, sortBy } from "remeda";
-import { Columns3, MessageSquare, SearchCheck, Sparkles } from "lucide-react";
+import { Columns3, SearchCheck, Sparkles } from "lucide-react";
 import { getTranslation, useLocale } from "@/client/lib/i18n";
 import { useHostedPlanGate } from "@/client/features/billing/HostedPlanGate";
 import { ResearchPageShell } from "@/client/features/ai-search/ResearchPageShell";
@@ -22,6 +22,7 @@ import type {
   SearchTabInput,
 } from "@/client/features/search-tabs/types";
 import { useSearchTabNavigation } from "@/client/features/search-tabs/useSearchTabNavigation";
+import { ModelAnswersIllustration } from "@/client/components/EmptyIllustrations";
 import { RecentSearches } from "@/client/components/RecentSearches";
 import { BackLink } from "@/client/components/PageHeader";
 import { formatModelLabel } from "@/shared/prompt-explorer-labels";
@@ -268,8 +269,9 @@ export function PromptExplorerPage({
           items={history}
           loaded={historyLoaded}
           onRemove={removeHistoryItem}
-          emptyIcon={MessageSquare}
+          emptyIllustration={<ModelAnswersIllustration />}
           emptyTitle={t("brand_lookup.prompt_explorer.empty_history")}
+          emptyDescription="Jede Modellantwort enthält die zitierten Quellen."
           getTitle={(item) => item.prompt}
           getSubtitle={(item) => item.models.map(formatModelLabel).join(", ")}
           renderLink={(item, props) => (

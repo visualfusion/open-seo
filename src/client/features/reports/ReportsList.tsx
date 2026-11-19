@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { FileText, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { ReportIllustration } from "@/client/components/EmptyIllustrations";
 import { EmptyState } from "@/client/components/EmptyState";
+import { Button } from "@/client/components/ui/button";
 import { RowActionsMenu } from "@/client/components/RowActionsMenu";
 import { DropdownMenuItem } from "@/client/components/ui/dropdown-menu";
 import {
@@ -32,9 +34,18 @@ export function ReportsList({
   if (reports.length === 0) {
     return (
       <EmptyState
-        icon={FileText}
+        illustration={<ReportIllustration />}
         title={t("reports.empty_reports_title")}
         description={t("reports.empty_reports_desc")}
+        action={
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link to="/ai" />}
+          >
+            Agent einrichten
+          </Button>
+        }
       />
     );
   }

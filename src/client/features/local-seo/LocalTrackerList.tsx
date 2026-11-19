@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, MapPin, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, Plus, Trash2 } from "lucide-react";
+import { LocalGridIllustration } from "@/client/components/EmptyIllustrations";
 import { toast } from "sonner";
 import {
   deleteLocalTracker,
@@ -86,7 +87,7 @@ export function LocalTrackerList({
             trackers.length === 0 ? (
               <EmptyState
                 variant="plain"
-                icon={MapPin}
+                illustration={<LocalGridIllustration />}
                 title={t("local_seo.no_businesses_title")}
                 description={t("local_seo.no_businesses_desc")}
               />

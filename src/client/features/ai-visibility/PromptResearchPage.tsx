@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/client/components/ui/table";
+import { EditResearchKeywordsButton } from "./EditResearchKeywords";
 import { PromptResearchKeyword } from "./PromptResearchKeyword";
 import {
   AiQueryError,
@@ -114,11 +115,21 @@ function KeywordList({ projectId }: { projectId: string }) {
   const query = useQuery(aiResearchKeywordsQueryOptions(projectId));
   return (
     <div className="overflow-hidden rounded-lg border bg-card border-border">
-      <div className="border-b p-4 border-border">
-        <h2 className="font-medium">{t("ai_visibility.relevant_keywords")}</h2>
-        <p className="text-sm text-muted-foreground">
-          {t("ai_visibility.details.select_a_keyword_to_ask_ai")}
-        </p>
+      <div className="flex items-center justify-between gap-3 border-b p-4 border-border">
+        <div>
+          <h2 className="font-medium">{t("ai_visibility.relevant_keywords")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t("ai_visibility.details.select_a_keyword_to_ask_ai")}
+          </p>
+        </div>
+        {query.data ? (
+          <EditResearchKeywordsButton
+            projectId={projectId}
+            saved={query.data.keywords.filter(
+              (keyword) => !query.data.trackedTopics.includes(keyword),
+            )}
+          />
+        ) : null}
       </div>
       {query.isPending ? (
         <SkeletonTableRows rows={5} columns={1} className="p-4" />

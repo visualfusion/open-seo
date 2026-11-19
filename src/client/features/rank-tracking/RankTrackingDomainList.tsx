@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { RankRowsIllustration } from "@/client/components/EmptyIllustrations";
 import { LOCATIONS } from "@/client/features/keywords/locations";
 import {
   AlertTriangle,
   Archive,
   CircleAlert,
-  Globe,
   Info,
   Plus,
   ChevronRight,
@@ -205,7 +205,7 @@ export function RankTrackingDomainList({
           ) : !summaries ? null : summaries.length === 0 ? (
             <EmptyState
               variant="plain"
-              icon={Globe}
+              illustration={<RankRowsIllustration />}
               title={t("ranks.no_domains")}
               description={t("ranks.no_domains_desc")}
             />

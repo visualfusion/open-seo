@@ -20,10 +20,11 @@ import {
   runAiVisibilityCheck,
   setAiVisibilitySchedule,
 } from "@/serverFunctions/ai-visibility";
-import type {
-  AiRun,
-  AiScheduleInterval,
-  AiTracker,
+import {
+  aiLiveRunDuration,
+  type AiRun,
+  type AiScheduleInterval,
+  type AiTracker,
 } from "@/shared/ai-visibility";
 import { ScheduleField } from "@/client/features/rank-tracking/ScheduleField";
 import {

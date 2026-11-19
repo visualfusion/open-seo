@@ -20,6 +20,8 @@ export function DimensionSection({
   onPageSizeChange,
   isFiltered,
   onClearFilters,
+  selectedKey,
+  onSelect,
 }: {
   projectId: string;
   tableQuery: UseQueryResult<
@@ -33,6 +35,8 @@ export function DimensionSection({
   onPageSizeChange: (pageSize: number) => void;
   isFiltered: boolean;
   onClearFilters: () => void;
+  selectedKey: string | null;
+  onSelect: (key: string) => void;
 }) {
   const { t } = useLocale();
 
@@ -78,6 +82,8 @@ export function DimensionSection({
           isPastEnd={isPastEnd}
           onClearFilters={onClearFilters}
           onFirstPage={() => onPageChange(1)}
+          selectedKey={selectedKey}
+          onSelect={onSelect}
         />
       </div>
       {!isPastEnd && (

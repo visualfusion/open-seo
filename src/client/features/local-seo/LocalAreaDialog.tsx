@@ -5,6 +5,8 @@ import { QueryError } from "@/client/components/QueryState";
 import { Button } from "@/client/components/ui/button";
 import { useLocale } from "@/client/lib/i18n";
 import { updateLocalArea } from "@/serverFunctions/local-seo";
+import { LocalCenterField } from "./LocalCenterField";
+import type { LocalCenter } from "./LocalCenterMap";
 import {
   localAreaItems,
   LOCAL_AREAS,
@@ -18,20 +20,30 @@ export function LocalAreaDialog({
   onClose,
 }: {
   projectId: string;
-  tracker: { id: string; gridSize: number; spacingKm: number };
+  tracker: {
+    id: string;
+    gridSize: number;
+    spacingKm: number;
+    latitude: number;
+    longitude: number;
+  };
   onClose: () => void;
 }) {
   const { t } = useLocale();
   const queryClient = useQueryClient();
-  const current = localAreaOf(tracker);
+  const current = {
+    area: localAreaOf(tracker),
+    center: { latitude: tracker.latitude, longitude: tracker.longitude },
+  };
   const save = useMutation({
-    mutationFn: (area: LocalArea) =>
+    mutationFn: (value: { area: LocalArea; center: LocalCenter }) =>
       updateLocalArea({
         data: {
           projectId,
           trackerId: tracker.id,
-          gridSize: LOCAL_AREAS[area].gridSize,
-          spacingKm: LOCAL_AREAS[area].spacingKm,
+          gridSize: LOCAL_AREAS[value.area].gridSize,
+          spacingKm: LOCAL_AREAS[value.area].spacingKm,
+          ...value.center,
         },
       }),
     onSuccess: async () => {
@@ -42,10 +54,10 @@ export function LocalAreaDialog({
     },
   });
   const form = useAppForm({
-    defaultValues: { area: current },
+    defaultValues: current,
     onSubmit: async ({ value }) => {
       // Save is disabled until an area is picked.
-      if (value.area) await save.mutateAsync(value.area);
+      if (value.area) await save.mutateAsync({ ...value, area: value.area });
     },
   });
   return (
@@ -57,13 +69,15 @@ export function LocalAreaDialog({
           <Button variant="outline" disabled={save.isPending} onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <form.Subscribe selector={(state) => state.values.area}>
-            {(area) => (
+          <form.Subscribe
+            selector={(state) => !state.values.area || state.isDefaultValue}
+          >
+            {(disabled) => (
               <Button
                 type="submit"
                 form="local-area"
                 pending={save.isPending}
-                disabled={area === current}
+                disabled={disabled}
               >
                 {t("local_seo.save_area")}
               </Button>
@@ -73,7 +87,7 @@ export function LocalAreaDialog({
       }
     >
       <form.AppForm>
-        <form.Form id="local-area">
+        <form.Form id="local-area" className="space-y-4">
           <form.AppField name="area">
             {(field) => (
               <field.SelectField
@@ -83,6 +97,22 @@ export function LocalAreaDialog({
               />
             )}
           </form.AppField>
+          <form.Subscribe selector={(state) => state.values.area}>
+            {(area) => (
+              <form.Field name="center">
+                {(field) => (
+                  <LocalCenterField
+                    projectId={projectId}
+                    center={field.state.value}
+                    // A grid saved before areas existed shows as it is until
+                    // an area is picked.
+                    grid={area ? LOCAL_AREAS[area] : tracker}
+                    onChange={field.handleChange}
+                  />
+                )}
+              </form.Field>
+            )}
+          </form.Subscribe>
         </form.Form>
       </form.AppForm>
       {save.isError && (

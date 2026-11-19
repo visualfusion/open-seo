@@ -14,19 +14,8 @@ import {
 import { TablePagination } from "@/client/components/table/TablePagination";
 import { Button } from "@/client/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/client/components/ui/table";
-import {
   buildDimensionColumns,
   buildStrikingColumns,
-  formatCount,
-  formatCtr,
-  formatPosition,
   type Report,
   type SearchPerformanceTableRow,
 } from "@/client/features/search-performance/SearchPerformanceColumns";
@@ -43,100 +32,6 @@ export {
   exportDimensionRows,
 } from "./searchPerformanceExports";
 
-type Delta = { text: string; improved: boolean } | null;
-
-function percentDelta(current: number, previous: number): Delta {
-  if (previous <= 0) return null;
-  const change = (current - previous) / previous;
-  const pct = (change * 100).toFixed(1);
-  return { text: `${change >= 0 ? "+" : ""}${pct}%`, improved: change >= 0 };
-}
-
-/** Position falls as rankings improve, so the delta is inverted. */
-function positionDelta(current: number, previous: number): Delta {
-  if (previous <= 0 || current <= 0) return null;
-  const change = previous - current;
-  return {
-    text: `${change >= 0 ? "+" : ""}${change.toFixed(1)}`,
-    improved: change >= 0,
-  };
-}
-
-/** Discover and Google News report no position, so it is left out there. */
-export function TotalsTable({
-  report,
-  showPosition,
-}: {
-  report: Report;
-  showPosition: boolean;
-}) {
-  const { t } = useLocale();
-  const { totals, prevTotals, range } = report;
-  const deltaTitle = t("search_performance.totals.compared_with", {
-    start: range.prevStartDate,
-    end: range.prevEndDate,
-  });
-  const metrics = [
-    {
-      label: t("search_performance.totals.clicks"),
-      value: formatCount(totals.clicks),
-      delta: percentDelta(totals.clicks, prevTotals.clicks),
-    },
-    {
-      label: t("search_performance.totals.impressions"),
-      value: formatCount(totals.impressions),
-      delta: percentDelta(totals.impressions, prevTotals.impressions),
-    },
-    {
-      label: t("search_performance.totals.ctr"),
-      value: formatCtr(totals.ctr),
-      delta: percentDelta(totals.ctr, prevTotals.ctr),
-    },
-    ...(showPosition
-      ? [
-          {
-            label: t("search_performance.totals.position"),
-            value: formatPosition(totals.position),
-            delta: positionDelta(totals.position, prevTotals.position),
-          },
-        ]
-      : []),
-  ];
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-full">
-              {t("search_performance.totals.metric")}
-            </TableHead>
-            <TableHead className="min-w-32 text-right">
-              {t("search_performance.totals.value")}
-            </TableHead>
-            <TableHead className="min-w-32 text-right" title={deltaTitle}>
-              {t("search_performance.totals.change")}
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {metrics.map(({ label, value, delta }) => (
-            <TableRow key={label}>
-              <TableCell>{label}</TableCell>
-              <TableCell className="text-right tabular-nums">{value}</TableCell>
-              <TableCell
-                className={`text-right tabular-nums ${delta ? (delta.improved ? "text-success" : "text-destructive") : "text-muted-foreground"}`}
-                title={deltaTitle}
-              >
-                {delta?.text ?? "—"}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
 export function DimensionTable({
   rows,
   keyLabel,
@@ -145,6 +40,8 @@ export function DimensionTable({
   isPastEnd,
   onClearFilters,
   onFirstPage,
+  selectedKey,
+  onSelect,
 }: {
   rows: SearchPerformanceTableRow[];
   keyLabel: string;
@@ -153,6 +50,9 @@ export function DimensionTable({
   isPastEnd: boolean;
   onClearFilters: () => void;
   onFirstPage: () => void;
+  /** The row whose details are open. */
+  selectedKey: string | null;
+  onSelect: (key: string) => void;
 }) {
   const { t } = useLocale();
   const columnLabels = useMemo(
@@ -174,11 +74,14 @@ export function DimensionTable({
     data: rows,
     columns,
     withSorting: true,
+    getRowId: (row) => row.key,
     initialState: { sorting: [{ id: "clicks", desc: true }] },
   });
   return (
     <DataTable
       table={table}
+      onRowClick={(row) => onSelect(row.original.key)}
+      activeRowId={selectedKey ?? undefined}
       isFiltered={isFiltered && !isPastEnd}
       onClearFilters={onClearFilters}
       empty={
@@ -203,6 +106,31 @@ export function DimensionTable({
   );
 }
 
+/** Saves Search Console queries to the project's saved keywords. */
+export function useSaveQueriesAsKeywords(
+  projectId: string,
+  onSaved?: () => void,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (keywords: string[]) =>
+      saveKeywords({ data: { projectId, keywords } }),
+    onSuccess: (_result, keywords) => {
+      captureClientEvent("keyword:save", {
+        source_feature: "search_performance",
+        keyword_count: keywords.length,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["savedKeywords", projectId],
+      });
+      toast.success(
+        `Saved ${keywords.length} ${keywords.length === 1 ? "keyword" : "keywords"}`,
+      );
+      onSaved?.();
+    },
+  });
+}
+
 export function StrikingDistanceTable({
   projectId,
   rows,
@@ -223,7 +151,6 @@ export function StrikingDistanceTable({
   onClearFilters: () => void;
 }) {
   const { t } = useLocale();
-  const queryClient = useQueryClient();
   const anchorRef = useSelectionAnchor();
   const [rowSelection, setRowSelection] = useState({});
   const columnLabels = useMemo(
@@ -280,26 +207,7 @@ export function StrikingDistanceTable({
     }
   };
 
-  const save = useMutation({
-    mutationFn: (keywords: string[]) =>
-      saveKeywords({ data: { projectId, keywords } }),
-    onSuccess: (_result, keywords) => {
-      captureClientEvent("keyword:save", {
-        source_feature: "search_performance",
-        keyword_count: keywords.length,
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ["savedKeywords", projectId],
-      });
-      const count = keywords.length;
-      toast.success(
-        count === 1
-          ? t("search_performance.striking.saved_singular")
-          : t("search_performance.striking.saved_plural", { count }),
-      );
-      setRowSelection({});
-    },
-  });
+  const save = useSaveQueriesAsKeywords(projectId, () => setRowSelection({}));
 
   return (
     <>

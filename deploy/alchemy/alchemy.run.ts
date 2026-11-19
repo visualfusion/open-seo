@@ -170,7 +170,10 @@ const readCustomDomain = (prod: boolean) =>
   });
 
 const optionalSecret = (name: string) =>
-  Config.redacted(name).pipe(Config.withDefault(Redacted.make("")));
+  Config.redacted(name).pipe(
+    Config.withDefault(Redacted.make("")),
+    Config.map((value) => Redacted.make(Redacted.value(value).trim())),
+  );
 
 const accessScopeHint =
   " (if this is a permissions error, re-run `pnpm alchemy login deploy/alchemy/alchemy.run.ts --configure`, answer yes to “Customize OAuth scopes?”, and select access:write alongside the defaults)";
@@ -299,7 +302,8 @@ const dataEnv = {
   // AUTH_MODE, DATABASE_PROVIDER, BETTER_AUTH_URL, TEAM_DOMAIN, POLICY_AUD,
   // and OPENSEO_OPERATOR_SECRET are stage-dependent and set in the stack body
   // below, which also replaces an unset BETTER_AUTH_SECRET in password mode.
-  DATAFORSEO_API_KEY: Config.redacted("DATAFORSEO_API_KEY"),
+  DATAFORSEO_API_KEY: optionalSecret("DATAFORSEO_API_KEY"),
+  TREG_API_TOKEN: optionalSecret("TREG_API_TOKEN"),
   BYPASS_EMAIL_VERIFICATION: optionalVar("BYPASS_EMAIL_VERIFICATION"),
   BETTER_AUTH_SECRET: optionalSecret("BETTER_AUTH_SECRET"),
   CRAWLER_ACCESS_SECRET: optionalSecret("CRAWLER_ACCESS_SECRET"),
@@ -356,6 +360,24 @@ const dataEnv = {
   OPENSEO_TELEMETRY_DISABLED: optionalVar("OPENSEO_TELEMETRY_DISABLED"),
 };
 
+const requireDataForSeoCredentials = (prod: boolean) =>
+  Effect.gen(function* () {
+    const dataforseoApiKey = Redacted.value(yield* dataEnv.DATAFORSEO_API_KEY);
+    const tregApiToken = Redacted.value(yield* dataEnv.TREG_API_TOKEN);
+    if (prod && !dataforseoApiKey) {
+      return yield* Effect.die(
+        new Error("hosted-prod requires DATAFORSEO_API_KEY."),
+      );
+    }
+    if (!dataforseoApiKey && !tregApiToken) {
+      return yield* Effect.die(
+        new Error(
+          "Set DATAFORSEO_API_KEY or TREG_API_TOKEN — see docs/DATAFORSEO_API_KEY.md.",
+        ),
+      );
+    }
+  });
+
 export default Alchemy.Stack(
   "open-seo",
   {
@@ -384,6 +406,7 @@ export default Alchemy.Stack(
         ),
       );
     }
+    yield* requireDataForSeoCredentials(prod);
     const workersSubdomain = yield* readWorkersSubdomain({ required: false });
     const customDomain = yield* readCustomDomain(prod);
 
@@ -468,9 +491,14 @@ export default Alchemy.Stack(
         flags: wrangler.compatibility_flags,
       },
       // Audit workflow steps parse and persist batches of HTML — the same
-      // CPU allowance the app worker used to carry for them. Configurable
-      // CPU limits are a paid-plan feature (see selfHostPlan).
-      ...(selfHostPlan ? {} : { limits: { cpuMs: 300_000 } }),
+      // CPU allowance the app worker used to carry for them. A workflow run
+      // shares one subrequest budget across its steps, and a 10,000-page
+      // audit spent the 10,000 default before its Lighthouse and billing
+      // calls. Configurable limits are a paid-plan feature (see
+      // selfHostPlan).
+      ...(selfHostPlan
+        ? {}
+        : { limits: { cpuMs: 300_000, subrequests: 200_000 } }),
       observability: {
         enabled: wrangler.observability?.enabled ?? true,
         traces: { enabled: wrangler.observability?.traces?.enabled ?? false },
@@ -481,8 +509,8 @@ export default Alchemy.Stack(
         R2: resources.R2,
         // Deliberately NOT ...dataEnv: this worker crawls and parses
         // attacker-influenced HTML, so it gets only the secrets its code
-        // path reads — DataForSEO (Lighthouse), Autumn (metering), PostHog
-        // (capture), CRAWLER_ACCESS_SECRET (Shopify signatures),
+        // path reads — DataForSEO / treg (Lighthouse), Autumn (metering),
+        // PostHog (capture), CRAWLER_ACCESS_SECRET (Shopify signatures),
         // WEB_BOT_AUTH_JWK (request signing). No auth/OAuth/Loops/Turnstile
         // secrets.
         BROWSER: Cloudflare.Browser(),
@@ -490,6 +518,7 @@ export default Alchemy.Stack(
         WEB_BOT_AUTH_JWK: dataEnv.WEB_BOT_AUTH_JWK,
         CONTEXT_API_KEY: dataEnv.CONTEXT_API_KEY,
         DATAFORSEO_API_KEY: dataEnv.DATAFORSEO_API_KEY,
+        TREG_API_TOKEN: dataEnv.TREG_API_TOKEN,
         AUTUMN_SECRET_KEY: dataEnv.AUTUMN_SECRET_KEY,
         POSTHOG_PUBLIC_KEY: dataEnv.POSTHOG_PUBLIC_KEY,
         POSTHOG_HOST: dataEnv.POSTHOG_HOST,
@@ -584,8 +613,10 @@ export default Alchemy.Stack(
           simple: { limit: 5000, period: 60 },
         }),
 
-        // Per-IP throttle for email sign-in (see src/routes/api/auth/$.ts).
-        // Generous enough that no real person or shared office IP hits it.
+        // Throttle for password sign-in and the reset and verification
+        // emails, per IP and per email address (see
+        // src/server/auth/auth-rate-limit.ts). Generous enough that no real
+        // person or shared office IP hits it.
         AUTH_RATE_LIMIT: Cloudflare.RateLimit("AUTH_RATE_LIMIT", {
           namespaceId: 1002,
           simple: { limit: 20, period: 60 },
@@ -598,6 +629,22 @@ export default Alchemy.Stack(
           "SAVE_KEYWORDS_RATE_LIMIT",
           { namespaceId: 1003, simple: { limit: 60, period: 60 } },
         ),
+
+        // Per-IP throttle on the reports browsers post about the report-only
+        // Content-Security-Policy (see src/server/lib/csp.ts). A page that
+        // trips the policy sends a handful at once.
+        CSP_REPORT_RATE_LIMIT: Cloudflare.RateLimit("CSP_REPORT_RATE_LIMIT", {
+          namespaceId: 1004,
+          simple: { limit: 30, period: 60 },
+        }),
+
+        // Per-link throttle on embed links' widget calls (see
+        // src/server/features/embeds/embedRoutes.ts). A page load makes a few;
+        // this bounds the Search Console calls one public link can make.
+        EMBED_RATE_LIMIT: Cloudflare.RateLimit("EMBED_RATE_LIMIT", {
+          namespaceId: 1005,
+          simple: { limit: 60, period: 60 },
+        }),
 
         // Durable Objects (the chat agents; the audit scratchpad lives
         // privately in the open-seo-audit worker). Alchemy backs new DO

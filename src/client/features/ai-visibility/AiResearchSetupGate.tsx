@@ -1,7 +1,7 @@
 import { useLocale } from "@/client/lib/i18n";
 import { useEffect, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Sparkles } from "lucide-react";
+import { AiMentionIllustration } from "@/client/components/EmptyIllustrations";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Button } from "@/client/components/ui/button";
 import { Card, CardContent } from "@/client/components/ui/card";
@@ -178,8 +178,8 @@ export function AiResearchSetupGate({
         <Card className="w-full max-w-2xl py-6 md:py-8">
           <CardContent className="space-y-6 px-6 md:px-8">
             <div>
-              <div className="mb-4 flex size-10 items-center justify-center rounded-lg border border-border bg-muted">
-                <Sparkles className="size-5" />
+              <div className="mb-4">
+                <AiMentionIllustration />
               </div>
               <h1 className="text-2xl font-semibold tracking-tight">
                 {t("context.website_setup.title")}

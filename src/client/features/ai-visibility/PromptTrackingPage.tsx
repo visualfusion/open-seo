@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageSquare, Play, Plus, Settings2 } from "lucide-react";
+import { Play, Plus, Settings2 } from "lucide-react";
+import { AiMentionIllustration } from "@/client/components/EmptyIllustrations";
 import { toast } from "sonner";
 import { EmptyState } from "@/client/components/EmptyState";
 import { SkeletonPageContent } from "@/client/components/SkeletonPresets";
@@ -186,7 +187,7 @@ function PromptTrackingContent({
       {!state.configured ? (
         <EmptyState
           variant="card"
-          icon={MessageSquare}
+          illustration={<AiMentionIllustration />}
           title={t("ai_visibility.empty_title")}
           description={t("ai_visibility.empty_desc")}
           action={
@@ -243,7 +244,9 @@ function PromptTrackingContent({
                 </div>
               </div>
               <RunStatusLine run={progress.run} tracker={tracker} />
-              {tracker?.lastSkipReason === "INSUFFICIENT_CREDITS" ? (
+              {/* A notice about the last check is stale while one runs. */}
+              {busy ? null : tracker?.lastSkipReason ===
+                "INSUFFICIENT_CREDITS" ? (
                 <InsufficientCreditsError variant="inline" />
               ) : (
                 tracker?.lastSkipReason && (

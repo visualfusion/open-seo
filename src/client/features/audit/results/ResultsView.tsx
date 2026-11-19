@@ -1,5 +1,5 @@
 import { MetricsTable } from "@/client/components/MetricsTable";
-import { useMemo, type ReactNode } from "react";
+import { Fragment, useMemo, type ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
 import {
   exportIssues,
@@ -104,9 +104,24 @@ export function ResultsView({
   const rateLimitedAdviceParts = t("audit.rate_limited_advice", {
     crawler: "___CRAWLER___",
   }).split("___CRAWLER___");
+  const excludePaths = audit.config.excludePaths ?? [];
 
   return (
     <>
+      {excludePaths.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          This audit skipped pages matching{" "}
+          {excludePaths.map((path, index) => (
+            <Fragment key={path}>
+              {index > 0 && ", "}
+              <code>{path}</code>
+            </Fragment>
+          ))}
+          . The orphan page check didn't run, because links from skipped pages
+          aren't known.
+        </p>
+      )}
+
       {shopifyLimited && (
         <ShopifyCrawlWarning
           projectId={projectId}

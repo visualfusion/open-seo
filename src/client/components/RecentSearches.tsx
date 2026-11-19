@@ -17,11 +17,12 @@ type Props<TItem extends { timestamp: number }> = {
   renderLink: (item: TItem, props: ClickableProps) => ReactNode;
   getTitle: (item: TItem) => ReactNode;
   getSubtitle: (item: TItem) => ReactNode;
-  emptyIcon: LucideIcon;
+  emptyIcon?: LucideIcon;
   /** Takes the icon's place. */
   emptyIllustration?: ReactNode;
   emptyTitle: string;
   emptyDescription?: string;
+  emptyAction?: ReactNode;
   /** Inside another card: no card of its own, and two columns from md. */
   embedded?: boolean;
 };
@@ -37,6 +38,7 @@ export function RecentSearches<TItem extends { timestamp: number }>({
   emptyIllustration,
   emptyTitle,
   emptyDescription,
+  emptyAction,
   embedded = false,
 }: Props<TItem>) {
   const { t } = useLocale();
@@ -51,6 +53,7 @@ export function RecentSearches<TItem extends { timestamp: number }>({
         illustration={emptyIllustration}
         title={emptyTitle}
         description={emptyDescription}
+        action={emptyAction}
         variant={embedded ? "plain" : undefined}
       />
     );

@@ -17,6 +17,12 @@ import {
 } from "@/client/components/ui/select";
 import { useLocale } from "@/client/lib/i18n";
 
+export const DATE_RANGE_LABELS: Record<SearchPerformanceDateRange, string> = {
+  last_7_days: "Letzte 7 Tage",
+  last_28_days: "Letzte 28 Tage",
+  last_3_months: "Letzte 3 Monate",
+};
+
 // Sentinel for "no filter" in the selects; never written to the URL.
 const ALL = "ALL";
 
@@ -32,7 +38,7 @@ function isDevice(value: string): value is SearchPerformanceDevice {
   return GSC_DEVICES.some((option) => option === value);
 }
 
-/** Search type, device, country, and date range selects of the table toolbar. */
+/** Search type, device, country, and date range selects for the whole page. */
 export function SearchPerformanceSelects({
   search,
   countries,
@@ -103,20 +109,22 @@ export function SearchPerformanceSelects({
   );
 
   return (
-    <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Select
         items={typeOptions}
         value={search.type ?? "web"}
         onValueChange={(value) => {
           if (value == null || !isSearchType(value)) return;
           // Discover and Google News have no queries: drop the query filter
-          // and the query tabs along with the switch.
+          // and the query tabs along with the switch. Discover has no device
+          // filter either.
           onSearchChange({
             type: value === "web" ? undefined : value,
             tab: undefined,
             page: undefined,
             queryText: undefined,
             queryMatch: undefined,
+            ...(value === "discover" ? { device: undefined } : {}),
           });
         }}
       >
@@ -135,32 +143,34 @@ export function SearchPerformanceSelects({
           ))}
         </SelectContent>
       </Select>
-      <Select
-        items={deviceItems}
-        value={device}
-        onValueChange={(value) => {
-          if (value == null) return;
-          onSearchChange({
-            page: undefined,
-            device: isDevice(value) ? value : undefined,
-          });
-        }}
-      >
-        <SelectTrigger
-          size="sm"
-          className="w-36"
-          aria-label={t("search_performance.aria.device_filter")}
+      {search.type === "discover" ? null : (
+        <Select
+          items={deviceItems}
+          value={device}
+          onValueChange={(value) => {
+            if (value == null) return;
+            onSearchChange({
+              page: undefined,
+              device: isDevice(value) ? value : undefined,
+            });
+          }}
         >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {deviceItems.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <SelectTrigger
+            size="sm"
+            className="w-36"
+            aria-label={t("search_performance.aria.device_filter")}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {deviceItems.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       <Select
         items={countryItems}
         value={country}

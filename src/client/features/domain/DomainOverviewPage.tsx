@@ -1,7 +1,7 @@
 /* eslint-disable max-lines, max-lines-per-function -- Domain Overview keeps page-only orchestration colocated to avoid fake indirection. */
 import { useCallback, useEffect, useMemo, useRef, type FormEvent } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
-import { Globe, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { useLocale } from "@/client/lib/i18n";
 import { BackButton, PageHeader } from "@/client/components/PageHeader";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
@@ -25,7 +25,9 @@ import {
 } from "@/client/features/domain/domainSearchValidation";
 import { useDomainOverviewQuery } from "@/client/features/domain/hooks/useDomainOverviewQuery";
 import { DomainOverviewLoadingState } from "@/client/features/domain/components/DomainOverviewLoadingState";
+import { DomainProfileIllustration } from "@/client/components/EmptyIllustrations";
 import { RecentSearches } from "@/client/components/RecentSearches";
+import { SuggestedSites } from "@/client/features/projects/SuggestedSites";
 import { QueryError } from "@/client/components/QueryState";
 import { DomainSearchCard } from "@/client/features/domain/components/DomainSearchCard";
 import { KeywordsTab } from "@/client/features/domain/components/KeywordsTab";
@@ -598,8 +600,26 @@ export function DomainOverviewPage({
               items={state.history}
               loaded={state.historyLoaded}
               onRemove={state.removeHistoryItem}
-              emptyIcon={Globe}
+              emptyIllustration={<DomainProfileIllustration />}
               emptyTitle={t("domain.enter_domain_to_start")}
+              emptyDescription="Sieh dir an, wie viel Such-Traffic eine Domain erhält, für welche Keywords sie rankt und welche Seiten am stärksten sind."
+              emptyAction={
+                <SuggestedSites
+                  projectId={projectId}
+                  renderLink={(domain, props) => (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate({
+                          search: (prev) => ({ ...prev, domain }),
+                          replace: true,
+                        })
+                      }
+                      {...props}
+                    />
+                  )}
+                />
+              }
               getTitle={(item) => item.domain}
               getSubtitle={(item) =>
                 t(`domain.scopes.${item.scope}`) ||

@@ -27,7 +27,10 @@ import {
 import { RankTrackingTableToolbar } from "./RankTrackingTableToolbar";
 import { exportRankTracking } from "./RankTrackingTableParts";
 import type { RankTrackingConfig } from "@/types/schemas/rank-tracking";
-import { isScheduledRankTrackingInterval } from "@/shared/rank-tracking";
+import {
+  isScheduledRankTrackingInterval,
+  keywordLimitMessage,
+} from "@/shared/rank-tracking";
 import {
   rankTrackingDetailSearchSchema,
   type ComparePeriod,
@@ -146,6 +149,7 @@ export function RankTrackingDomainDetail({
 
   const handleKeywordsAdded = (result: {
     added: number;
+    overLimit?: { limit: number; notAdded: number };
     checkTriggered: boolean;
     checkScheduledSoon: boolean;
   }) => {
@@ -160,11 +164,19 @@ export function RankTrackingDomainDetail({
     });
     setShowAddKeywords(false);
     captureClientEvent("rank_tracking:keywords_add");
-    toast.success(
-      result.added === 1
-        ? t("ranks.table_ext.added_one")
-        : t("ranks.table_ext.added_many", { count: result.added }),
-    );
+    if (result.added > 0 || !result.overLimit) {
+      toast.success(
+        result.added === 1
+          ? t("ranks.table_ext.added_one")
+          : t("ranks.table_ext.added_many", { count: result.added }),
+      );
+    }
+    if (result.overLimit) {
+      const { notAdded, limit } = result.overLimit;
+      toast.warning(
+        `${notAdded} Keyword${notAdded !== 1 ? "s" : ""} nicht hinzugefügt. ${keywordLimitMessage(limit)}`,
+      );
+    }
     if (result.checkScheduledSoon) {
       toast.info(t("ranks.table_ext.scheduled_soon_toast"));
     } else if (
@@ -329,6 +341,7 @@ export function RankTrackingDomainDetail({
                   key={defaultSortId}
                   totalCount={results.rows.length}
                   rows={filtered}
+                  pageResetKey={JSON.stringify(filters)}
                   showDesktop={showDesktop}
                   showMobile={showMobile}
                   sorting={
