@@ -43,6 +43,7 @@ const STANDARD_MESSAGE_KEYS: Record<
   DATAFORSEO_AUTH_FAILED: "ui.details.error_dataforseo_auth_failed",
   RATE_LIMITED: "ui.details.error_rate_limited",
   UPSTREAM_UNAVAILABLE: "ui.details.error_upstream_unavailable",
+  SUBREQUEST_LIMIT: "ui.details.error_upstream_unavailable",
   CONFLICT: "ui.details.error_conflict",
 };
 

@@ -8,6 +8,7 @@ import { useLocale } from "@/client/lib/i18n";
 import { pageHead } from "@/client/lib/pageHead";
 
 const DATAFORSEO_API_ACCESS_URL = "https://app.dataforseo.com/api-access";
+const TREG_URL = "https://treg.to";
 
 export const Route = createFileRoute("/_app/help/dataforseo-api-key")({
   head: () => pageHead("DataForSEO API key"),
@@ -68,6 +69,20 @@ function DataforseoApiKeyHelpPage() {
             <CommandBlock command="pnpm everyapp secret set DATAFORSEO_API_KEY" />
           </li>
           <li>{t("sam.help.dataforseo.everyapp_reload")}</li>
+          <li>
+            Kein DataForSEO-Konto? Erstelle ein Team bei{" "}
+            <a
+              className={helpLinkClassName}
+              href={TREG_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              treg
+            </a>
+            , das DataForSEO-Aufrufe über ein Prepaid-Guthaben abrechnet, und
+            setze stattdessen dessen API-Token:
+            <CommandBlock command="pnpm everyapp secret set TREG_API_TOKEN" />
+          </li>
         </>
       }
       dashboardPasteStep={t("sam.help.dataforseo.dashboard_paste")}

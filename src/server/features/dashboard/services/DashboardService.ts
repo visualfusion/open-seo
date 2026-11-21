@@ -7,6 +7,7 @@ import { getIssueTypePageCountsForAudit } from "@/server/features/audit/reposito
 import { Ga4ConnectionRepository } from "@/server/features/ga4/repositories/Ga4ConnectionRepository";
 import { GscConnectionRepository } from "@/server/features/gsc/repositories/GscConnectionRepository";
 import { UmamiRepository } from "@/server/features/umami/repositories/UmamiRepository";
+import { ReportRepository } from "@/server/features/reports/repositories/ReportRepository";
 
 export type DashboardActivation = {
   domain: string | null;
@@ -23,10 +24,11 @@ export type DashboardActivation = {
     // The agent cards above the checklist, separate from the agent step.
     cardDismissed: boolean;
   };
-  // Workspace-wide: research and audits on any project count.
+  // Workspace-wide: research, audits, and skill reports on any project count.
   competitorResearchedAt: string | null;
   keywordsResearchedAt: string | null;
   hasAudit: boolean;
+  hasSkillReport: boolean;
   hasMultipleProjects: boolean;
   hasTeammate: boolean;
   dismissedSteps: string[];
@@ -70,6 +72,7 @@ async function getActivation(input: {
     dismissals,
     research,
     hasAudit,
+    hasSkillReport,
   ] = await Promise.all([
     Ga4ConnectionRepository.getByProjectId(input.projectId),
     GscConnectionRepository.getByProjectId(input.projectId),
@@ -81,6 +84,7 @@ async function getActivation(input: {
     ActivationRepository.getDismissals(input),
     ActivationRepository.getWorkspaceResearch(input.organizationId),
     AuditRepository.hasAuditInOrganization(input.organizationId),
+    ReportRepository.hasSkillReportInOrganization(input.organizationId),
   ]);
 
   return {
@@ -106,6 +110,7 @@ async function getActivation(input: {
     competitorResearchedAt: research.competitorResearchedAt,
     keywordsResearchedAt: research.keywordResearchedAt,
     hasAudit,
+    hasSkillReport,
   };
 }
 

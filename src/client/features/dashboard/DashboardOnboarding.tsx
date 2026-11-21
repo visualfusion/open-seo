@@ -8,7 +8,7 @@ import type { DashboardActivation } from "@/server/features/dashboard/services/D
 import type { DashboardSetupStep } from "@/types/schemas/dashboard";
 import {
   getStepStatus,
-  setupSteps,
+  getVisibleSteps,
   getTranslatedSetupStep,
 } from "./dashboardSteps";
 import { DashboardSetupAction } from "./DashboardSetupAction";
@@ -52,9 +52,7 @@ export function DashboardOnboarding({
       captureClientEvent("dashboard:setup_step_defer", { step, dismissed });
     },
   });
-  const steps = setupSteps.filter(
-    (step) => step.id !== "team" || usesBetterAuthClient(),
-  );
+  const steps = getVisibleSteps(activation, usesBetterAuthClient());
   const remaining = steps.filter(
     (step) => getStepStatus(activation, step.id) === "todo",
   );

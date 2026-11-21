@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "424806d7-4398-4ea4-a266-6f582476a50c",
-  "prevId": "aaa2d6cc-4ded-4edb-b77d-e2138268db40",
+  "id": "5144a22a-ac4c-4ca7-bde8-76d8c917cc4b",
+  "prevId": "424806d7-4398-4ea4-a266-6f582476a50c",
   "tables": {
     "account_deletion_requests": {
       "name": "account_deletion_requests",
@@ -6105,6 +6105,124 @@
         "project_embeds_created_by_user_id_user_id_fk": {
           "name": "project_embeds_created_by_user_id_user_id_fk",
           "tableFrom": "project_embeds",
+          "tableTo": "user",
+          "columnsFrom": [
+            "created_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "every_app_transfer_users": {
+      "name": "every_app_transfer_users",
+      "columns": {
+        "secret_hash": {
+          "name": "secret_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "previous_user_id": {
+          "name": "previous_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "every_app_transfer_users_secret_hash_every_app_transfers_secret_hash_fk": {
+          "name": "every_app_transfer_users_secret_hash_every_app_transfers_secret_hash_fk",
+          "tableFrom": "every_app_transfer_users",
+          "tableTo": "every_app_transfers",
+          "columnsFrom": [
+            "secret_hash"
+          ],
+          "columnsTo": [
+            "secret_hash"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "every_app_transfer_users_user_id_user_id_fk": {
+          "name": "every_app_transfer_users_user_id_user_id_fk",
+          "tableFrom": "every_app_transfer_users",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "every_app_transfer_users_secret_hash_previous_user_id_pk": {
+          "columns": [
+            "secret_hash",
+            "previous_user_id"
+          ],
+          "name": "every_app_transfer_users_secret_hash_previous_user_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "every_app_transfers": {
+      "name": "every_app_transfers",
+      "columns": {
+        "secret_hash": {
+          "name": "secret_hash",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_by_user_id": {
+          "name": "created_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active_at": {
+          "name": "active_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "every_app_transfers_created_by_user_id_user_id_fk": {
+          "name": "every_app_transfers_created_by_user_id_user_id_fk",
+          "tableFrom": "every_app_transfers",
           "tableTo": "user",
           "columnsFrom": [
             "created_by_user_id"

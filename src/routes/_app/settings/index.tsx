@@ -2,10 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ApiKeySettings } from "@/client/features/settings/ApiKeySettings";
 import { SectionHeader } from "@/client/components/PageHeader";
+import { Button } from "@/client/components/ui/button";
 import { ThemePreferenceRadio } from "@/client/components/ThemePreferenceMenuItems";
 import { LanguagePreferenceRadio } from "@/client/components/LanguagePreferenceMenuItems";
 import { useLocale } from "@/client/lib/i18n";
 import { everyAppAccountQueryOptions } from "@/client/features/every-app/everyAppAccountQueries";
+import { ImportFromSelfHosted } from "@/client/features/every-app/ImportFromSelfHosted";
+import { MoveToEveryAppSettings } from "@/client/features/every-app/MoveToEveryAppSettings";
 import { DeleteAccountSettings } from "@/client/features/settings/DeleteAccountSettings";
 import { McpConnectionsSettings } from "@/client/features/settings/McpConnectionsSettings";
 import { PrivacySettings } from "@/client/features/settings/PrivacySettings";
@@ -52,6 +55,10 @@ function PersonalSettings() {
 
       {hasAccounts ? <ApiKeySettings /> : null}
 
+      {isHosted || isEveryAppClientAuthMode() ? null : (
+        <MoveToEveryAppSettings />
+      )}
+
       {isHosted ? (
         <PrivacySettings />
       ) : (
@@ -72,24 +79,31 @@ function PersonalSettings() {
 }
 
 // Behind an Every App gateway, which owns the account, the team and the AI
-// connections: say so, and link back.
+// connections: say so, link back, and take a move from a self-hosted install.
 function EveryAppSettings() {
   const { t } = useLocale();
   const { data: account } = useQuery(everyAppAccountQueryOptions());
   return (
     <section className="space-y-3">
       <SectionHeader title={t("settings.every_app.title")} />
-      <p className="text-sm text-muted-foreground">
-        {t("settings.every_app.description")}
-      </p>
-      {account?.gatewayUrl ? (
-        <a
-          href={account.gatewayUrl}
-          className="inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
-        >
-          {t("settings.every_app.open_button")}
-        </a>
-      ) : null}
+      <div className="space-y-6">
+        <div className="flex items-start justify-between gap-6">
+          <p className="text-sm text-muted-foreground">
+            {t("settings.every_app.description")}
+          </p>
+          {account?.gatewayUrl ? (
+            <Button
+              size="sm"
+              variant="outline"
+              nativeButton={false}
+              render={<a href={account.gatewayUrl} />}
+            >
+              {t("settings.every_app.open_button")}
+            </Button>
+          ) : null}
+        </div>
+        <ImportFromSelfHosted />
+      </div>
     </section>
   );
 }

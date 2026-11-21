@@ -1,6 +1,6 @@
 {
-  "id": "89a57abe-2be7-4297-ab5d-279af2640b69",
-  "prevId": "fe25d6a8-dd85-4098-8ac3-c2737d4daeee",
+  "id": "c585158c-bca1-4913-8dc6-021b324ee168",
+  "prevId": "89a57abe-2be7-4297-ab5d-279af2640b69",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -6734,6 +6734,123 @@
         "project_embeds_created_by_user_id_user_id_fk": {
           "name": "project_embeds_created_by_user_id_user_id_fk",
           "tableFrom": "project_embeds",
+          "tableTo": "user",
+          "columnsFrom": [
+            "created_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.every_app_transfer_users": {
+      "name": "every_app_transfer_users",
+      "schema": "",
+      "columns": {
+        "secret_hash": {
+          "name": "secret_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_user_id": {
+          "name": "previous_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "every_app_transfer_users_secret_hash_every_app_transfers_secret_hash_fk": {
+          "name": "every_app_transfer_users_secret_hash_every_app_transfers_secret_hash_fk",
+          "tableFrom": "every_app_transfer_users",
+          "tableTo": "every_app_transfers",
+          "columnsFrom": [
+            "secret_hash"
+          ],
+          "columnsTo": [
+            "secret_hash"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "every_app_transfer_users_user_id_user_id_fk": {
+          "name": "every_app_transfer_users_user_id_user_id_fk",
+          "tableFrom": "every_app_transfer_users",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "every_app_transfer_users_secret_hash_previous_user_id_pk": {
+          "name": "every_app_transfer_users_secret_hash_previous_user_id_pk",
+          "columns": [
+            "secret_hash",
+            "previous_user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.every_app_transfers": {
+      "name": "every_app_transfers",
+      "schema": "",
+      "columns": {
+        "secret_hash": {
+          "name": "secret_hash",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_by_user_id": {
+          "name": "created_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active_at": {
+          "name": "active_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "every_app_transfers_created_by_user_id_user_id_fk": {
+          "name": "every_app_transfers_created_by_user_id_user_id_fk",
+          "tableFrom": "every_app_transfers",
           "tableTo": "user",
           "columnsFrom": [
             "created_by_user_id"
