@@ -240,6 +240,16 @@ export function TrackingCostReview({
                     : "ai_visibility.details.answer_cost_live",
                   {
                     count: cost.observations,
+                    answers: t(
+                      cost.observations === 1
+                        ? "ai_visibility.details.cost_answer_one"
+                        : "ai_visibility.details.cost_answer_many",
+                    ),
+                    run_label: t(
+                      cost.checksPerMonth === 1
+                        ? "ai_visibility.details.cost_run_one"
+                        : "ai_visibility.details.cost_run_many",
+                    ),
                     cost: aiMoney(cost.monthlyCostUsd),
                     runs: cost.checksPerMonth,
                     duration:

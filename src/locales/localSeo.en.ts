@@ -70,7 +70,7 @@ export const localSeoEn = {
     south: "south",
     east: "east",
     west: "west",
-    searched_relative: "Searched {offset} of your listing",
+    searched_relative: "Searched {offset} of the center",
     searched_from_listing: "Searched from your listing",
   },
   duration_under_minute: "under a minute",
@@ -153,5 +153,5 @@ export const localSeoEn = {
   e_g_pizza_delivery: "e.g. pizza delivery",
   the_selected_listing_has_no_public_address:
     "The selected listing has no public address, so Google's location may be different.",
-  searched_from_grid_center: "Searched from the grid center",
+  searched_from_grid_center: "Searched from the center",
 };

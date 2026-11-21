@@ -290,7 +290,7 @@ export const ranksDe = {
   title: "Rank-Tracking",
   description: "Keyword-Positionen über Domains hinweg beobachten",
   details: ranksDetailsDe,
-  not_added_one: "1 Keyword wurde nicht hinzugefügt.",
+  not_added_one: "{count} Keyword wurde nicht hinzugefügt.",
   not_added_many: "{count} Keywords wurden nicht hinzugefügt.",
   tracker_keyword_limit:
     "Dieser Tracker hat das Limit von {limit} Keywords erreicht.",

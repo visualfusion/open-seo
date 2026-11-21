@@ -72,7 +72,7 @@ export const localSeoDe = {
     south: "südlich",
     east: "östlich",
     west: "westlich",
-    searched_relative: "Gesucht {offset} deines Eintrags",
+    searched_relative: "Gesucht {offset} vom Rastermittelpunkt aus",
     searched_from_listing: "Gesucht am Standort deines Eintrags",
   },
   duration_under_minute: "unter einer Minute",

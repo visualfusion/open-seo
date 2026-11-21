@@ -116,7 +116,7 @@ export const aiVisibilityEn = {
   research_features_title: "Prompt Research",
   details: aiVisibilityDetailsEn,
   each_model_answer_includes_the_sources_it:
-    "Each model answer includes the sources it cites.",
+    "Each model's answer comes with the sources it cited.",
   edit: "Edit",
   edit_keywords: "Edit keywords",
   cancel: "Cancel",

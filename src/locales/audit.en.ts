@@ -167,7 +167,7 @@ export const auditEn = {
   excluded_orphan_check:
     ". The orphan page check didn't run, because links from skipped pages aren't known.",
   history_empty_description:
-    "An audit scans your pages for broken links, missing titles, and pages Google cannot index.",
+    "An audit crawls your pages for broken links, missing titles and pages Google can't index.",
   exclude_paths_example_prefix: "One path per line.",
   exclude_paths_example_middle: "skips every page under /blog/, and",
   exclude_paths_example_suffix:
@@ -175,5 +175,5 @@ export const auditEn = {
   exclude_paths_limit: "You can exclude up to {limit} paths.",
   exclude_path_length: "Each excluded path can be at most {limit} characters.",
   exclude_path_invalid:
-    "Start each excluded path with / (for example /blog/) or * and leave out spaces.",
+    '"{path}" is not a valid path to exclude. Start it with / (for example /blog/) and leave out spaces.',
 };

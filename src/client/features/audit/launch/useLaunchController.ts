@@ -49,9 +49,8 @@ function getLaunchValidationErrors(
 }
 
 function getExcludePathsError(value: LaunchFormValues) {
-  const parsed = excludePathsSchema.safeParse(
-    splitExcludePathsInput(value.excludePathsInput),
-  );
+  const paths = splitExcludePathsInput(value.excludePathsInput);
+  const parsed = excludePathsSchema.safeParse(paths);
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
     if (issue.code === "too_big") {
@@ -63,7 +62,11 @@ function getExcludePathsError(value: LaunchFormValues) {
         { limit: Number(issue.maximum) },
       );
     }
-    return getTranslation("audit.exclude_path_invalid");
+    const index = issue.path[0];
+    if (typeof index !== "number") return issue.message;
+    return getTranslation("audit.exclude_path_invalid", undefined, {
+      path: paths[index],
+    });
   }
   // The form takes a bare domain; the server adds the scheme the same way.
   const url = value.url.trim();

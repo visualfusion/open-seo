@@ -143,7 +143,7 @@ export const samEn = {
   new_chat: "New chat",
   sidebar_empty: "No chats yet. Start a new one.",
   archive_chat: "Archive chat",
-  treg_setup_prefix: "No DataForSEO account? Create a team on",
+  treg_setup_prefix: "No DataForSEO account? Create a team at",
   treg_setup_suffix:
-    ", which bills DataForSEO calls against a prepaid balance, and set its API token:",
+    ", which sells DataForSEO calls from a prepaid balance, and set its API token instead:",
 };

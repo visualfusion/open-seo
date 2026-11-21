@@ -184,5 +184,5 @@ export const auditDe = {
   exclude_path_length:
     "Jeder ausgeschlossene Pfad darf höchstens {limit} Zeichen lang sein.",
   exclude_path_invalid:
-    "Beginne jeden ausgeschlossenen Pfad mit / (z. B. /blog/) oder * und verwende keine Leerzeichen.",
+    "„{path}“ ist kein gültiger Ausschlusspfad. Beginne den Pfad mit / (z. B. /blog/) und verwende keine Leerzeichen.",
 };

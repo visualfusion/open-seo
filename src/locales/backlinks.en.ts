@@ -176,5 +176,5 @@ export const backlinksEn = {
     empty_title: "No top pages found for this target.",
   },
   check_a_competitor_website_to_see_its:
-    "Check a competitor website to see its backlinks, or your own to see gained and lost links.",
+    "Look up a competitor to see who links to them, or your own site to see links you gained and lost.",
 };
