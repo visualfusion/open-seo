@@ -76,4 +76,5 @@ export const reportsEn = {
   delete_template: "Delete template",
   delete_template_confirm_desc:
     "Reports already written from it are not affected.",
+  set_up_agent: "Set up agent",
 };

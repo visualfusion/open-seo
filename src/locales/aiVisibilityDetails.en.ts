@@ -197,7 +197,11 @@ export const aiVisibilityDetailsEn = {
   can_t_collect_answers_in: "can't collect answers in",
   cost_per_run: "Cost per run",
   answer_cost: "{count} answers · about {cost} a month ({runs} runs)",
-  answer_cost_live: "{count} answers · live answers, ready in a few minutes",
+  answer_cost_live: "{count} answers · live answers, ready in {duration}",
+  live_duration_short: "a few minutes",
+  live_duration_minutes: "about {count} minutes",
+  live_duration_hours: "about {count} hours",
+  schedule_stays_active: "Your scheduled tracking doesn't change.",
   daily_brand_mention_and_owned_citation_rate:
     "Daily brand mention and owned citation rate",
   could_not_load_ai_try_again:

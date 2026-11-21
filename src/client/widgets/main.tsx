@@ -73,7 +73,7 @@ function WidgetBody({ host }: { host: WidgetHost }) {
         <p role="alert">
           {host.conversation
             ? t("widgets.details.could_not_read_these_to_run")
-            : "Ergebnisse konnten nicht gelesen werden. Bitte zum erneuten Laden aktualisieren."}
+            : t("widgets.could_not_read_embed_results")}
         </p>
       ) : null}
       {host.notice && (
@@ -87,6 +87,7 @@ function WidgetBody({ host }: { host: WidgetHost }) {
 
 /** Inside an MCP client's conversation. */
 function McpWidget() {
+  const { t } = useLocale();
   const host = useMcpHost();
   const meta = mcpMetaOutputSchema.safeParse(host.snapshot?.data.meta);
   const appUrl = safeHttpUrl(meta.success ? meta.data.url : undefined);
@@ -100,8 +101,7 @@ function McpWidget() {
             disabled={!host.isConnected || host.busy}
             onClick={() => host.open(appUrl)}
           >
-            Open in OpenSEO
-            <ExternalLink />
+            {t("widgets.open_in_openseo")} <ExternalLink />
           </Button>
         )}
       </header>
@@ -127,13 +127,14 @@ function EmbeddedWidget({
 
 /** An embed link's page, framed by another dashboard. */
 function EmbedWidgets({ page }: { page: EmbedPage }) {
+  const { t } = useLocale();
   return (
     <main className="space-y-8 p-4">
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
         <span className="font-medium">OpenSEO</span>
         <Button variant="ghost" onClick={() => window.location.reload()}>
           <RefreshCw />
-          Refresh
+          {t("widgets.refresh")}
         </Button>
       </header>
       {page.widgets.map((widget) => (

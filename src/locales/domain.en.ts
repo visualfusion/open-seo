@@ -96,4 +96,8 @@ export const domainEn = {
     keywords: "Keywords",
     error_fallback: "Failed to load pages.",
   },
+  see_how_much_search_traffic_a_domain:
+    "See how much search traffic a domain gets, which keywords it ranks for, and its top pages.",
+  your_website: "Your website",
+  competitor: "Competitor",
 };

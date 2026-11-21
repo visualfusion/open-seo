@@ -105,7 +105,7 @@ export function BacklinksBody({
         onRemove={onRemoveHistoryItem}
         emptyIllustration={<BacklinksIllustration />}
         emptyTitle={t("backlinks.empty_title")}
-        emptyDescription="Prüfe eine Wettbewerber-Website, um ihre Backlinks zu sehen, oder deine eigene Website für gewonnene und verlorene Links."
+        emptyDescription={t("backlinks.check_a_competitor_website_to_see_its")}
         emptyAction={
           <SuggestedSites
             projectId={projectId}

@@ -110,15 +110,14 @@ export function ResultsView({
     <>
       {excludePaths.length > 0 && (
         <p className="text-sm text-muted-foreground">
-          This audit skipped pages matching{" "}
+          {t("audit.excluded_matching")}{" "}
           {excludePaths.map((path, index) => (
             <Fragment key={path}>
               {index > 0 && ", "}
               <code>{path}</code>
             </Fragment>
           ))}
-          . The orphan page check didn't run, because links from skipped pages
-          aren't known.
+          {t("audit.excluded_orphan_check")}
         </p>
       )}
 

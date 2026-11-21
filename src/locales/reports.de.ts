@@ -79,4 +79,5 @@ export const reportsDe = {
   delete_template: "Vorlage löschen",
   delete_template_confirm_desc:
     "Bereits erstellte Berichte bleiben davon unberührt.",
+  set_up_agent: "Agent einrichten",
 };

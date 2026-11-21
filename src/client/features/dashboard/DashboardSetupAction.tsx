@@ -211,12 +211,8 @@ export function DashboardSetupAction({
   );
 }
 
-function getSkillsSetupPrompt(domain: string | null) {
-  const site = domain ? ` for ${domain}` : "";
-  return `Check whether I have the OpenSEO skills set up in this agent. If not, walk me through installing them using https://openseo.so/docs/skills/setup. Then recommend the single most useful OpenSEO skill to try first${site} and show me how to run it.`;
-}
-
 function DashboardSkillsAction({ domain }: { domain: string | null }) {
+  const { t } = useLocale();
   const connections = useQuery({
     queryKey: ["mcpConnections"],
     queryFn: () => listMcpConnections(),
@@ -226,16 +222,17 @@ function DashboardSkillsAction({ domain }: { domain: string | null }) {
   const chats = ONE_CLICK_INSTALLS.filter(({ agent }) =>
     grants.some((grant) => grant.webChat === agent),
   );
-  const prompt = getSkillsSetupPrompt(domain);
+  const prompt = t("dashboard.skills_setup_prompt", {
+    site: domain ? t("dashboard.skills_prompt_for_site", { domain }) : "",
+  });
 
   return (
     <div className="max-w-2xl space-y-4">
       <p className="text-sm leading-relaxed text-muted-foreground">
-        Skills guide your agent through complete SEO workflows and save results
-        as reports.{" "}
+        {t("dashboard.skills_guide_your_agent_through_complete_seo")}{" "}
         {chats.length > 0
-          ? "Open a chat to check your skills setup and pick one to try."
-          : "Paste this prompt into your agent to check your skills setup and pick one to try."}
+          ? t("dashboard.open_a_chat_to_check_your_skills")
+          : t("dashboard.paste_this_prompt_into_your_agent_to")}
       </p>
       <pre className="whitespace-pre-wrap break-words rounded-lg border border-border bg-background/25 p-3.5 font-sans text-sm leading-relaxed text-muted-foreground">
         {prompt}
@@ -256,13 +253,13 @@ function DashboardSkillsAction({ domain }: { domain: string | null }) {
             }
           >
             <Icon data-icon="inline-start" />
-            Open in {name}
+            {t("dashboard.open_in_name", { name })}
           </Button>
         ))}
         <CopyButton
           value={prompt}
-          label="Copy prompt"
-          successMessage="Prompt copied"
+          label={t("dashboard.copy_prompt")}
+          successMessage={t("dashboard.prompt_copied")}
           variant={chats.length === 0 ? "default" : "outline"}
           size="default"
           onCopy={() => captureClientEvent("dashboard:skills_prompt_copy")}
@@ -272,7 +269,7 @@ function DashboardSkillsAction({ domain }: { domain: string | null }) {
           search={{ tab: "skills" }}
           className="ml-1 text-sm text-muted-foreground hover:text-foreground"
         >
-          Browse skills
+          {t("dashboard.browse_skills")}
         </Link>
       </div>
     </div>

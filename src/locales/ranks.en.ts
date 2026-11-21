@@ -278,4 +278,10 @@ export const ranksEn = {
   title: "Rank Tracking",
   description: "Track keyword positions across domains",
   details: ranksDetailsEn,
+  not_added_one: "1 keyword was not added.",
+  not_added_many: "{count} keywords were not added.",
+  tracker_keyword_limit: "This tracker is at its limit of {limit} keywords.",
+  tracker_keyword_limit_pro_agency:
+    "The Pro plan allows {pro} per tracker and the Agency plan {agency}.",
+  tracker_keyword_limit_agency: "The Agency plan allows {agency} per tracker.",
 };

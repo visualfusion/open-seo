@@ -176,4 +176,72 @@ export const settingsDe = {
   title: "Einstellungen",
   sections: "Einstellungsbereiche",
   details: settingsDetailsDe,
+  import_from_self_hosted_openseo: "Selbst gehostetes OpenSEO importieren",
+  bring_over_the_projects_history_and_chats:
+    "Übernimm Projekte, Verlauf und Chats aus deiner eigenen OpenSEO-Installation.",
+  import: "Importieren",
+  copies_its_projects_and_their_history_here:
+    "Kopiert die Projekte und ihren Verlauf in diese Installation.",
+  create_a_transfer_code: "Übertragungscode erstellen",
+  transfer_code_copied: "Übertragungscode kopiert",
+  copy_transfer_code: "Übertragungscode kopieren",
+  works_once_for_24_hours:
+    "Der Code ist 24 Stunden gültig und lässt sich einmal verwenden.",
+  create_code: "Code erstellen",
+  a_move_is_already_running_try_again:
+    "Es läuft bereits eine Übertragung. Versuche es erneut, sobald sie abgeschlossen ist.",
+  paste_it_in_your_self_hosted_openseo:
+    "Code im selbst gehosteten OpenSEO einfügen",
+  settings_move_to_every_app_i_have:
+    "Einstellungen → Zu Every App umziehen → Ich habe ein Gateway",
+  done: "Fertig",
+  cancel: "Abbrechen",
+  update_your_self_hosted_openseo_to_v:
+    "Aktualisiere dein selbst gehostetes OpenSEO auf v{version}",
+  move_to_every_app: "Zu Every App umziehen",
+  get_team_sign_in_and_all_your:
+    "Melde dein Team zentral an und verwalte eure Apps an einem Ort. Projekte, Verlauf und Chats werden vollständig übernommen.",
+  about_every_app: "Über Every App",
+  copies_your_projects_and_their_history_to:
+    "Kopiert deine Projekte und ihren Verlauf zu OpenSEO auf deinem Gateway. Deine Daten bleiben auch hier erhalten.",
+  do_you_already_have_an_every_app: "Hast du bereits ein Every App Gateway?",
+  set_up_my_gateway: "Gateway einrichten",
+  i_have_a_gateway: "Ich habe ein Gateway",
+  stop: "Stoppen",
+  get_every_app: "Every App installieren",
+  create_your_gateway: "Gateway erstellen",
+  needs: "Du brauchst",
+  and_a_domain_on_cloudflare_dns: "und eine Domain mit Cloudflare DNS.",
+  my_gateway_is_ready: "Mein Gateway ist bereit",
+  install_openseo_on_your_gateway: "OpenSEO auf deinem Gateway installieren",
+  make_a_transfer_code: "Übertragungscode erstellen",
+  in_openseo_on_your_gateway_open_settings:
+    "Öffne auf deinem Gateway die OpenSEO-Einstellungen und klicke auf „Selbst gehostetes OpenSEO importieren“.",
+  paste_the_code_here: "Code hier einfügen",
+  transfer_code: "Übertragungscode",
+  move_my_data: "Meine Daten übertragen",
+  moving_projects_and_history: "Projekte und Verlauf werden übertragen",
+  moving_sam_chats: "SAM-Chats werden übertragen",
+  moving_audit_and_export_files: "Audit- und Exportdateien werden übertragen",
+  keep_this_page_open_until_it_finishes:
+    "Lass diese Seite geöffnet, bis die Übertragung abgeschlossen ist.",
+  your_data_is_on_every_app: "Deine Daten sind jetzt auf Every App.",
+  everyone_connects_google_again_there_for_search:
+    "Alle Teammitglieder müssen dort ihr Google-Konto für Search Console und Analytics erneut verbinden.",
+  this_install_still_runs_scheduled_checks_turn:
+    "Diese Installation führt weiterhin geplante Prüfungen aus. Sobald du den Umzug geprüft hast, kannst du sie abschalten, damit die Prüfungen nur einmal laufen.",
+  open_openseo_on_your_gateway: "OpenSEO auf deinem Gateway öffnen →",
+  count_files: "{count} Dateien",
+  that_isn_t_a_transfer_code_copy:
+    "Das ist kein gültiger Übertragungscode. Kopiere ihn erneut aus OpenSEO auf deinem Gateway.",
+  this_code_expired_was_used_or_was:
+    "Dieser Code ist abgelaufen, wurde bereits verwendet oder ersetzt. Erstelle einen neuen Code und versuche es erneut.",
+  this_install_and_your_gateway_run_different:
+    "Diese Installation und dein Gateway verwenden unterschiedliche OpenSEO-Versionen. Aktualisiere beide und versuche es erneut.",
+  an_audit_or_check_is_still_running:
+    "Hier läuft noch ein Audit oder eine Prüfung. Versuche es nach Abschluss erneut.",
+  this_install_has_more_than_one_organization:
+    "Diese Installation enthält mehrere Organisationen. Pro Umzug lässt sich eine Organisation übertragen.",
+  couldn_t_reach_openseo_on_your_gateway:
+    "OpenSEO auf deinem Gateway ist nicht erreichbar. Prüfe die Installation und Version und versuche es erneut.",
 };

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { CopyButton } from "@/client/components/CopyButton";
@@ -23,6 +24,7 @@ import { version } from "../../../../package.json";
  * Every App dialog.
  */
 export function ImportFromSelfHosted() {
+  const { t } = useLocale();
   const { data: organization } = useQuery(organizationContextQueryOptions());
   const [open, setOpen] = useState(false);
   if (
@@ -35,14 +37,15 @@ export function ImportFromSelfHosted() {
     <>
       <div className="flex items-start justify-between gap-6">
         <div>
-          <p className="text-sm">Import from self-hosted OpenSEO</p>
+          <p className="text-sm">
+            {t("settings.import_from_self_hosted_openseo")}
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Bring over the projects, history and chats from an OpenSEO you host
-            yourself.
+            {t("settings.bring_over_the_projects_history_and_chats")}
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-          Import
+          {t("settings.import")}
         </Button>
       </div>
       {open ? <ImportDialog onClose={() => setOpen(false)} /> : null}
@@ -51,6 +54,7 @@ export function ImportFromSelfHosted() {
 }
 
 function ImportDialog({ onClose }: { onClose: () => void }) {
+  const { t } = useLocale();
   const createCode = useMutation({
     mutationFn: () => createEveryAppTransferCode(),
   });
@@ -61,17 +65,21 @@ function ImportDialog({ onClose }: { onClose: () => void }) {
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="grid-cols-1 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Import from self-hosted OpenSEO</DialogTitle>
+          <DialogTitle>
+            {t("settings.import_from_self_hosted_openseo")}
+          </DialogTitle>
           <DialogDescription>
-            Copies its projects and their history here.
+            {t("settings.copies_its_projects_and_their_history_here")}
           </DialogDescription>
         </DialogHeader>
         <ol className="space-y-4">
           <Step
             number={1}
-            title={`Update your self-hosted OpenSEO to v${version}`}
+            title={t("settings.update_your_self_hosted_openseo_to_v", {
+              version,
+            })}
           />
-          <Step number={2} title="Create a transfer code">
+          <Step number={2} title={t("settings.create_a_transfer_code")}>
             {code ? (
               <>
                 <div className="flex items-center gap-2">
@@ -83,14 +91,14 @@ function ImportDialog({ onClose }: { onClose: () => void }) {
                   </code>
                   <CopyButton
                     value={code}
-                    successMessage="Transfer code copied"
-                    label="Copy transfer code"
+                    successMessage={t("settings.transfer_code_copied")}
+                    label={t("settings.copy_transfer_code")}
                     variant="ghost"
                     size="icon-sm"
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Works once, for 24 hours.
+                  {t("settings.works_once_for_24_hours")}
                 </p>
               </>
             ) : (
@@ -99,12 +107,12 @@ function ImportDialog({ onClose }: { onClose: () => void }) {
                 disabled={createCode.isPending}
                 onClick={() => createCode.mutate()}
               >
-                Create code
+                {t("settings.create_code")}
               </Button>
             )}
             {moveRunning ? (
               <p className="text-sm text-destructive" role="alert">
-                A move is already running. Try again once it finishes.
+                {t("settings.a_move_is_already_running_try_again")}
               </p>
             ) : null}
             {createCode.isError ? (
@@ -113,15 +121,18 @@ function ImportDialog({ onClose }: { onClose: () => void }) {
               </p>
             ) : null}
           </Step>
-          <Step number={3} title="Paste it in your self-hosted OpenSEO">
+          <Step
+            number={3}
+            title={t("settings.paste_it_in_your_self_hosted_openseo")}
+          >
             <p className="text-sm text-muted-foreground">
-              Settings → Move to Every App → I have a Gateway
+              {t("settings.settings_move_to_every_app_i_have")}
             </p>
           </Step>
         </ol>
         <DialogFooter>
           <Button variant={code ? "default" : "ghost"} onClick={onClose}>
-            {code ? "Done" : "Cancel"}
+            {code ? t("settings.done") : t("settings.cancel")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -17,12 +17,6 @@ import {
 } from "@/client/components/ui/select";
 import { useLocale } from "@/client/lib/i18n";
 
-export const DATE_RANGE_LABELS: Record<SearchPerformanceDateRange, string> = {
-  last_7_days: "Letzte 7 Tage",
-  last_28_days: "Letzte 28 Tage",
-  last_3_months: "Letzte 3 Monate",
-};
-
 // Sentinel for "no filter" in the selects; never written to the URL.
 const ALL = "ALL";
 

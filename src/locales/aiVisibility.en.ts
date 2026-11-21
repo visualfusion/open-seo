@@ -115,4 +115,15 @@ export const aiVisibilityEn = {
     "Pick the questions worth watching and add them to Prompt Tracking in one step.",
   research_features_title: "Prompt Research",
   details: aiVisibilityDetailsEn,
+  each_model_answer_includes_the_sources_it:
+    "Each model answer includes the sources it cites.",
+  edit: "Edit",
+  edit_keywords: "Edit keywords",
+  cancel: "Cancel",
+  save_keywords: "Save keywords",
+  keywords: "Keywords",
+  topics_from_your_tracker_are_always_listed:
+    "Topics from your tracker are always listed and aren't edited here.",
+  e_g_running_shoes: "e.g. running shoes",
+  could_not_save_these_keywords: "Could not save these keywords.",
 };

@@ -151,4 +151,14 @@ export const localSeoDe = {
   area_metro: "Metropolregion · 20 km Breite · 25 Punkte",
   could_not_save_business:
     "Dieses Unternehmen konnte nicht gespeichert werden.",
+  grid_center: "Rastermittelpunkt",
+  drag_the_pin_or_click_the_map:
+    "Ziehe die Markierung oder klicke auf die Karte, um das Raster zu verschieben.",
+  grid_center_on_a_google_maps_basemap:
+    "Rastermittelpunkt auf einer Google-Maps-Karte",
+  keywords_to_track: "Zu beobachtende Keywords",
+  e_g_pizza_delivery: "z. B. Pizza-Lieferservice",
+  the_selected_listing_has_no_public_address:
+    "Der ausgewählte Eintrag hat keine öffentliche Adresse. Der von Google angezeigte Standort kann abweichen.",
+  searched_from_grid_center: "Gesucht am Rastermittelpunkt",
 };

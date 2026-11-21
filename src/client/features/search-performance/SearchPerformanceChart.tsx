@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { Line, LineChart } from "recharts";
 import { Check } from "lucide-react";
@@ -35,28 +36,28 @@ const METRICS: {
 }[] = [
   {
     key: "clicks",
-    label: "Clicks",
+    label: "search_performance.clicks",
     bgClass: "bg-chart-1",
     borderClass: "border-chart-1",
     format: formatCount,
   },
   {
     key: "impressions",
-    label: "Impressions",
+    label: "search_performance.impressions",
     bgClass: "bg-chart-2",
     borderClass: "border-chart-2",
     format: formatCount,
   },
   {
     key: "ctr",
-    label: "Click-through rate",
+    label: "search_performance.click_through_rate",
     bgClass: "bg-chart-3",
     borderClass: "border-chart-3",
     format: formatCtr,
   },
   {
     key: "position",
-    label: "Average position",
+    label: "search_performance.average_position",
     bgClass: "bg-chart-4",
     borderClass: "border-chart-4",
     format: formatPosition,
@@ -64,11 +65,20 @@ const METRICS: {
 ];
 
 const chartConfig = {
-  clicks: { label: "Clicks", color: "var(--chart-1)" },
-  impressions: { label: "Impressions", color: "var(--chart-2)" },
-  ctr: { label: "Click-through rate", color: "var(--chart-3)" },
-  position: { label: "Average position", color: "var(--chart-4)" },
-  previous: { label: "Previous period" },
+  clicks: { label: "search_performance.clicks", color: "var(--chart-1)" },
+  impressions: {
+    label: "search_performance.impressions",
+    color: "var(--chart-2)",
+  },
+  ctr: {
+    label: "search_performance.click_through_rate",
+    color: "var(--chart-3)",
+  },
+  position: {
+    label: "search_performance.average_position",
+    color: "var(--chart-4)",
+  },
+  previous: { label: "search_performance.previous_period" },
 } satisfies ChartConfig;
 
 /** Change against the previous period. Position falls as rankings improve, so
@@ -142,6 +152,7 @@ export function SearchPerformanceChart({
   initialMetrics?: SearchMetric[];
   chartClassName?: string;
 }) {
+  const { t } = useLocale();
   const [active, setActive] = useState(initialMetrics);
   const metrics = METRICS.filter(
     (metric) => showPosition || metric.key !== "position",
@@ -197,7 +208,7 @@ export function SearchPerformanceChart({
                     <Check className="size-2.5 text-white" strokeWidth={3.5} />
                   ) : null}
                 </span>
-                {metric.label}
+                {t(metric.label)}
               </span>
               <span className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
                 <span className="text-xl leading-7 font-semibold tabular-nums">
@@ -223,7 +234,12 @@ export function SearchPerformanceChart({
       </div>
 
       <ChartContainer
-        config={chartConfig}
+        config={Object.fromEntries(
+          Object.entries(chartConfig).map(([key, entry]) => [
+            key,
+            { ...entry, label: t(entry.label) },
+          ]),
+        )}
         className={cn("aspect-auto w-full", chartClassName)}
       >
         <LineChart
@@ -307,7 +323,7 @@ export function SearchPerformanceChart({
               aria-hidden
               className={cn("h-0.5 w-4 rounded-full", single.bgClass)}
             />
-            This period
+            {t("search_performance.this_period")}
           </span>
           <span className="flex items-center gap-1.5">
             <span
@@ -317,7 +333,7 @@ export function SearchPerformanceChart({
                 single.borderClass,
               )}
             />
-            Previous period
+            {t("search_performance.previous_period")}
           </span>
         </p>
       ) : null}

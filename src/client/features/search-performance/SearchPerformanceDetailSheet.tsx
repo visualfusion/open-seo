@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Save } from "lucide-react";
@@ -47,6 +48,7 @@ function DetailBody({
   filterInput: FilterInput;
   isWeb: boolean;
 }) {
+  const { t } = useLocale();
   const detailQuery = useQuery(
     detailQueryOptions(projectId, selection, filterInput),
   );
@@ -54,7 +56,7 @@ function DetailBody({
   return (
     <QueryState
       query={detailQuery}
-      errorFallback="Failed to load Search Console data"
+      errorFallback={t("search_performance.failed_to_load_search_console_data")}
       loading={
         <div className="flex flex-col gap-4" aria-busy>
           <Skeleton className="h-32" />
@@ -81,25 +83,37 @@ function DetailBody({
               <div>
                 <h3 className="mb-1 text-sm font-medium">
                   {isQuery
-                    ? "Pages ranking for this query"
-                    : "Queries this page ranks for"}
+                    ? t("search_performance.pages_ranking_for_this_query")
+                    : t("search_performance.queries_this_page_ranks_for")}
                 </h3>
                 {detail.related.length === 0 ? (
                   <p className="py-2 text-sm text-muted-foreground">
                     {isQuery
-                      ? "Google reported no pages for this query."
-                      : "Google reported no queries for this page."}
+                      ? t(
+                          "search_performance.google_reported_no_pages_for_this_query",
+                        )
+                      : t(
+                          "search_performance.google_reported_no_queries_for_this_page",
+                        )}
                   </p>
                 ) : (
                   <Table className={cardTableClass}>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{isQuery ? "Page" : "Query"}</TableHead>
-                        <TableHead className="text-right">Clicks</TableHead>
-                        <TableHead className="hidden text-right sm:table-cell">
-                          Impressions
+                        <TableHead>
+                          {isQuery
+                            ? t("search_performance.page")
+                            : t("search_performance.query")}
                         </TableHead>
-                        <TableHead className="text-right">Position</TableHead>
+                        <TableHead className="text-right">
+                          {t("search_performance.clicks")}
+                        </TableHead>
+                        <TableHead className="hidden text-right sm:table-cell">
+                          {t("search_performance.impressions")}
+                        </TableHead>
+                        <TableHead className="text-right">
+                          {t("search_performance.position")}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -140,6 +154,7 @@ function QueryActions({
   projectId: string;
   query: string;
 }) {
+  const { t } = useLocale();
   const save = useSaveQueriesAsKeywords(projectId);
   return (
     <SheetFooter className="flex-row flex-wrap border-t border-border px-6">
@@ -150,7 +165,7 @@ function QueryActions({
         onClick={() => save.mutate([query])}
       >
         {save.isPending ? null : <Save data-icon="inline-start" />}
-        Save as keyword
+        {t("search_performance.save_as_keyword")}
       </Button>
       <TrackRankingsMenu
         projectId={projectId}
@@ -182,6 +197,7 @@ export function SearchPerformanceDetailSheet({
   periodLabel: string;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   // Focus starts on the panel, not on a metric toggle inside it.
   const headerRef = useRef<HTMLDivElement>(null);
   return (
@@ -203,8 +219,10 @@ export function SearchPerformanceDetailSheet({
               className="p-6 pb-4 outline-none"
             >
               <SheetDescription>
-                {selection.dimension === "query" ? "Query" : "Page"} ·{" "}
-                {periodLabel}
+                {selection.dimension === "query"
+                  ? t("search_performance.query")
+                  : t("search_performance.page")}{" "}
+                · {periodLabel}
               </SheetDescription>
               <SheetTitle className="pr-8 text-lg font-semibold break-words">
                 {selection.dimension === "page" ? (

@@ -68,10 +68,9 @@ export function SearchConsoleConnection({
             variant="outline"
             disabled={busy}
             onClick={() =>
-              conversation.ask(
-                "Help me research Google search results for this OpenSEO project. Ask me which keyword and market to use first.",
-                { projectId: input.projectId },
-              )
+              conversation.ask(t("widgets.research_serp_prompt"), {
+                projectId: input.projectId,
+              })
             }
           >
             <MessageSquare />

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -65,6 +66,7 @@ function ChangeTable({
   showPosition: boolean;
   onSelect: (key: string) => void;
 }) {
+  const { t } = useLocale();
   return (
     <div>
       <h3 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
@@ -80,11 +82,15 @@ function ChangeTable({
               <TableHead>{keyLabel}</TableHead>
               {showPosition ? (
                 <TableHead className="hidden text-right sm:table-cell">
-                  Position
+                  {t("search_performance.position")}
                 </TableHead>
               ) : null}
-              <TableHead className="text-right">Clicks</TableHead>
-              <TableHead className="text-right">Change</TableHead>
+              <TableHead className="text-right">
+                {t("search_performance.clicks")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("search_performance.change")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -110,7 +116,9 @@ function ChangeTable({
                       <span aria-hidden className="px-1">
                         →
                       </span>
-                      <span className="sr-only">to</span>
+                      <span className="sr-only">
+                        {t("search_performance.position_to")}
+                      </span>
                       <span className="text-foreground">
                         {row.position === null
                           ? "—"
@@ -158,22 +166,25 @@ export function BiggestChangesCard({
   comparedWith: string;
   onSelect: (selection: DetailSelection) => void;
 }) {
+  const { t } = useLocale();
   const [picked, setPicked] =
     useState<SearchPerformanceTableDimension>("query");
   const dimension = isWeb ? picked : "page";
   const changesQuery = useQuery(
     changesQueryOptions(projectId, dimension, filterInput),
   );
-  const noun = dimension === "query" ? "queries" : "pages";
-  const keyLabel = dimension === "query" ? "Query" : "Page";
+  const keyLabel =
+    dimension === "query"
+      ? t("search_performance.query")
+      : t("search_performance.page");
 
   return (
     <CardShell
-      title="Biggest changes"
+      title={t("search_performance.biggest_changes")}
       icon={<TrendingUpDown className="size-5" />}
       titleInfo={
         <span className={cardMetaClass} title={comparedWith}>
-          vs previous period
+          {t("search_performance.vs_previous_period")}
         </span>
       }
       action={
@@ -185,12 +196,12 @@ export function BiggestChangesCard({
             items={[
               {
                 value: "query",
-                label: "Queries",
+                label: t("search_performance.queries"),
                 icon: <Search className="size-3.5" />,
               },
               {
                 value: "page",
-                label: "Pages",
+                label: t("search_performance.pages"),
                 icon: <FileText className="size-3.5" />,
               },
             ]}
@@ -200,7 +211,7 @@ export function BiggestChangesCard({
     >
       <QueryState
         query={changesQuery}
-        errorFallback="Failed to load changes"
+        errorFallback={t("search_performance.failed_to_load_changes")}
         loading={
           <div className="grid gap-x-12 gap-y-6 lg:grid-cols-2">
             <SkeletonTableRows rows={5} columns={3} />
@@ -213,24 +224,32 @@ export function BiggestChangesCard({
           !changes.connected ? null : (
             <div className="grid gap-x-12 gap-y-6 lg:grid-cols-2">
               <ChangeTable
-                title="Gained clicks"
+                title={t("search_performance.gained_clicks")}
                 icon={
                   <TrendingUp className="size-4 text-green-700 dark:text-success" />
                 }
                 rows={changes.gained}
                 keyLabel={keyLabel}
-                emptyText={`No ${noun} gained clicks.`}
+                emptyText={t(
+                  dimension === "query"
+                    ? "search_performance.no_queries_gained"
+                    : "search_performance.no_pages_gained",
+                )}
                 showPosition={isWeb}
                 onSelect={(key) => onSelect({ dimension, key })}
               />
               <ChangeTable
-                title="Lost clicks"
+                title={t("search_performance.lost_clicks")}
                 icon={
                   <TrendingDown className="size-4 text-red-700 dark:text-destructive" />
                 }
                 rows={changes.lost}
                 keyLabel={keyLabel}
-                emptyText={`No ${noun} lost clicks.`}
+                emptyText={t(
+                  dimension === "query"
+                    ? "search_performance.no_queries_lost"
+                    : "search_performance.no_pages_lost",
+                )}
                 showPosition={isWeb}
                 onSelect={(key) => onSelect({ dimension, key })}
               />

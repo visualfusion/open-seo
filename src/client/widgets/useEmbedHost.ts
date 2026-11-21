@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -25,7 +26,7 @@ async function fetchSnapshot(
   if (!response.ok)
     throw new Error(
       errorSchema.safeParse(body).data?.error ??
-        "Couldn't load this widget. Refresh to try again.",
+        getTranslation("widgets.couldn_t_load_this_widget_refresh_to"),
     );
   return widgetSnapshotSchema.parse(body);
 }
@@ -48,7 +49,10 @@ export function useEmbedHost(
       const next = await fetchSnapshot(token, context);
       // Keep the current Search Console table when a later call fails.
       if (shown?.data.ok === true && next.data.ok === false)
-        throw new Error(next.text || "Could not refresh Search Console data.");
+        throw new Error(
+          next.text ||
+            getTranslation("widgets.could_not_refresh_search_console_data"),
+        );
       return next;
     },
     onSuccess: setSnapshot,

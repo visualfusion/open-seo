@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useApp, type App } from "@modelcontextprotocol/ext-apps/react";
@@ -92,7 +93,8 @@ export function useMcpHost(): WidgetHost {
         // Preserve the current table and navigation when a GSC refresh fails.
         if (snapshot?.data.ok === true && next.data.ok === false)
           throw new Error(
-            next.text || "Could not refresh Search Console data.",
+            next.text ||
+              getTranslation("widgets.could_not_refresh_search_console_data"),
           );
         setSnapshot(next);
         setHostError(undefined);
@@ -139,7 +141,10 @@ export function useMcpHost(): WidgetHost {
         arguments: { projectId, keywords },
       });
       if (result.isError)
-        throw new Error(resultText(result) || "Could not save keywords.");
+        throw new Error(
+          resultText(result) ||
+            getTranslation("widgets.could_not_save_keywords"),
+        );
       onSaved();
     });
 

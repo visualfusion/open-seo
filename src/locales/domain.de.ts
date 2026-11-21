@@ -96,4 +96,8 @@ export const domainDe = {
     keywords: "Keywords",
     error_fallback: "Seiten konnten nicht geladen werden.",
   },
+  see_how_much_search_traffic_a_domain:
+    "Sieh dir an, wie viel Such-Traffic eine Domain erhält, für welche Keywords sie rankt und welche Seiten am stärksten sind.",
+  your_website: "Deine Website",
+  competitor: "Wettbewerber",
 };

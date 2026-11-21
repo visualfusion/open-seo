@@ -602,7 +602,9 @@ export function DomainOverviewPage({
               onRemove={state.removeHistoryItem}
               emptyIllustration={<DomainProfileIllustration />}
               emptyTitle={t("domain.enter_domain_to_start")}
-              emptyDescription="Sieh dir an, wie viel Such-Traffic eine Domain erhält, für welche Keywords sie rankt und welche Seiten am stärksten sind."
+              emptyDescription={t(
+                "domain.see_how_much_search_traffic_a_domain",
+              )}
               emptyAction={
                 <SuggestedSites
                   projectId={projectId}

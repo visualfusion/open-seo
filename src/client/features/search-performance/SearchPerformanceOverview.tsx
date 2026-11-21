@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { Card, CardContent } from "@/client/components/ui/card";
 import { Spinner } from "@/client/components/ui/spinner";
 import { BiggestChangesCard } from "@/client/features/search-performance/SearchPerformanceChanges";
@@ -37,6 +38,7 @@ export function SearchPerformanceOverview({
   isPlaceholderData: boolean;
   onSelect: (selection: DetailSelection) => void;
 }) {
+  const { t } = useLocale();
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
@@ -69,7 +71,10 @@ export function SearchPerformanceOverview({
         projectId={projectId}
         filterInput={filterInput}
         isWeb={isWeb}
-        comparedWith={`Compared with ${report.range.prevStartDate} to ${report.range.prevEndDate}`}
+        comparedWith={t("search_performance.compared_with_start_to_end", {
+          start: report.range.prevStartDate,
+          end: report.range.prevEndDate,
+        })}
         onSelect={onSelect}
       />
     </>

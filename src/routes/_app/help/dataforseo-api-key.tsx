@@ -70,7 +70,7 @@ function DataforseoApiKeyHelpPage() {
           </li>
           <li>{t("sam.help.dataforseo.everyapp_reload")}</li>
           <li>
-            Kein DataForSEO-Konto? Erstelle ein Team bei{" "}
+            {t("sam.treg_setup_prefix")}{" "}
             <a
               className={helpLinkClassName}
               href={TREG_URL}
@@ -79,8 +79,7 @@ function DataforseoApiKeyHelpPage() {
             >
               treg
             </a>
-            , das DataForSEO-Aufrufe über ein Prepaid-Guthaben abrechnet, und
-            setze stattdessen dessen API-Token:
+            {t("sam.treg_setup_suffix")}
             <CommandBlock command="pnpm everyapp secret set TREG_API_TOKEN" />
           </li>
         </>

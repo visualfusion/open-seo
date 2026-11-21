@@ -43,7 +43,7 @@ export function ReportsList({
             nativeButton={false}
             render={<Link to="/ai" />}
           >
-            Agent einrichten
+            {t("reports.set_up_agent")}
           </Button>
         }
       />

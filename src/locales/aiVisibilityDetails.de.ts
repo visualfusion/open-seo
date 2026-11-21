@@ -206,8 +206,11 @@ export const aiVisibilityDetailsDe = {
   can_t_collect_answers_in: "kann keine Antworten erfassen in",
   cost_per_run: "Kosten pro Durchlauf",
   answer_cost: "{count} Antworten · etwa {cost} pro Monat ({runs} Durchläufe)",
-  answer_cost_live:
-    "{count} Antworten · Live-Antworten, in wenigen Minuten verfügbar",
+  answer_cost_live: "{count} Antworten · live verfügbar in {duration}",
+  live_duration_short: "wenigen Minuten",
+  live_duration_minutes: "etwa {count} Minuten",
+  live_duration_hours: "etwa {count} Stunden",
+  schedule_stays_active: "Deine geplanten Prüfungen laufen wie bisher weiter.",
   daily_brand_mention_and_owned_citation_rate:
     "Tägliche Rate der Markenerwähnungen und eigenen Zitate",
   could_not_load_ai_try_again:

@@ -274,8 +274,8 @@ function TrackerSettings({
           <form.Field name="keywords">
             {(field) => (
               <KeywordFields
-                label="Keywords to track"
-                placeholder="e.g. pizza delivery"
+                label={t("local_seo.keywords_to_track")}
+                placeholder={t("local_seo.e_g_pizza_delivery")}
                 max={MAX_LOCAL_KEYWORDS}
                 maxLength={MAX_LOCAL_KEYWORD_LENGTH}
                 value={field.state.value}
@@ -304,7 +304,9 @@ function TrackerSettings({
                     note={
                       business.address
                         ? undefined
-                        : "The selected listing has no public address, so Google's location may be different."
+                        : t(
+                            "local_seo.the_selected_listing_has_no_public_address",
+                          )
                     }
                   />
                 )}

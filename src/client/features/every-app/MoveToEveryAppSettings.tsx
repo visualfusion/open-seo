@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { SectionHeader } from "@/client/components/PageHeader";
@@ -31,6 +32,7 @@ enum GatewayPath {
 
 /** Settings → Move to Every App, on self-hosted installs, for owners. */
 export function MoveToEveryAppSettings() {
+  const { t } = useLocale();
   const { data: organization } = useQuery(organizationContextQueryOptions());
   const [open, setOpen] = useState(false);
   if (
@@ -44,22 +46,21 @@ export function MoveToEveryAppSettings() {
       <SectionHeader title="Every App" />
       <div className="flex items-start justify-between gap-6">
         <div>
-          <p className="text-sm">Move to Every App</p>
+          <p className="text-sm">{t("settings.move_to_every_app")}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Get team sign-in and all your apps in one place. Every project,
-            history and chat moves over intact.{" "}
+            {t("settings.get_team_sign_in_and_all_your")}{" "}
             <a
               className="text-primary underline-offset-4 hover:underline"
               href="https://everyapp.com/docs/apps/openseo"
               target="_blank"
               rel="noreferrer"
             >
-              About Every App
+              {t("settings.about_every_app")}
             </a>
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-          Move to Every App
+          {t("settings.move_to_every_app")}
         </Button>
       </div>
       {open ? <MoveDialog onClose={() => setOpen(false)} /> : null}
@@ -68,6 +69,7 @@ export function MoveToEveryAppSettings() {
 }
 
 function MoveDialog({ onClose }: { onClose: () => void }) {
+  const { t } = useLocale();
   const [path, setPath] = useState(GatewayPath.SetUp);
   const [state, setState] = useState<MoveState>({ status: "idle" });
   const stopped = useRef(false);
@@ -88,10 +90,9 @@ function MoveDialog({ onClose }: { onClose: () => void }) {
     >
       <DialogContent className="grid-cols-1 sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Move to Every App</DialogTitle>
+          <DialogTitle>{t("settings.move_to_every_app")}</DialogTitle>
           <DialogDescription>
-            Copies your projects and their history to OpenSEO on your Gateway.
-            Nothing is removed here.
+            {t("settings.copies_your_projects_and_their_history_to")}
           </DialogDescription>
         </DialogHeader>
         {state.status === "moving" ? (
@@ -102,7 +103,7 @@ function MoveDialog({ onClose }: { onClose: () => void }) {
           <>
             <div className="space-y-2">
               <p className="text-sm font-medium">
-                Do you already have an Every App Gateway?
+                {t("settings.do_you_already_have_an_every_app")}
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <Button
@@ -111,7 +112,7 @@ function MoveDialog({ onClose }: { onClose: () => void }) {
                   className="aria-pressed:border-primary aria-pressed:bg-primary/10"
                   onClick={() => setPath(GatewayPath.SetUp)}
                 >
-                  Set up my Gateway
+                  {t("settings.set_up_my_gateway")}
                 </Button>
                 <Button
                   variant="outline"
@@ -119,7 +120,7 @@ function MoveDialog({ onClose }: { onClose: () => void }) {
                   className="aria-pressed:border-primary aria-pressed:bg-primary/10"
                   onClick={() => setPath(GatewayPath.Existing)}
                 >
-                  I have a Gateway
+                  {t("settings.i_have_a_gateway")}
                 </Button>
               </div>
             </div>
@@ -143,7 +144,11 @@ function MoveDialog({ onClose }: { onClose: () => void }) {
             variant={state.status === "done" ? "default" : "ghost"}
             onClick={close}
           >
-            {state.status === "done" ? "Done" : moving ? "Stop" : "Cancel"}
+            {state.status === "done"
+              ? t("settings.done")
+              : moving
+                ? t("settings.stop")
+                : t("settings.cancel")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -152,15 +157,16 @@ function MoveDialog({ onClose }: { onClose: () => void }) {
 }
 
 function GatewaySetupSteps({ onReady }: { onReady: () => void }) {
+  const { t } = useLocale();
   return (
     <ol className="space-y-4">
-      <Step number={1} title="Get Every App">
+      <Step number={1} title={t("settings.get_every_app")}>
         <CommandBlock command="npm install -g everyapp@latest" />
       </Step>
-      <Step number={2} title="Create your Gateway">
+      <Step number={2} title={t("settings.create_your_gateway")}>
         <CommandBlock command="everyapp setup" />
         <p className="text-sm text-muted-foreground">
-          Needs{" "}
+          {t("settings.needs")}{" "}
           <a
             className="font-medium text-primary underline-offset-4 hover:underline"
             href="https://dash.cloudflare.com/"
@@ -169,12 +175,12 @@ function GatewaySetupSteps({ onReady }: { onReady: () => void }) {
           >
             Cloudflare Workers Paid
           </a>{" "}
-          and a domain on Cloudflare DNS.
+          {t("settings.and_a_domain_on_cloudflare_dns")}
         </p>
       </Step>
       <li>
         <Button variant="outline" onClick={onReady}>
-          My Gateway is ready
+          {t("settings.my_gateway_is_ready")}
         </Button>
       </li>
     </ol>
@@ -188,21 +194,21 @@ function MoveSteps({
   failure: string | null;
   onMove: (code: string) => void;
 }) {
+  const { t } = useLocale();
   const [code, setCode] = useState("");
   const codeIsValid = parseTransferCode(code) !== null;
 
   return (
     <ol className="space-y-4">
-      <Step number={1} title="Install OpenSEO on your Gateway">
+      <Step number={1} title={t("settings.install_openseo_on_your_gateway")}>
         <CommandBlock command="everyapp install https://github.com/every-app/open-seo" />
       </Step>
-      <Step number={2} title="Make a transfer code">
+      <Step number={2} title={t("settings.make_a_transfer_code")}>
         <p className="text-sm text-muted-foreground">
-          In OpenSEO on your Gateway, open Settings and click Import from
-          self-hosted OpenSEO.
+          {t("settings.in_openseo_on_your_gateway_open_settings")}
         </p>
       </Step>
-      <Step number={3} title="Paste the code here">
+      <Step number={3} title={t("settings.paste_the_code_here")}>
         <form
           className="space-y-2"
           onSubmit={(event) => {
@@ -211,7 +217,7 @@ function MoveSteps({
           }}
         >
           <Label htmlFor="every-app-transfer-code" className="sr-only">
-            Transfer code
+            {t("settings.transfer_code")}
           </Label>
           <Input
             id="every-app-transfer-code"
@@ -228,7 +234,7 @@ function MoveSteps({
             </p>
           ) : null}
           <Button type="submit" disabled={!codeIsValid}>
-            Move my data
+            {t("settings.move_my_data")}
           </Button>
         </form>
       </Step>
@@ -237,9 +243,9 @@ function MoveSteps({
 }
 
 const PHASE_LABELS: Record<MovePhase, string> = {
-  [MovePhase.Data]: "Moving projects and history",
-  [MovePhase.Chats]: "Moving SAM chats",
-  [MovePhase.Files]: "Moving audit and export files",
+  [MovePhase.Data]: "settings.moving_projects_and_history",
+  [MovePhase.Chats]: "settings.moving_sam_chats",
+  [MovePhase.Files]: "settings.moving_audit_and_export_files",
 };
 
 function MoveProgress({
@@ -247,13 +253,18 @@ function MoveProgress({
 }: {
   state: Extract<MoveState, { status: "moving" }>;
 }) {
+  const { locale, t } = useLocale();
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-4 text-sm">
-        <span className="font-medium">{PHASE_LABELS[state.phase]}</span>
+        <span className="font-medium">{t(PHASE_LABELS[state.phase])}</span>
         {state.phase === MovePhase.Files ? (
           <span className="text-muted-foreground tabular-nums">
-            {state.done.toLocaleString()} files
+            {t("settings.count_files", {
+              count: state.done.toLocaleString(
+                locale === "de" ? "de-DE" : "en-US",
+              ),
+            })}
           </span>
         ) : null}
       </div>
@@ -262,24 +273,20 @@ function MoveProgress({
         max={Math.max(state.total, 1)}
       />
       <p className="text-sm text-muted-foreground">
-        Keep this page open until it finishes.
+        {t("settings.keep_this_page_open_until_it_finishes")}
       </p>
     </div>
   );
 }
 
 function MoveDone({ origin }: { origin: string }) {
+  const { t } = useLocale();
   return (
     <div className="space-y-3 text-sm">
-      <p className="font-medium">Your data is on Every App.</p>
+      <p className="font-medium">{t("settings.your_data_is_on_every_app")}</p>
       <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-        <li>
-          Everyone connects Google again there for Search Console and Analytics.
-        </li>
-        <li>
-          This install still runs scheduled checks. Turn it off once you're
-          happy with the move, or they'll run twice.
-        </li>
+        <li>{t("settings.everyone_connects_google_again_there_for_search")}</li>
+        <li>{t("settings.this_install_still_runs_scheduled_checks_turn")} </li>
       </ul>
       <a
         className="inline-block font-medium text-primary underline-offset-4 hover:underline"
@@ -287,7 +294,7 @@ function MoveDone({ origin }: { origin: string }) {
         target="_blank"
         rel="noreferrer"
       >
-        Open OpenSEO on your Gateway →
+        {t("settings.open_openseo_on_your_gateway")}
       </a>
     </div>
   );

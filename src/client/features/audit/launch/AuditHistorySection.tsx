@@ -65,7 +65,7 @@ function AuditHistoryTable({
       <EmptyState
         illustration={<AuditChecksIllustration />}
         title={t("audit.history.no_audits_title")}
-        description="Ein Audit durchsucht deine Seiten nach defekten Links, fehlenden Titeln und Seiten, die Google nicht indexieren kann."
+        description={t("audit.history_empty_description")}
       />
     );
   }

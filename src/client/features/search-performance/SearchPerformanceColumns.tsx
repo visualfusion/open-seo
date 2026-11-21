@@ -1,4 +1,4 @@
-import { getCurrentLocale } from "@/client/lib/i18n";
+import { getCurrentLocale, getTranslation } from "@/client/lib/i18n";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import type { MutableRefObject } from "react";
 import { makeSelectionColumn } from "@/client/components/table/DataTable";
@@ -67,10 +67,13 @@ export function buildDimensionColumns(
   showPosition: boolean,
   labels?: SearchPerformanceColumnLabels,
 ): ColumnDef<DimensionRow>[] {
-  const clicksLabel = labels?.clicks ?? "Clicks";
-  const impressionsLabel = labels?.impressions ?? "Impressions";
+  const clicksLabel =
+    labels?.clicks ?? getTranslation("search_performance.clicks");
+  const impressionsLabel =
+    labels?.impressions ?? getTranslation("search_performance.impressions");
   const ctrLabel = labels?.ctr ?? "CTR";
-  const positionLabel = labels?.position ?? "Position";
+  const positionLabel =
+    labels?.position ?? getTranslation("search_performance.position");
 
   const columns: ColumnDef<DimensionRow>[] = [
     dimensionHelper.accessor("key", {
@@ -104,7 +107,11 @@ export function buildDimensionColumns(
         id: "change",
         sortUndefined: "last",
         header: ({ column }) => (
-          <SortableHeader column={column} label="Change" align="right" />
+          <SortableHeader
+            column={column}
+            label={getTranslation("search_performance.change")}
+            align="right"
+          />
         ),
         cell: ({ getValue }) => {
           const change = getValue();
@@ -159,11 +166,15 @@ export function buildStrikingColumns(
   anchorRef: MutableRefObject<SelectionAnchor | null>,
   labels?: SearchPerformanceColumnLabels,
 ): ColumnDef<StrikingRow>[] {
-  const queryLabel = labels?.query ?? "Query";
-  const pageLabel = labels?.page ?? "Page";
-  const clicksLabel = labels?.clicks ?? "Clicks";
-  const impressionsLabel = labels?.impressions ?? "Impressions";
-  const positionLabel = labels?.position ?? "Position";
+  const queryLabel =
+    labels?.query ?? getTranslation("search_performance.query");
+  const pageLabel = labels?.page ?? getTranslation("search_performance.page");
+  const clicksLabel =
+    labels?.clicks ?? getTranslation("search_performance.clicks");
+  const impressionsLabel =
+    labels?.impressions ?? getTranslation("search_performance.impressions");
+  const positionLabel =
+    labels?.position ?? getTranslation("search_performance.position");
 
   return [
     makeSelectionColumn<StrikingRow>(anchorRef),

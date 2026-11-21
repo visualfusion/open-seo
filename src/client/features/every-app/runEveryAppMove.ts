@@ -1,3 +1,4 @@
+import { getTranslation } from "@/client/lib/i18n";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
 import {
   finishEveryAppMove,
@@ -37,17 +38,21 @@ class MoveStoppedError extends Error {
 function problemMessage({ problem }: MoveFailure) {
   switch (problem) {
     case TransferProblem.InvalidCode:
-      return "That isn't a transfer code. Copy it again from OpenSEO on your Gateway.";
+      return getTranslation("settings.that_isn_t_a_transfer_code_copy");
     case TransferProblem.CodeRejected:
-      return "This code expired, was used or was replaced. Make a new one and try again.";
+      return getTranslation("settings.this_code_expired_was_used_or_was");
     case TransferProblem.VersionMismatch:
-      return "This install and your Gateway run different OpenSEO versions. Update both to the latest release, then try again.";
+      return getTranslation(
+        "settings.this_install_and_your_gateway_run_different",
+      );
     case TransferProblem.RunningWork:
-      return "An audit or check is still running here. Try again once it finishes.";
+      return getTranslation("settings.an_audit_or_check_is_still_running");
     case TransferProblem.MultipleOrganizations:
-      return "This install has more than one organization, and a move can only take one.";
+      return getTranslation(
+        "settings.this_install_has_more_than_one_organization",
+      );
     case TransferProblem.Unreachable:
-      return "Couldn't reach OpenSEO on your Gateway. Check it's installed and up to date, then try again.";
+      return getTranslation("settings.couldn_t_reach_openseo_on_your_gateway");
   }
 }
 

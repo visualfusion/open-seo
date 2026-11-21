@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useId, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CardShell } from "@/client/components/CardShell";
@@ -28,15 +29,15 @@ const OVERVIEW = "overview";
 
 // The overview has every widget; the others are one widget each.
 const VIEWS: { value: string; label: string; widget?: EmbedWidget }[] = [
-  { value: OVERVIEW, label: "Overview" },
+  { value: OVERVIEW, label: "integrations.overview" },
   {
     value: EmbedWidget.Rankings,
-    label: "Rank Tracking",
+    label: "integrations.rank_tracking",
     widget: EmbedWidget.Rankings,
   },
   {
     value: EmbedWidget.SearchConsole,
-    label: "Search Console",
+    label: "integrations.search_console",
     widget: EmbedWidget.SearchConsole,
   },
 ];
@@ -58,6 +59,7 @@ export function EmbedSettings({ projectId }: { projectId: string }) {
 }
 
 function EmbedSettingsCard({ projectId }: { projectId: string }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const switchId = useId();
   const [view, setView] = useState(OVERVIEW);
@@ -72,18 +74,19 @@ function EmbedSettingsCard({ projectId }: { projectId: string }) {
     onSuccess: (link) => queryClient.setQueryData(queryKey, link),
   });
   const token = linkQuery.data?.token;
-  const widget = VIEWS.find((item) => item.value === view)?.widget;
+  const views = VIEWS.map((item) => ({ ...item, label: t(item.label) }));
+  const widget = views.find((item) => item.value === view)?.widget;
   const url = token
     ? `${window.location.origin}${embedPath(token, widget)}`
     : null;
 
   return (
     <section id="embed-links" className="scroll-mt-6">
-      <CardShell title="Embed links">
+      <CardShell title={t("integrations.embed_links")}>
         {linkQuery.isError ? (
           <QueryError
             error={linkQuery.error}
-            fallback="Couldn't load embed links."
+            fallback={t("integrations.couldn_t_load_embed_links")}
             onRetry={() => void linkQuery.refetch()}
             isRetrying={linkQuery.isFetching}
           />
@@ -92,12 +95,14 @@ function EmbedSettingsCard({ projectId }: { projectId: string }) {
             <Field orientation="horizontal">
               <FieldContent>
                 <FieldLabel htmlFor={switchId}>
-                  Show this project in another dashboard
+                  {t(
+                    "integrations.show_this_project_in_another_dashboard",
+                  )}{" "}
                 </FieldLabel>
                 <FieldDescription>
                   {token
-                    ? "Turning this off stops every embed link in this project."
-                    : "Live, read-only views for any site that can embed a page. Anyone with a link can view it."}
+                    ? t("integrations.turning_this_off_stops_every_embed_link")
+                    : t("integrations.live_read_only_views_for_any_site")}
                 </FieldDescription>
               </FieldContent>
               <Switch
@@ -112,15 +117,18 @@ function EmbedSettingsCard({ projectId }: { projectId: string }) {
             {url ? (
               <div className="flex flex-wrap items-center gap-2">
                 <Select
-                  items={VIEWS}
+                  items={views}
                   value={view}
                   onValueChange={(value) => value && setView(value)}
                 >
-                  <SelectTrigger aria-label="View" className="w-44">
+                  <SelectTrigger
+                    aria-label={t("integrations.view")}
+                    className="w-44"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {VIEWS.map((item) => (
+                    {views.map((item) => (
                       <SelectItem key={item.value} value={item.value}>
                         {item.label}
                       </SelectItem>
@@ -130,11 +138,14 @@ function EmbedSettingsCard({ projectId }: { projectId: string }) {
                 <Input
                   readOnly
                   value={url}
-                  aria-label="Embed link"
+                  aria-label={t("integrations.embed_link")}
                   className="min-w-0 flex-1 font-mono text-xs"
                   onFocus={(event) => event.currentTarget.select()}
                 />
-                <CopyButton value={url} successMessage="Link copied" />
+                <CopyButton
+                  value={url}
+                  successMessage={t("integrations.link_copied")}
+                />
               </div>
             ) : null}
           </div>

@@ -123,6 +123,8 @@ export function TrackingCostReview({
     placeholderData: keepPreviousData,
   });
   const cost = estimate.data;
+  const duration =
+    cost && mode === "check" ? aiLiveRunDuration(cost.observations) : null;
   // Run now collects live answers; scheduled runs use the cheaper queue.
   const runCostUsd =
     (mode === "check" ? cost?.runNowCostUsd : cost?.costUsd) ?? 0;
@@ -240,13 +242,24 @@ export function TrackingCostReview({
                     count: cost.observations,
                     cost: aiMoney(cost.monthlyCostUsd),
                     runs: cost.checksPerMonth,
+                    duration:
+                      duration?.unit === "short"
+                        ? t("ai_visibility.details.live_duration_short")
+                        : duration
+                          ? t(
+                              `ai_visibility.details.live_duration_${duration.unit}`,
+                              {
+                                count: duration.count,
+                              },
+                            )
+                          : "",
                   },
                 )}
               </FieldDescription>
               {/* Pausing keeps the next check, so only a tracker never scheduled has none. */}
               {mode === "check" && tracker.nextCheckAt && (
                 <FieldDescription>
-                  Your scheduled tracking doesn't change.
+                  {t("ai_visibility.details.schedule_stays_active")}
                 </FieldDescription>
               )}
             </Field>

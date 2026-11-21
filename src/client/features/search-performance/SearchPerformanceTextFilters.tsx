@@ -12,12 +12,45 @@ import {
   SelectValue,
 } from "@/client/components/ui/select";
 import { useLocale } from "@/client/lib/i18n";
-import type { searchPerformanceInputSchema } from "@/types/schemas/search-performance";
+import type {
+  SearchPerformanceSearch,
+  searchPerformanceInputSchema,
+} from "@/types/schemas/search-performance";
 
 export type TextFilters = Pick<
   z.infer<typeof searchPerformanceInputSchema>,
   "pageFilter" | "queryFilter"
 >;
+
+export function useSearchPerformanceTextFilters(
+  search: SearchPerformanceSearch,
+  isWeb: boolean,
+) {
+  return useMemo<TextFilters>(
+    () => ({
+      pageFilter: search.pageText
+        ? {
+            operator: search.pageMatch ?? "contains",
+            expression: search.pageText,
+          }
+        : undefined,
+      queryFilter:
+        search.queryText && isWeb
+          ? {
+              operator: search.queryMatch ?? "contains",
+              expression: search.queryText,
+            }
+          : undefined,
+    }),
+    [
+      search.pageText,
+      search.pageMatch,
+      search.queryText,
+      search.queryMatch,
+      isWeb,
+    ],
+  );
+}
 
 export function SearchPerformanceTextFilters({
   value,

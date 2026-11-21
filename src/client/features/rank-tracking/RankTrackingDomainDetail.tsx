@@ -26,10 +26,12 @@ import {
 } from "./RankTrackingHistoryMatrix";
 import { RankTrackingTableToolbar } from "./RankTrackingTableToolbar";
 import { exportRankTracking } from "./RankTrackingTableParts";
+import { AUTUMN_PRO_PLAN_ID } from "@/shared/billing";
 import type { RankTrackingConfig } from "@/types/schemas/rank-tracking";
 import {
   isScheduledRankTrackingInterval,
-  keywordLimitMessage,
+  keywordsPerConfigForPlan,
+  MAX_KEYWORDS_PER_CONFIG,
 } from "@/shared/rank-tracking";
 import {
   rankTrackingDetailSearchSchema,
@@ -93,7 +95,7 @@ export function RankTrackingDomainDetail({
   onSearchChange: (update: Partial<RankTrackingDetailSearch>) => void;
   onEdit: () => void;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const planStatus = useHostedPlanGate();
   const queryClient = useQueryClient();
   const [showAddKeywords, setShowAddKeywords] = useState(false);
@@ -173,9 +175,31 @@ export function RankTrackingDomainDetail({
     }
     if (result.overLimit) {
       const { notAdded, limit } = result.overLimit;
-      toast.warning(
-        `${notAdded} Keyword${notAdded !== 1 ? "s" : ""} nicht hinzugefügt. ${keywordLimitMessage(limit)}`,
+      const count = (value: number) =>
+        value.toLocaleString(locale === "de" ? "de-DE" : "en-US");
+      const pro = keywordsPerConfigForPlan(AUTUMN_PRO_PLAN_ID);
+      const limitMessage = [
+        t("ranks.tracker_keyword_limit", { limit: count(limit) }),
+        limit < pro
+          ? t("ranks.tracker_keyword_limit_pro_agency", {
+              pro: count(pro),
+              agency: count(MAX_KEYWORDS_PER_CONFIG),
+            })
+          : limit < MAX_KEYWORDS_PER_CONFIG
+            ? t("ranks.tracker_keyword_limit_agency", {
+                agency: count(MAX_KEYWORDS_PER_CONFIG),
+              })
+            : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const skipped = t(
+        notAdded === 1 ? "ranks.not_added_one" : "ranks.not_added_many",
+        {
+          count: count(notAdded),
+        },
       );
+      toast.warning(`${skipped} ${limitMessage}`);
     }
     if (result.checkScheduledSoon) {
       toast.info(t("ranks.table_ext.scheduled_soon_toast"));

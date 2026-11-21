@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SortingState } from "@tanstack/react-table";
 import { DataTable, useDataTable } from "@/client/components/table/DataTable";
@@ -40,6 +41,7 @@ export function RankTrackerWidget({
   host: WidgetHost;
   data: RankTrackerData;
 }) {
+  const { t } = useLocale();
   // The first call lists the project's trackers; keep the list to switch
   // between them once one is open.
   const [configs] = useState(data.configs ?? []);
@@ -65,7 +67,9 @@ export function RankTrackerWidget({
     return first ? (
       <Skeleton className="h-24" />
     ) : (
-      <p className="text-sm text-muted-foreground">No rank trackers yet.</p>
+      <p className="text-sm text-muted-foreground">
+        {t("widgets.no_rank_trackers_yet")}
+      </p>
     );
   }
   return (
@@ -93,6 +97,7 @@ function TrackerTable({
   configs: Config[];
   onOpen: (trackerId: string) => void;
 }) {
+  const { t } = useLocale();
   const [device, setDevice] = useState<Device>(
     config.devices === "mobile" ? "mobile" : "desktop",
   );
@@ -136,7 +141,7 @@ function TrackerTable({
   return (
     <section className="space-y-3">
       <div>
-        <h1 className="text-2xl font-semibold">Rank Tracking</h1>
+        <h1 className="text-2xl font-semibold">{t("widgets.rank_tracking")}</h1>
         <p className="break-all text-sm text-muted-foreground">
           {configLabel(config)}
           {checkedAt ? ` · Checked ${formatRelativeTime(checkedAt)}` : ""}
@@ -154,7 +159,7 @@ function TrackerTable({
               onValueChange={(value) => value && onOpen(value)}
             >
               <SelectTrigger
-                aria-label="Rank tracker"
+                aria-label={t("widgets.rank_tracker")}
                 className="w-72 max-w-full bg-card"
                 disabled={host.busy}
               >
@@ -177,8 +182,10 @@ function TrackerTable({
               }
             >
               <TabsList>
-                <TabsTrigger value="desktop">Desktop</TabsTrigger>
-                <TabsTrigger value="mobile">Mobile</TabsTrigger>
+                <TabsTrigger value="desktop">
+                  {t("widgets.desktop")}
+                </TabsTrigger>
+                <TabsTrigger value="mobile">{t("widgets.mobile")}</TabsTrigger>
               </TabsList>
             </Tabs>
           )}
@@ -187,7 +194,7 @@ function TrackerTable({
       <DataTable
         table={table}
         isRefreshing={host.busy}
-        empty={{ title: "No keywords yet" }}
+        empty={{ title: t("widgets.no_keywords_yet") }}
         footer={
           results.rows.length > 0 ? (
             <>

@@ -1,4 +1,4 @@
-import { useLocale } from "@/client/lib/i18n";
+import { useLocale, getTranslation } from "@/client/lib/i18n";
 import { useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,7 +37,10 @@ function getLaunchValidationErrors(
 ) {
   return createFormValidationErrors({
     fields: {
-      url: !value.url.trim() && validate.url ? "Please enter a URL." : null,
+      url:
+        !value.url.trim() && validate.url
+          ? getTranslation("audit.please_enter_a_url")
+          : null,
       excludePathsInput: validate.excludePaths
         ? getExcludePathsError(value)
         : null,
@@ -49,7 +52,19 @@ function getExcludePathsError(value: LaunchFormValues) {
   const parsed = excludePathsSchema.safeParse(
     splitExcludePathsInput(value.excludePathsInput),
   );
-  if (!parsed.success) return parsed.error.issues[0].message;
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    if (issue.code === "too_big") {
+      return getTranslation(
+        issue.origin === "array"
+          ? "audit.exclude_paths_limit"
+          : "audit.exclude_path_length",
+        undefined,
+        { limit: Number(issue.maximum) },
+      );
+    }
+    return getTranslation("audit.exclude_path_invalid");
+  }
   // The form takes a bare domain; the server adds the scheme the same way.
   const url = value.url.trim();
   const excludingPath = findExcludingPath(
@@ -57,7 +72,11 @@ function getExcludePathsError(value: LaunchFormValues) {
     /^https?:\/\//i.test(url) ? url : `https://${url}`,
   );
   return excludingPath
-    ? `"${excludingPath}" excludes the URL the audit starts from.`
+    ? getTranslation(
+        "audit.path_excludes_the_url_the_audit_starts",
+        undefined,
+        { path: excludingPath },
+      )
     : null;
 }
 

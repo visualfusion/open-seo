@@ -97,4 +97,21 @@ export const dashboardDe = {
     backlinks: "Backlinks",
   },
   details: dashboardDetailsDe,
+  open_a_chat_to_check_your_skills:
+    "Öffne einen Chat, um die Einrichtung zu prüfen und einen Skill auszuprobieren.",
+  paste_this_prompt_into_your_agent_to:
+    "Füge den Prompt in deinen Agenten ein, um die Einrichtung zu prüfen und einen Skill auszuprobieren.",
+  copy_prompt: "Prompt kopieren",
+  prompt_copied: "Prompt kopiert",
+  browse_skills: "Skills ansehen",
+  open_in_name: "In {name} öffnen",
+  skills_guide_your_agent_through_complete_seo:
+    "Mit Skills führt dein Agent SEO-Aufgaben Schritt für Schritt aus und speichert die Ergebnisse als Berichte.",
+  try_openseo_skills: "OpenSEO-Skills ausprobieren",
+  skills_step_detail:
+    "Gib deinem Agenten wiederverwendbare Abläufe für SEO-Aufgaben.",
+  skills_dismiss: "Ausblenden",
+  skills_setup_prompt:
+    "Prüfe, ob die OpenSEO-Skills in diesem Agenten eingerichtet sind. Falls sie fehlen, führe mich anhand von https://openseo.so/docs/skills/setup durch die Installation. Empfiehl mir dann den nützlichsten OpenSEO-Skill für den Einstieg{site} und zeige mir, wie ich ihn ausführe.",
+  skills_prompt_for_site: " für {domain}",
 };

@@ -185,4 +185,6 @@ export const backlinksDe = {
       "Hierhin verweisende Backlinks, die derzeit nicht funktionieren.",
     empty_title: "Keine Top-Seiten für dieses Ziel gefunden.",
   },
+  check_a_competitor_website_to_see_its:
+    "Prüfe eine Wettbewerber-Website, um ihre Backlinks zu sehen, oder deine eigene Website für gewonnene und verlorene Links.",
 };

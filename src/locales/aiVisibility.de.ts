@@ -119,4 +119,16 @@ export const aiVisibilityDe = {
     "Wähle vielversprechende Fragen aus und füge sie mit einem Klick dem fortlaufenden Prompt-Tracking hinzu.",
   research_features_title: "Prompt-Recherche",
   details: aiVisibilityDetailsDe,
+  each_model_answer_includes_the_sources_it:
+    "Jede Modellantwort enthält die zitierten Quellen.",
+  edit: "Bearbeiten",
+  edit_keywords: "Keywords bearbeiten",
+  cancel: "Abbrechen",
+  save_keywords: "Keywords speichern",
+  keywords: "Keywords",
+  topics_from_your_tracker_are_always_listed:
+    "Die Themen aus deinem Tracker bleiben in der Liste und lassen sich hier nicht bearbeiten.",
+  e_g_running_shoes: "z. B. Laufschuhe",
+  could_not_save_these_keywords:
+    "Diese Keywords konnten nicht gespeichert werden.",
 };

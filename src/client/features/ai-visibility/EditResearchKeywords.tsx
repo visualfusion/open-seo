@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Pencil } from "lucide-react";
@@ -23,12 +24,13 @@ export function EditResearchKeywordsButton({
   /** The keywords the list holds besides the tracker's topics. */
   saved: string[];
 }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
         <Pencil data-icon="inline-start" />
-        Edit
+        {t("ai_visibility.edit")}
       </Button>
       {open ? (
         <EditResearchKeywordsDialog
@@ -50,6 +52,7 @@ function EditResearchKeywordsDialog({
   saved: string[];
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const save = useMutation({
     // Replacing every saved keyword keeps the order of the fields.
@@ -77,19 +80,19 @@ function EditResearchKeywordsDialog({
   });
   return (
     <FormDialog
-      title="Edit keywords"
+      title={t("ai_visibility.edit_keywords")}
       onClose={onClose}
       actions={
         <>
           <Button variant="outline" disabled={save.isPending} onClick={onClose}>
-            Cancel
+            {t("ai_visibility.cancel")}
           </Button>
           <Button
             type="submit"
             form="research-keywords"
             pending={save.isPending}
           >
-            Save keywords
+            {t("ai_visibility.save_keywords")}
           </Button>
         </>
       }
@@ -101,9 +104,11 @@ function EditResearchKeywordsDialog({
               <KeywordFields
                 value={field.state.value}
                 onChange={field.handleChange}
-                label="Keywords"
-                description="Topics from your tracker are always listed and aren't edited here."
-                placeholder="e.g. running shoes"
+                label={t("ai_visibility.keywords")}
+                description={t(
+                  "ai_visibility.topics_from_your_tracker_are_always_listed",
+                )}
+                placeholder={t("ai_visibility.e_g_running_shoes")}
                 max={MAX_AI_RESEARCH_KEYWORDS}
                 maxLength={100}
               />
@@ -114,7 +119,7 @@ function EditResearchKeywordsDialog({
       {save.isError && (
         <QueryError
           error={save.error}
-          fallback="Could not save these keywords."
+          fallback={t("ai_visibility.could_not_save_these_keywords")}
         />
       )}
     </FormDialog>

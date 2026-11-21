@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { useRef } from "react";
 import { divIcon, type LatLng, type Marker as LeafletMarker } from "leaflet";
 import {
@@ -47,6 +48,7 @@ export default function LocalCenterMap({
   spacingKm: number;
   onCenterChange: (center: LocalCenter) => void;
 }) {
+  const { t } = useLocale();
   const marker = useRef<LeafletMarker>(null);
   const points = buildLocalGrid(center, gridSize, spacingKm);
   return (
@@ -56,7 +58,7 @@ export default function LocalCenterMap({
       scrollWheelZoom={false}
       attributionControl={false}
       className="z-0 h-full w-full"
-      aria-label="Grid center on a Google Maps basemap"
+      aria-label={t("local_seo.grid_center_on_a_google_maps_basemap")}
     >
       <GoogleMapsTiles projectId={projectId} />
       <MoveOnClick onMove={onCenterChange} />
@@ -79,7 +81,7 @@ export default function LocalCenterMap({
         position={[center.latitude, center.longitude]}
         icon={centerIcon}
         draggable
-        title="Grid center"
+        title={t("local_seo.grid_center")}
         eventHandlers={{
           dragend: () => {
             if (marker.current)

@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
@@ -23,6 +24,7 @@ export function SuggestedSites({
   projectId: string;
   renderLink: (domain: string, props: ClickableProps) => ReactNode;
 }) {
+  const { t } = useLocale();
   const projectsQuery = useQuery(projectsQueryOptions());
   const contextQuery = useQuery({
     queryKey: projectContextQueryKey(projectId),
@@ -32,10 +34,15 @@ export function SuggestedSites({
     (project) => project.id === projectId,
   )?.domain;
   const sites = [
-    ...(ownDomain ? [{ domain: ownDomain, note: "Your website" }] : []),
+    ...(ownDomain
+      ? [{ domain: ownDomain, note: t("domain.your_website") }]
+      : []),
     ...(contextQuery.data?.competitors ?? [])
       .slice(0, MAX_COMPETITORS)
-      .map((competitor) => ({ domain: competitor.domain, note: "Competitor" })),
+      .map((competitor) => ({
+        domain: competitor.domain,
+        note: t("domain.competitor"),
+      })),
   ];
   if (sites.length === 0) return null;
 

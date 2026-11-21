@@ -158,4 +158,22 @@ export const auditEn = {
   bot_advice_desktop: "Try a free desktop crawler like {crawlers}.",
   affected_pages: "Affected pages",
   details: auditDetailsEn,
+  advanced: "Advanced",
+  exclude_paths: "Exclude paths",
+  please_enter_a_url: "Please enter a URL.",
+  path_excludes_the_url_the_audit_starts:
+    '"{path}" excludes the URL the audit starts from.',
+  excluded_matching: "This audit skipped pages matching",
+  excluded_orphan_check:
+    ". The orphan page check didn't run, because links from skipped pages aren't known.",
+  history_empty_description:
+    "An audit scans your pages for broken links, missing titles, and pages Google cannot index.",
+  exclude_paths_example_prefix: "One path per line.",
+  exclude_paths_example_middle: "skips every page under /blog/, and",
+  exclude_paths_example_suffix:
+    "matches anything. Skipped pages aren't crawled and don't count toward Max pages.",
+  exclude_paths_limit: "You can exclude up to {limit} paths.",
+  exclude_path_length: "Each excluded path can be at most {limit} characters.",
+  exclude_path_invalid:
+    "Start each excluded path with / (for example /blog/) or * and leave out spaces.",
 };

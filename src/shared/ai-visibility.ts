@@ -60,9 +60,10 @@ const AI_LIVE_STEP_SECONDS = 25;
 export function aiLiveRunDuration(answers: number) {
   const minutes =
     (Math.ceil(answers / AI_LIVE_ANSWERS_PER_STEP) * AI_LIVE_STEP_SECONDS) / 60;
-  if (minutes <= 5) return "a few minutes";
-  if (minutes < 90) return `about ${Math.ceil(minutes / 10) * 10} minutes`;
-  return `about ${Math.round(minutes / 60)} hours`;
+  if (minutes <= 5) return { unit: "short" } as const;
+  if (minutes < 90)
+    return { unit: "minutes", count: Math.ceil(minutes / 10) * 10 } as const;
+  return { unit: "hours", count: Math.round(minutes / 60) } as const;
 }
 export interface AiPrompt {
   id: string;

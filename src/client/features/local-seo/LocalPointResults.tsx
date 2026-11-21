@@ -128,5 +128,5 @@ function searchedFrom(
     ? t("local_seo.point_results.searched_relative", {
         offset: parts.join(", "),
       })
-    : t("local_seo.point_results.searched_from_listing");
+    : t("local_seo.searched_from_grid_center");
 }

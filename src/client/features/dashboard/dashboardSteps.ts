@@ -146,6 +146,12 @@ export function getTranslatedSetupStep(
         detail: t("dashboard.onboarding.mcp_desc"),
         skipLabel: t("dashboard.onboarding.skip"),
       };
+    case "skills":
+      return {
+        label: t("dashboard.try_openseo_skills"),
+        detail: t("dashboard.skills_step_detail"),
+        skipLabel: t("dashboard.skills_dismiss"),
+      };
     case "team":
       return {
         label: t("dashboard.onboarding.team_title"),

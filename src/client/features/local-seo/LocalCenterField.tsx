@@ -1,3 +1,4 @@
+import { useLocale } from "@/client/lib/i18n";
 import { lazy, Suspense } from "react";
 import { Skeleton } from "@/client/components/ui/skeleton";
 import {
@@ -24,9 +25,10 @@ export function LocalCenterField({
   /** A second line under the instructions. */
   note?: string;
 }) {
+  const { t } = useLocale();
   return (
     <Field>
-      <FieldLabel>Grid center</FieldLabel>
+      <FieldLabel>{t("local_seo.grid_center")}</FieldLabel>
       <div className="h-64 overflow-hidden rounded-lg border border-border">
         <Suspense fallback={<Skeleton className="h-full rounded-none" />}>
           <CenterMap
@@ -41,7 +43,7 @@ export function LocalCenterField({
         </Suspense>
       </div>
       <FieldDescription>
-        Drag the pin or click the map to move the grid.
+        {t("local_seo.drag_the_pin_or_click_the_map")}
       </FieldDescription>
       {note && <FieldDescription>{note}</FieldDescription>}
     </Field>

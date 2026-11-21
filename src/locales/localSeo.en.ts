@@ -145,4 +145,13 @@ export const localSeoEn = {
   area_city: "City · 8 km wide · 25 points",
   area_metro: "Metro area · 20 km wide · 25 points",
   could_not_save_business: "Could not save this business.",
+  grid_center: "Grid center",
+  drag_the_pin_or_click_the_map:
+    "Drag the pin or click the map to move the grid.",
+  grid_center_on_a_google_maps_basemap: "Grid center on a Google Maps basemap",
+  keywords_to_track: "Keywords to track",
+  e_g_pizza_delivery: "e.g. pizza delivery",
+  the_selected_listing_has_no_public_address:
+    "The selected listing has no public address, so Google's location may be different.",
+  searched_from_grid_center: "Searched from the grid center",
 };

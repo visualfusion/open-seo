@@ -165,4 +165,24 @@ export const auditDe = {
     "Probieren Sie einen kostenlosen Desktop-Crawler wie {crawlers}.",
   affected_pages: "Betroffene Seiten",
   details: auditDetailsDe,
+  advanced: "Erweitert",
+  exclude_paths: "Pfade ausschließen",
+  please_enter_a_url: "Gib eine URL ein.",
+  path_excludes_the_url_the_audit_starts:
+    "„{path}“ schließt die Start-URL des Audits aus.",
+  excluded_matching:
+    "Dieses Audit übersprang Seiten, die zu diesen Pfaden passen:",
+  excluded_orphan_check:
+    ". Die Prüfung auf verwaiste Seiten entfiel, weil die Links der übersprungenen Seiten fehlen.",
+  history_empty_description:
+    "Ein Audit durchsucht deine Seiten nach defekten Links, fehlenden Titeln und Seiten, die Google nicht indexieren kann.",
+  exclude_paths_example_prefix: "Ein Pfad pro Zeile.",
+  exclude_paths_example_middle: "schließt alle Seiten unter /blog/ aus.",
+  exclude_paths_example_suffix:
+    "steht für beliebige Zeichen. Übersprungene Seiten werden nicht gecrawlt und zählen nicht zum Seitenlimit.",
+  exclude_paths_limit: "Du kannst bis zu {limit} Pfade ausschließen.",
+  exclude_path_length:
+    "Jeder ausgeschlossene Pfad darf höchstens {limit} Zeichen lang sein.",
+  exclude_path_invalid:
+    "Beginne jeden ausgeschlossenen Pfad mit / (z. B. /blog/) oder * und verwende keine Leerzeichen.",
 };

@@ -90,4 +90,20 @@ export const dashboardEn = {
     backlinks: "Backlinks",
   },
   details: dashboardDetailsEn,
+  open_a_chat_to_check_your_skills:
+    "Open a chat to check your skills setup and pick one to try.",
+  paste_this_prompt_into_your_agent_to:
+    "Paste this prompt into your agent to check your skills setup and pick one to try.",
+  copy_prompt: "Copy prompt",
+  prompt_copied: "Prompt copied",
+  browse_skills: "Browse skills",
+  open_in_name: "Open in {name}",
+  skills_guide_your_agent_through_complete_seo:
+    "Skills guide your agent through complete SEO workflows and save results as reports.",
+  try_openseo_skills: "Try OpenSEO skills",
+  skills_step_detail: "Give your agent repeatable SEO workflows.",
+  skills_dismiss: "Dismiss",
+  skills_setup_prompt:
+    "Check whether I have the OpenSEO skills set up in this agent. If not, walk me through installing them using https://openseo.so/docs/skills/setup. Then recommend the single most useful OpenSEO skill to try first{site} and show me how to run it.",
+  skills_prompt_for_site: " for {domain}",
 };

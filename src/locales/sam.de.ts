@@ -153,4 +153,7 @@ export const samDe = {
   new_chat: "Neuer Chat",
   sidebar_empty: "Noch keine Chats. Starte einen neuen.",
   archive_chat: "Chat archivieren",
+  treg_setup_prefix: "Kein DataForSEO-Konto? Erstelle ein Team bei",
+  treg_setup_suffix:
+    ", das DataForSEO-Aufrufe über ein Prepaid-Guthaben abrechnet, und hinterlege den API-Token des Teams:",
 };

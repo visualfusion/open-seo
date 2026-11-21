@@ -171,4 +171,70 @@ export const settingsEn = {
   title: "Settings",
   sections: "Settings sections",
   details: settingsDetailsEn,
+  import_from_self_hosted_openseo: "Import from self-hosted OpenSEO",
+  bring_over_the_projects_history_and_chats:
+    "Bring over the projects, history and chats from an OpenSEO you host yourself.",
+  import: "Import",
+  copies_its_projects_and_their_history_here:
+    "Copies its projects and their history here.",
+  create_a_transfer_code: "Create a transfer code",
+  transfer_code_copied: "Transfer code copied",
+  copy_transfer_code: "Copy transfer code",
+  works_once_for_24_hours: "Works once, for 24 hours.",
+  create_code: "Create code",
+  a_move_is_already_running_try_again:
+    "A move is already running. Try again once it finishes.",
+  paste_it_in_your_self_hosted_openseo: "Paste it in your self-hosted OpenSEO",
+  settings_move_to_every_app_i_have:
+    "Settings → Move to Every App → I have a Gateway",
+  done: "Done",
+  cancel: "Cancel",
+  update_your_self_hosted_openseo_to_v:
+    "Update your self-hosted OpenSEO to v{version}",
+  move_to_every_app: "Move to Every App",
+  get_team_sign_in_and_all_your:
+    "Get team sign-in and all your apps in one place. Every project, history and chat moves over intact.",
+  about_every_app: "About Every App",
+  copies_your_projects_and_their_history_to:
+    "Copies your projects and their history to OpenSEO on your Gateway. Nothing is removed here.",
+  do_you_already_have_an_every_app: "Do you already have an Every App Gateway?",
+  set_up_my_gateway: "Set up my Gateway",
+  i_have_a_gateway: "I have a Gateway",
+  stop: "Stop",
+  get_every_app: "Get Every App",
+  create_your_gateway: "Create your Gateway",
+  needs: "Needs",
+  and_a_domain_on_cloudflare_dns: "and a domain on Cloudflare DNS.",
+  my_gateway_is_ready: "My Gateway is ready",
+  install_openseo_on_your_gateway: "Install OpenSEO on your Gateway",
+  make_a_transfer_code: "Make a transfer code",
+  in_openseo_on_your_gateway_open_settings:
+    "In OpenSEO on your Gateway, open Settings and click Import from self-hosted OpenSEO.",
+  paste_the_code_here: "Paste the code here",
+  transfer_code: "Transfer code",
+  move_my_data: "Move my data",
+  moving_projects_and_history: "Moving projects and history",
+  moving_sam_chats: "Moving SAM chats",
+  moving_audit_and_export_files: "Moving audit and export files",
+  keep_this_page_open_until_it_finishes:
+    "Keep this page open until it finishes.",
+  your_data_is_on_every_app: "Your data is on Every App.",
+  everyone_connects_google_again_there_for_search:
+    "Everyone connects Google again there for Search Console and Analytics.",
+  this_install_still_runs_scheduled_checks_turn:
+    "This install still runs scheduled checks. Turn it off once you're happy with the move, or they'll run twice.",
+  open_openseo_on_your_gateway: "Open OpenSEO on your Gateway →",
+  count_files: "{count} files",
+  that_isn_t_a_transfer_code_copy:
+    "That isn't a transfer code. Copy it again from OpenSEO on your Gateway.",
+  this_code_expired_was_used_or_was:
+    "This code expired, was used or was replaced. Make a new one and try again.",
+  this_install_and_your_gateway_run_different:
+    "This install and your Gateway run different OpenSEO versions. Update both to the latest release, then try again.",
+  an_audit_or_check_is_still_running:
+    "An audit or check is still running here. Try again once it finishes.",
+  this_install_has_more_than_one_organization:
+    "This install has more than one organization, and a move can only take one.",
+  couldn_t_reach_openseo_on_your_gateway:
+    "Couldn't reach OpenSEO on your Gateway. Check it's installed and up to date, then try again.",
 };

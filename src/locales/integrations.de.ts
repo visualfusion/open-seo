@@ -22,4 +22,18 @@ export const integrationsDe = {
     title: "Lighthouse-Probleme",
   },
   details: integrationsDetailsDe,
+  overview: "Übersicht",
+  rank_tracking: "Rank Tracking",
+  search_console: "Search Console",
+  embed_links: "Einbettungslinks",
+  couldn_t_load_embed_links: "Einbettungslinks konnten nicht geladen werden.",
+  show_this_project_in_another_dashboard:
+    "Dieses Projekt in einem anderen Dashboard anzeigen",
+  turning_this_off_stops_every_embed_link:
+    "Wenn du diese Option deaktivierst, funktionieren die Einbettungslinks dieses Projekts nicht mehr.",
+  live_read_only_views_for_any_site:
+    "Live-Ansichten mit Lesezugriff für Websites, die Seiten einbetten können. Jeder mit dem Link kann die Daten sehen.",
+  view: "Ansicht",
+  embed_link: "Einbettungslink",
+  link_copied: "Link kopiert",
 };

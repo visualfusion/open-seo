@@ -271,7 +271,9 @@ export function PromptExplorerPage({
           onRemove={removeHistoryItem}
           emptyIllustration={<ModelAnswersIllustration />}
           emptyTitle={t("brand_lookup.prompt_explorer.empty_history")}
-          emptyDescription="Jede Modellantwort enthält die zitierten Quellen."
+          emptyDescription={t(
+            "ai_visibility.each_model_answer_includes_the_sources_it",
+          )}
           getTitle={(item) => item.prompt}
           getSubtitle={(item) => item.models.map(formatModelLabel).join(", ")}
           renderLink={(item, props) => (

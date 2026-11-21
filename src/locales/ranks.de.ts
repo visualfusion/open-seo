@@ -290,4 +290,12 @@ export const ranksDe = {
   title: "Rank-Tracking",
   description: "Keyword-Positionen über Domains hinweg beobachten",
   details: ranksDetailsDe,
+  not_added_one: "1 Keyword wurde nicht hinzugefügt.",
+  not_added_many: "{count} Keywords wurden nicht hinzugefügt.",
+  tracker_keyword_limit:
+    "Dieser Tracker hat das Limit von {limit} Keywords erreicht.",
+  tracker_keyword_limit_pro_agency:
+    "Im Pro-Tarif sind {pro} Keywords pro Tracker möglich, im Agency-Tarif {agency}.",
+  tracker_keyword_limit_agency:
+    "Im Agency-Tarif sind {agency} Keywords pro Tracker möglich.",
 };

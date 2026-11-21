@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   keepPreviousData,
@@ -18,7 +18,6 @@ import { GoogleConnectionCard } from "@/client/features/integrations/GoogleConne
 import { SearchPerformanceDetailSheet } from "@/client/features/search-performance/SearchPerformanceDetailSheet";
 import { DimensionSection } from "@/client/features/search-performance/SearchPerformanceDimensionSection";
 import { SearchPerformanceOverview } from "@/client/features/search-performance/SearchPerformanceOverview";
-import { DATE_RANGE_LABELS } from "@/client/features/search-performance/SearchPerformanceSelects";
 import { SearchPerformanceLoadingState } from "@/client/features/search-performance/SearchPerformanceLoadingState";
 import {
   tableQueryOptions,
@@ -27,7 +26,7 @@ import {
 } from "@/client/features/search-performance/searchPerformanceQueries";
 import {
   SearchPerformanceTextFilters,
-  type TextFilters,
+  useSearchPerformanceTextFilters,
 } from "@/client/features/search-performance/SearchPerformanceTextFilters";
 import {
   exportDimensionRows,
@@ -88,30 +87,7 @@ export function SearchPerformancePage({
   const isWeb = (type ?? "web") === "web";
   // Google rejects a device filter on Discover, so ignore one left in the URL.
   const device = type === "discover" ? undefined : search.device;
-  const textFilters = useMemo<TextFilters>(
-    () => ({
-      pageFilter: search.pageText
-        ? {
-            operator: search.pageMatch ?? "contains",
-            expression: search.pageText,
-          }
-        : undefined,
-      queryFilter:
-        search.queryText && isWeb
-          ? {
-              operator: search.queryMatch ?? "contains",
-              expression: search.queryText,
-            }
-          : undefined,
-    }),
-    [
-      search.pageText,
-      search.pageMatch,
-      search.queryText,
-      search.queryMatch,
-      isWeb,
-    ],
-  );
+  const textFilters = useSearchPerformanceTextFilters(search, isWeb);
   const [showFilters, setShowFilters] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   // The query or page whose details are open beside the table.
@@ -412,7 +388,9 @@ export function SearchPerformancePage({
               selection={selection}
               filterInput={filterInput}
               isWeb={isWeb}
-              periodLabel={DATE_RANGE_LABELS[range ?? "last_28_days"]}
+              periodLabel={t(
+                `search_performance.ranges.${range ?? "last_28_days"}`,
+              )}
               onClose={() => setSelection(null)}
             />
           </>
